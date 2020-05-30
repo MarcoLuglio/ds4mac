@@ -139,7 +139,7 @@ class GamePadMonitor {
 				print(reportLength) // 64
 
 				// for xbox 360
-				// type 0, id 0, length 14
+				// type 0, id 0, length 0x14 or 20 bytes
 
 				/*
 				Reports are type 0x00, and seem to be 20 bytes long:
@@ -164,52 +164,12 @@ class GamePadMonitor {
 				0x4000 	Left hat button
 				0x8000 	Right hat button
 
-
-				Some control over the LEDs surrounding the XBox button is provided,
-				corresponding to the markings 1, 2, 3 and 4. This is controlled using message type 0x01.
-
-				To select a new pattern for the LEDs, send a message of the following form:
-
-
-				0103xx
-
-				Where xx is the desired pattern:
-				0x00 	All off
-				0x01 	All blinking
-				0x02 	1 flashes, then on
-				0x03 	2 flashes, then on
-				0x04 	3 flashes, then on
-				0x05 	4 flashes, then on
-				0x06 	1 on
-				0x07 	2 on
-				0x08 	3 on
-				0x09 	4 on
-				0x0A 	Rotating (e.g. 1-2-4-3)
-				0x0B 	Blinking*
-				0x0C 	Slow blinking*
-				0x0D 	Alternating (e.g. 1+4-2+3), then back to previous*
-
-				* The previous setting will be used for these (all blinking, or 1, 2, 3 or 4 on).
-
 				At startup, the device seems to report 01030E. I believe this to indicate that there are 14 options (e.g. 0 to D hex) for the LEDs.
-
-				Rumbling is also similar to on the original controller. Rumble commands take the following form:
-
-
-				000800bbll000000
-
-				Where b is the speed to set the motor with the big weight, and l is the speed to set the small weight (0x00 to 0xFF in both cases).
 				*/
 
 			},
 			hidContext
 		)
-
-		// TODO I guess this filters the data received
-		/*IOHIDManagerSetInputValueMatchingMultiple(
-			hidManager,
-			kIOHIDElement
-		)*/
 
 		RunLoop.current.run()
 
@@ -299,9 +259,9 @@ class GamePadMonitor {
 			0x0C 	Slow blinking*
 			0x0D 	Alternating (e.g. 1+4-2+3), then back to previous*/
 
-			let xbox360ControllerInputReport:[UInt8] = [0x01, 0x03, 0x01]
+			let xbox360ControllerInputReport:[UInt8] = [0x01, 0x03, 0x06]
 			let xbox360ControllerInputReportLength = MemoryLayout.size(ofValue:xbox360ControllerInputReport)
-			let pointer = unsafeBitCast(xbox360ControllerInputReport, to: UnsafePointer<Any>.self)
+			//let pointer = unsafeBitCast(xbox360ControllerInputReport, to: UnsafePointer<Any>.self)
 
 			/*IOHIDDeviceSetReportWithCallback(
 				device,
@@ -316,21 +276,120 @@ class GamePadMonitor {
 				hidContext
 			)*/
 
-			IOHIDDeviceSetReportWithCallback(
+			IOHIDDeviceSetReport(
 				device,
 				kIOHIDReportTypeOutput,
 				0x01,
 				xbox360ControllerInputReport,
-				0x03,//xbox360ControllerInputReportLength,
-				500, // timeout in what?? ms
-				{(context, result, sender, type, reportID, report, reportLength) in
-					print("called back")
-				},
-				hidContext
+				0x03 // xbox360ControllerInputReportLength,
 			)
 
+			/*
+			Rumbling is also similar to on the original controller. Rumble commands take the following form:
+			000800bbll000000
+			Where b is the speed to set the motor with the big weight, and l is the speed to set the small weight (0x00 to 0xFF in both cases).
+			*/
+
+			//
+
 		} else if vendorID == VENDOR_ID_SONY && productID == CONTROLLER_ID_DUALSHOCK_4 {
+
 			let dualshock4Controller = Dualshock4Controller(device)
+
+			// TODO send report here too?
+
+			/*
+			HID OUTPUT
+
+			These reports are sent asynchronously from the PS4 to the DS4.
+			0x11
+
+			The transaction type is DATA (0x0a), and the report type is OUTPUT (0x02). The protocol code is 0x11.
+
+			Byte at index 4 changes from 0xf0 to 0xf3 in the first reports. Making it always 0xf0 does not seem to change something.
+
+			Report example:
+
+			0xa2, 0x11, 0xc0, 0x20, 0xf0, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x43, 0x43, 0x00, 0x4d, 0x85, 0x00, 0x00, 0x00, 0x00, 0x00,
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xd8, 0x8e, 0x94, 0xdd
+
+			Data Format byte index 	bit 7 	bit 6 	bit 5 	bit 4 	bit 3 	bit 2 	bit 1 	bit 0
+			[0] 	0x0a 	0x00 	0x02
+			[1] 	0x11
+			[2 - 3] 	Unknown
+			[4] 	0xf0 disables the rumble motors, 0xf3 enables them
+			[5 - 6] 	Unknown
+			[7] 	Rumble (right / weak)
+			[8] 	Rumble (left / strong)
+			[9] 	RGB color (Red)
+			[10] 	RGB color (Green)
+			[11] 	RGB color (Blue)
+			[12 - 74] 	Unknown
+			[75 - 78] 	CRC-32 of the previous bytes.
+
+
+			Report with id 11
+
+			Number of bytes: 78.
+			It contains rumbles, LED color and volume headset speakers/built-in speaker/mic.
+			11 c0 20 f0 44 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 43 43 00 4f 85 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 64 e4 c6 3b
+
+			Report with id 14
+			Number of bytes: 270.
+			It contains sound.
+			14 40 a0 3c 02 02 9c 75 19 24 00 00 00 00 00 00 00 00 76 db 6d bb 6d b6 dd b6 db 6e db 6d b7 6d b6 db b6 db 6d db 6d b6 ed b6 db 76 db 6d bb 6d b6 dd b6 db 6e db 6d b7 6d b6 db b6 db 6d db 6d b6 ed b6 db 76 db 6d bb 6d b6 dd b6 db 6e db 6d b7 6d b6 db b6 db 6d db 6d b6 ed b6 db 76 db 6d bb 6d b6 dd b6 db 6e db 6d b7 6d b6 db b6 db 6d db 6d b6 ed b6 db 9c 75 19 24 00 00 00 00 00 00 00 00 76 db 6d bb 6d b6 dd b6 db 6e db 6d b7 6d b6 db b6 db 6d db 6d b6 ed b6 db 76 db 6d bb 6d b6 dd b6 db 6e db 6d b7 6d b6 db b6 db 6d db 6d b6 ed b6 db 76 db 6d bb 6d b6 dd b6 db 6e db 6d b7 6d b6 db b6 db 6d db 6d b6 ed b6 db 76 db 6d bb 6d b6 dd b6 db 6e db 6d b7 6d b6 db b6 db 6d db 6d b6 ed b6 db 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ba 0e 08 5d
+
+			Report with id 17
+			Number of bytes: 462.
+			It contains sound.
+			17 40 a0 24 7a 02 9c 75 19 24 00 00 00 00 00 00 00 00 76 db 6d bb 6d b6 dd b6 db 6e db 6d b7 6d b6 db b6 db 6d db 6d b6 ed b6 db 76 db 6d bb 6d b6 dd b6 db 6e db 6d b7 6d b6 db b6 db 6d db 6d b6 ed b6 db 76 db 6d bb 6d b6 dd b6 db 6e db 6d b7 6d b6 db b6 db 6d db 6d b6 ed b6 db 76 db 6d bb 6d b6 dd b6 db 6e db 6d b7 6d b6 db b6 db 6d db 6d b6 ed b6 db 9c 75 19 24 00 00 00 00 00 00 00 00 76 db 6d bb 6d b6 dd b6 db 6e db 6d b7 6d b6 db b6 db 6d db 6d b6 ed b6 db 76 db 6d bb 6d b6 dd b6 db 6e db 6d b7 6d b6 db b6 db 6d db 6d b6 ed b6 db 76 db 6d bb 6d b6 dd b6 db 6e db 6d b7 6d b6 db b6 db 6d db 6d b6 ed b6 db 76 db 6d bb 6d b6 dd b6 db 6e db 6d b7 6d b6 db b6 db 6d db 6d b6 ed b6 db 9c 75 19 24 00 00 00 00 00 00 00 00 76 db 6d bb 6d b6 dd b6 db 6e db 6d b7 6d b6 db b6 db 6d db 6d b6 ed b6 db 76 db 6d bb 6d b6 dd b6 db 6e db 6d b7 6d b6 db b6 db 6d db 6d b6 ed b6 db 76 db 6d bb 6d b6 dd b6 db 6e db 6d b7 6d b6 db b6 db 6d db 6d b6 ed b6 db 76 db 6d bb 6d b6 dd b6 db 6e db 6d b7 6d b6 db b6 db 6d db 6d b6 ed b6 db 9c 75 19 24 00 00 00 00 00 00 00 00 76 db 6d bb 6d b6 dd b6 db 6e db 6d b7 6d b6 db b6 db 6d db 6d b6 ed b6 db 76 db 6d bb 6d b6 dd b6 db 6e db 6d b7 6d b6 db b6 db 6d db 6d b6 ed b6 db 76 db 6d bb 6d b6 dd b6 db 6e db 6d b7 6d b6 db b6 db 6d db 6d b6 ed b6 db 76 db 6d bb 6d b6 dd b6 db 6e db 6d b7 6d b6 db b6 db 6d db 6d b6 ed b6 db 00 00 00 00 30 71 71 87
+
+			Report with id 15
+			Number of bytes: 334.
+			It contains rumbles, LED color, volume headset speakers/built-in speaker/mic, and sound.
+			15 c0 a0 f3 44 00 00 00 b0 50 00 00 00 00 00 00 00 00 00 00 00 43 43 00 4f 85 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 e0 b0 02 9c 75 19 24 00 00 00 00 00 00 00 00 76 db 6d bb 6d b6 dd b6 db 6e db 6d b7 6d b6 db b6 db 6d db 6d b6 ed b6 db 76 db 6d bb 6d b6 dd b6 db 6e db 6d b7 6d b6 db b6 db 6d db 6d b6 ed b6 db 76 db 6d bb 6d b6 dd b6 db 6e db 6d b7 6d b6 db b6 db 6d db 6d b6 ed b6 db 76 db 6d bb 6d b6 dd b6 db 6e db 6d b7 6d b6 db b6 db 6d db 6d b6 ed b6 db 9c 75 19 24 00 00 00 00 00 00 00 00 76 db 6d bb 6d b6 dd b6 db 6e db 6d b7 6d b6 db b6 db 6d db 6d b6 ed b6 db 76 db 6d bb 6d b6 dd b6 db 6e db 6d b7 6d b6 db b6 db 6d db 6d b6 ed b6 db 76 db 6d bb 6d b6 dd b6 db 6e db 6d b7 6d b6 db b6 db 6d db 6d b6 ed b6 db 76 db 6d bb 6d b6 dd b6 db 6e db 6d b7 6d b6 db b6 db 6d db 6d b6 ed b6 db 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 19 f8 d2 1c
+
+			Report with id 19
+			Number of bytes: 567.
+			It contains rumbles, LED color, volume headset speakers/built-in speaker/mic, and sound.
+			19 c0 a0 f3 44 00 00 00 00 00 0d 00 00 00 00 00 00 00 00 00 00 43 43 00 4f 85 00 00 00 00 00 00 00 00
+
+			*/
+
+			let dualshock4ControllerInputReport:[UInt8] = [
+				0xa2, 0x11, 0xc0, 0x20, 0xf0, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x43, 0x43, 0x00, 0x4d, 0x85, 0x00, 0x00, 0x00, 0x00, 0x00,
+				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xd8, 0x8e, 0x94, 0xdd
+			]
+			let dualshock4ControllerInputReportLength = MemoryLayout.size(ofValue:dualshock4ControllerInputReport)
+			//let pointer = unsafeBitCast(xbox360ControllerInputReport, to: UnsafePointer<Any>.self)
+
+			/*IOHIDDeviceSetReportWithCallback(
+				device,
+				kIOHIDReportTypeInput,
+				1,
+				unsafeBitCast(xbox360ControllerInputReport, to: UnsafePointer.self),
+				xbox360ControllerInputReportLength,
+				500, // timeout in what?? ms
+				{() in
+					//
+				},
+				hidContext
+			)*/
+
+			IOHIDDeviceSetReport(
+				device,
+				kIOHIDReportTypeOutput,
+				0x01,
+				dualshock4ControllerInputReport,
+				0x03 // dualshock4ControllerInputReportLength,
+			)
+
 		}
 
 		//self.index = 0;

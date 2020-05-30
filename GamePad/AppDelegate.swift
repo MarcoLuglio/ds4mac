@@ -14,6 +14,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
 	var window: NSWindow!
 
+	var gamePadMonitor:GamePadMonitor!
 
 	func applicationDidFinishLaunching(_ aNotification: Notification) {
 		// Create the SwiftUI view that provides the window contents.
@@ -28,12 +29,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		window.setFrameAutosaveName("Main Window")
 		window.contentView = NSHostingView(rootView: contentView)
 		window.makeKeyAndOrderFront(nil)
+
+		self.gamePadMonitor = GamePadMonitor()
+		let temp = Thread(target: self.gamePadMonitor, selector:#selector(self.gamePadMonitor.setupHidObservers), object: nil)
+        temp.start()
 	}
 
 	func applicationWillTerminate(_ aNotification: Notification) {
 		// Insert code here to tear down your application
 	}
 
-
 }
 
+struct AppDelegate_Previews: PreviewProvider {
+	static var previews: some View {
+		/*@START_MENU_TOKEN@*/Text("Hello, World!")/*@END_MENU_TOKEN@*/
+	}
+}

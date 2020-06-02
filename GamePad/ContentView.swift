@@ -9,10 +9,14 @@
 import SwiftUI
 
 struct ContentView: View {
+
+	//@Model var a:Bool
+
 	var body: some View {
 		Text("Hello, World!")
 			.frame(maxWidth: .infinity, maxHeight: .infinity)
 	}
+
 }
 
 struct ContentView_Previews: PreviewProvider {
@@ -20,3 +24,12 @@ struct ContentView_Previews: PreviewProvider {
 		ContentView()
 	}
 }
+
+/*
+NotificationCenter.addObserver(
+	self,
+	selector: #selector(userLoggedIn),
+	name: Notification.Name("UserLoggedIn"),
+	object: nil
+)
+*/

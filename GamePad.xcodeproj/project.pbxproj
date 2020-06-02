@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		A97E75C92482E78000FAA13A /* Xbox360Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97E75C82482E78000FAA13A /* Xbox360Controller.swift */; };
-		A97E75CB2482E7A200FAA13A /* DualShock4Controllera.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97E75CA2482E7A200FAA13A /* DualShock4Controllera.swift */; };
+		A97E75CB2482E7A200FAA13A /* DualShock4Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97E75CA2482E7A200FAA13A /* DualShock4Controller.swift */; };
 		A9879C1F248481C200AB4DE9 /* CRC32.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9879C1E248481C200AB4DE9 /* CRC32.swift */; };
 		A9879C212485833000AB4DE9 /* GamePadButtonChangedNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9879C202485833000AB4DE9 /* GamePadButtonChangedNotification.swift */; };
 		A9879C23248592B600AB4DE9 /* GamePadTouchpadChangedNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9879C22248592B600AB4DE9 /* GamePadTouchpadChangedNotification.swift */; };
@@ -44,7 +44,7 @@
 
 /* Begin PBXFileReference section */
 		A97E75C82482E78000FAA13A /* Xbox360Controller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Xbox360Controller.swift; sourceTree = "<group>"; };
-		A97E75CA2482E7A200FAA13A /* DualShock4Controllera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DualShock4Controllera.swift; sourceTree = "<group>"; };
+		A97E75CA2482E7A200FAA13A /* DualShock4Controller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DualShock4Controller.swift; sourceTree = "<group>"; };
 		A9879C1E248481C200AB4DE9 /* CRC32.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CRC32.swift; sourceTree = "<group>"; };
 		A9879C202485833000AB4DE9 /* GamePadButtonChangedNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamePadButtonChangedNotification.swift; sourceTree = "<group>"; };
 		A9879C22248592B600AB4DE9 /* GamePadTouchpadChangedNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamePadTouchpadChangedNotification.swift; sourceTree = "<group>"; };
@@ -129,7 +129,7 @@
 				A9D72F80248202360000A89F /* Preview Content */,
 				A9D72FA9248204080000A89F /* GamePadMonitor.swift */,
 				A97E75C82482E78000FAA13A /* Xbox360Controller.swift */,
-				A97E75CA2482E7A200FAA13A /* DualShock4Controllera.swift */,
+				A97E75CA2482E7A200FAA13A /* DualShock4Controller.swift */,
 				A9879C202485833000AB4DE9 /* GamePadButtonChangedNotification.swift */,
 				A9879C22248592B600AB4DE9 /* GamePadTouchpadChangedNotification.swift */,
 				A9879C1E248481C200AB4DE9 /* CRC32.swift */,
@@ -309,7 +309,7 @@
 				A9879C1F248481C200AB4DE9 /* CRC32.swift in Sources */,
 				A9879C23248592B600AB4DE9 /* GamePadTouchpadChangedNotification.swift in Sources */,
 				A9D72FAA248204080000A89F /* GamePadMonitor.swift in Sources */,
-				A97E75CB2482E7A200FAA13A /* DualShock4Controllera.swift in Sources */,
+				A97E75CB2482E7A200FAA13A /* DualShock4Controller.swift in Sources */,
 				A9D72F7D248202350000A89F /* ContentView.swift in Sources */,
 				A9D72F7B248202350000A89F /* AppDelegate.swift in Sources */,
 			);

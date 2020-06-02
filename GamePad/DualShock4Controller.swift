@@ -89,13 +89,13 @@ class DualShock4Controller {
 
 	// inertial measurement unit
 
-	var gyroX:Int8 = 0
-	var gyroY:Int8 = 0
-	var gyroZ:Int8 = 0
+	var gyroX:Int16 = 0
+	var gyroY:Int16 = 0
+	var gyroZ:Int16 = 0
 
-	var accelX:Int8 = 0
-	var accelY:Int8 = 0
-	var accelZ:Int8 = 0
+	var accelX:Int16 = 0
+	var accelY:Int16 = 0
+	var accelZ:Int16 = 0
 
 	// battery
 
@@ -110,7 +110,7 @@ class DualShock4Controller {
 	init(_ device:IOHIDDevice) {
 		self.device = device
 		IOHIDDeviceOpen(self.device, IOOptionBits(kIOHIDOptionsTypeNone)) // or kIOHIDManagerOptionUsePersistentProperties
-		//self.sendReport()
+		self.sendReport()
 	}
 
 	func parseReport(_ report:Data) {
@@ -159,8 +159,49 @@ class DualShock4Controller {
 
 		self.trackpadButton = report[7] & 0b00000010 == 0b00000010
 
+		/*
+
+		trackpad can send multiple packets per report
+		it is sampled at a higher frequency
+
+		indexes are for bluetooth, so offset by +2
+
+		[36] 	number of trackpad packets (0x00 to 0x04)
+		[37] 	packet counter
+
+		[38] 	active low 	finger 1 id
+		[39 - 41] 	finger 1 coordinates
+		[42] 	active low 	finger 2 id
+		[43 - 45] 	finger 2 coordinates
+
+		[47] 	active low 	finger 1 id
+		[48 - 50] 	finger 1 coordinates
+		[51] 	active low 	finger 2 id
+		[52 - 54] 	finger 2 coordinates
+		[55] 	packet counter
+		[56] 	active low 	finger 1 id
+		[57 - 59] 	finger 1 coordinates
+		[60] 	active low 	finger 2 id
+		[61 - 63] 	finger 2 coordinates
+		[64] 	packet counter
+		[65] 	active low 	finger 1 id
+		[66 - 68] 	finger 1 coordinates
+		[69] 	active low 	finger 2 id
+		[70 - 72] 	finger 2 coordinates
+
+		*/
+
+		let numberOfPackets = report[34]
+
+		// 35 packets as well?
+
 		self.trackpadTouch0IsActive = report[35] & 0b10000000 != 0b10000000 // if not active, no need to parse the rest
-		// FIXME everything dow here is not ok, check ds4windows
+
+		/*
+		cState.TrackPadTouch0.X = (short)(((ushort)(inputReport[37] & 0x0f) << 8) | (ushort)(inputReport[36]));
+		cState.TrackPadTouch0.Y = (short)(((ushort)(inputReport[38]) << 4) | ((ushort)(inputReport[37] & 0xf0) >> 4));
+		*/
+
 		/*
 		self.trackpadTouch0Id = report[35] & 0b01111111
 		self.trackpadTouch0X = ((report[37] & 0x0f) << 8) | report[36] // TODO make this more readable
@@ -192,7 +233,7 @@ class DualShock4Controller {
 		[12] 	Unknown yet, 0x03 or 0x04
 		*/
 
-		// six bytes for gyro, and 6 bytes for accel
+		// 6 bytes for gyro, and 6 bytes for accel
 		/*
 		int currentX = (short)((ushort)(gyro[0] << 8) | gyro[1]) / 64;
 		int currentY = (short)((ushort)(gyro[2] << 8) | gyro[3]) / 64;
@@ -202,18 +243,74 @@ class DualShock4Controller {
 		int AccelZ = (short)((ushort)(accel[4] << 8) | accel[5]) / 256;
 		*/
 
-		self.gyroX =  Int8(
-			(
-				UInt8(report[13] << 8) | report[14]
-			) / 64
-		)
-		self.gyroY =  Int8((UInt8(report[15] << 8) | report[16]) / 64)
-		self.gyroZ =  Int8((UInt8(report[17] << 8) | report[18]) / 64)
-		self.accelX = Int8((UInt8(report[21] << 8) | report[22]) / 256)
-		self.accelY = Int8((UInt8(report[19] << 8) | report[20]) / 256)
-		self.accelZ = Int8((UInt8(report[23] << 8) | report[24]) / 256)
+		// I don't think this is it, the index that is shifted is too random
+
+		/*
+		accel = new Vector3(
+			System.BitConverter.ToInt16(_inputBuffer, 19),
+			System.BitConverter.ToInt16(_inputBuffer, 21),
+			System.BitConverter.ToInt16(_inputBuffer, 23)
+			)/8192f;
+		*/
+
+		// unit is radians / second when divided by 64
+		self.gyroX =  (Int16(report[13] << 8) | Int16(report[14])) - 32 // / 64
+		self.gyroY =  (Int16(report[15] << 8) | Int16(report[16])) - 32 // / 64
+		self.gyroZ =  (Int16(report[17] << 8) | Int16(report[18])) - 32 // / 64
+
+		// I don't think this is it, the index that is shifted is too random
+
+		/*
+		gyro = new Vector3(
+			System.BitConverter.ToInt16(_inputBuffer, 13),
+			System.BitConverter.ToInt16(_inputBuffer, 15),
+			System.BitConverter.ToInt16(_inputBuffer, 17)
+			)/1024f;
+		*/
+
+		self.accelX = (Int16(report[21] << 8) | Int16(report[22])) - 128 // / 256
+		self.accelY = (Int16(report[19] << 8) | Int16(report[20])) - 128 // / 256
+		self.accelZ = (Int16(report[23] << 8) | Int16(report[24])) - 128 // / 256
 
 		// battery
+
+		/*
+		if ((this.featureSet & VidPidFeatureSet.NoBatteryReading) == 0)
+		{
+			tempByte = inputReport[30];
+			tempCharging = (tempByte & 0x10) != 0;
+			if (tempCharging != charging)
+			{
+				charging = tempCharging;
+				ChargingChanged?.Invoke(this, EventArgs.Empty);
+			}
+
+			maxBatteryValue = charging ? BATTERY_MAX_USB : BATTERY_MAX;
+			tempBattery = (tempByte & 0x0f) * 100 / maxBatteryValue;
+			tempBattery = Math.Min(tempBattery, 100);
+			if (tempBattery != battery)
+			{
+				battery = tempBattery;
+				BatteryChanged?.Invoke(this, EventArgs.Empty);
+			}
+
+			cState.Battery = (byte)battery;
+			//System.Diagnostics.Debug.WriteLine("CURRENT BATTERY: " + (inputReport[30] & 0x0f) + " | " + tempBattery + " | " + battery);
+			if (tempByte != priorInputReport30)
+			{
+				priorInputReport30 = tempByte;
+				//Console.WriteLine(MacAddress.ToString() + " " + System.DateTime.UtcNow.ToString("o") + "> power subsystem octet: 0x" + inputReport[30].ToString("x02"));
+			}
+		}
+		else
+		{
+			// Some gamepads don't send battery values in DS4 compatible data fields, so use dummy 99% value to avoid constant low battery warnings
+			priorInputReport30 = 0x0F;
+			battery = 99;
+			cState.Battery = 99;
+		}
+		*/
+
 		self.batteryLevel = report[12] // read somewhere that sometimes it is 0-9, sometimes it is 1-10 //
 
 		self.reportIterator = report[7] >> 2 // [7] 	Counter (counts up by 1 per report), I guess this is only relevant to bluetooth
@@ -271,6 +368,8 @@ class DualShock4Controller {
 
 		}
 
+		//self.sendReport()
+
 	}
 
 	func sendReport() {
@@ -278,18 +377,19 @@ class DualShock4Controller {
 		//let toggleMotor:UInt8 = 0xf0 // 0xf0 disable 0xf3 enable or 0b00001111 // enable unknown, flash, color, rumble
 		let rightLightFastRumble:UInt8 = 0x00 // weak motor 1-255
 		let leftHeavySlowRumble:UInt8 = 0x00 // strong motor 1-255
-		let red:UInt8 = 0x00
+		let red:UInt8 = 0x0F
 		let green:UInt8 = 0x00
 		let blue:UInt8 = 0x00
 		let flashOn:UInt8 = 0x00 // flash on duration
 		let flashOff:UInt8 = 0x00 // flash off duration
 		let bluetoothOffset = 2
 
-		var dualshock4ControllerInputReportUSB = [UInt8](repeating: 0, count: 78)
-		var dualshock4ControllerInputReportBluetooth = [UInt8](repeating: 0, count: 78)
+		var dualshock4ControllerInputReportUSB = [UInt8](repeating: 0, count: 11)
 
 		dualshock4ControllerInputReportUSB[0] = 0x05;
-		dualshock4ControllerInputReportUSB[1] = 0xff;
+		// enable rumble (0x01), lightbar (0x02), flash (0x04) 0b00000111
+		dualshock4ControllerInputReportUSB[1] = 0xf7; // 0b11110111
+		dualshock4ControllerInputReportUSB[2] = 0x04; // 0x04?
 		dualshock4ControllerInputReportUSB[4] = rightLightFastRumble;
 		dualshock4ControllerInputReportUSB[5] = leftHeavySlowRumble;
 		dualshock4ControllerInputReportUSB[6] = red;
@@ -298,43 +398,24 @@ class DualShock4Controller {
 		dualshock4ControllerInputReportUSB[9] = flashOn;
 		dualshock4ControllerInputReportUSB[10] = flashOff;
 
-		dualshock4ControllerInputReportBluetooth[0] = 0x11;
-		dualshock4ControllerInputReportBluetooth[1] = 0x80; // 0xB0 maybe
-		dualshock4ControllerInputReportBluetooth[3] = 0xff; // enables sending accelerometer and gyro data - will use more battery. 0x0F maybe
+		//var dualshock4ControllerInputReportBluetooth = [UInt8](repeating: 0, count: 74)
 
+		/*dualshock4ControllerInputReportBluetooth[0] = 0x15; // 0x11
+		dualshock4ControllerInputReportBluetooth[1] = (0xC0 | btPollRate) // (0x80 | btPollRate); // input report rate
+		// enable rumble (0x01), lightbar (0x02), flash (0x04)
+		dualshock4ControllerInputReportBluetooth[2] = 0xA0;
+		dualshock4ControllerInputReportBluetooth[3] = 0xf7;
+		dualshock4ControllerInputReportBluetooth[4] = 0x04;
 		dualshock4ControllerInputReportBluetooth[4 + bluetoothOffset] = rightLightFastRumble;
 		dualshock4ControllerInputReportBluetooth[5 + bluetoothOffset] = leftHeavySlowRumble;
 		dualshock4ControllerInputReportBluetooth[6 + bluetoothOffset] = red;
 		dualshock4ControllerInputReportBluetooth[7 + bluetoothOffset] = green;
 		dualshock4ControllerInputReportBluetooth[8 + bluetoothOffset] = blue;
 		dualshock4ControllerInputReportBluetooth[9 + bluetoothOffset] = flashOn;
-		dualshock4ControllerInputReportBluetooth[10 + bluetoothOffset] = flashOff;
+		dualshock4ControllerInputReportBluetooth[10 + bluetoothOffset] = flashOff;*/
 
-		/*
-		setTestRumble();
-		setHapticState();
-		*/
-
-		let dualshock4ControllerInputReportUSBCRC = CRC32.checksum(bytes: dualshock4ControllerInputReportUSB)
-		dualshock4ControllerInputReportUSB.append(contentsOf: dualshock4ControllerInputReportUSBCRC)
-
-		let dualshock4ControllerInputReportBluetoothCRC = CRC32.checksum(bytes: dualshock4ControllerInputReportBluetooth)
-		dualshock4ControllerInputReportBluetooth.append(contentsOf: dualshock4ControllerInputReportBluetoothCRC)
-
-		//let pointer = unsafeBitCast(xbox360ControllerInputReport, to: UnsafePointer<Any>.self)
-
-		/*IOHIDDeviceSetReportWithCallback(
-			device,
-			kIOHIDReportTypeInput,
-			1,
-			unsafeBitCast(xbox360ControllerInputReport, to: UnsafePointer.self),
-			xbox360ControllerInputReportLength,
-			500, // timeout in what?? ms
-			{() in
-				//
-			},
-			hidContext
-		)*/
+		/*let dualshock4ControllerInputReportBluetoothCRC = CRC32.checksum(bytes: dualshock4ControllerInputReportBluetooth)
+		dualshock4ControllerInputReportBluetooth.append(contentsOf: dualshock4ControllerInputReportBluetoothCRC)*/
 
 		print("size of report: \(dualshock4ControllerInputReportUSB.count)")
 
@@ -343,7 +424,7 @@ class DualShock4Controller {
 			kIOHIDReportTypeOutput,
 			0x01,
 			dualshock4ControllerInputReportUSB,
-			dualshock4ControllerInputReportUSB.count // 78 or 79 if bluetooth?
+			dualshock4ControllerInputReportUSB.count
 		)
 
 	}

@@ -379,7 +379,7 @@ class DualShock4Controller {
 		let leftHeavySlowRumble:UInt8 = 0x00 // strong motor 1-255
 		let red:UInt8 = 0x0F
 		let green:UInt8 = 0x00
-		let blue:UInt8 = 0x00
+		let blue:UInt8 = 0x0F
 		let flashOn:UInt8 = 0x00 // flash on duration
 		let flashOff:UInt8 = 0x00 // flash off duration
 		let bluetoothOffset = 2

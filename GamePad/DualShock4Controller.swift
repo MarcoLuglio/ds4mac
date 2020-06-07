@@ -12,46 +12,63 @@ import Foundation
 
 class DualShock4Controller {
 
-	static let VENDOR_ID_SONY:Int64 = 1356
-	static let CONTROLLER_ID_DUALSHOCK_4:Int64 = 1476 // not sure if this is a generic id or not, name is Wireless Controller
+	static let VENDOR_ID_SONY:Int64 = 0x054C // 1356
+	static let CONTROLLER_ID_DUALSHOCK_4_USB:Int64 = 0x05C4 // 1476
+	static let CONTROLLER_ID_DUALSHOCK_4_USB_V2:Int64 = 0x09CC // 2508, this controller has an led strip on its face
+	static let CONTROLLER_ID_DUALSHOCK_4_BLUETOOTH:Int64 = 0x081F // 
 	static let NOTIFICATION_NAME_BUTTONS = Notification.Name("DigitalButtonsChanged")
 	static let NOTIFICATION_NAME_TOUCHPAD = Notification.Name("TouchpadChanged")
+
+	static var nextId:UInt8 = 0
 
 	let device:IOHIDDevice
 
 	var id:UInt8 = 0
 
+	/// contains triangle, circle, cross, square and directional pad buttons
 	var mainButtons:UInt8 = 0
 	var previousMainButtons:UInt8 = 0
 
+	// top button
 	var triangleButton:Bool = false
 	var previousTriangleButton:Bool = false
+
+	// right button
 	var circleButton:Bool = false
 	var previousCircleButton:Bool = false
-	var squareButton:Bool = false
-	var previousSquareButton:Bool = false
+
+	// bottom button
 	var crossButton:Bool = false
 	var previousCrossButton:Bool = false
 
-	// directional pad
+	// left button
+	var squareButton:Bool = false
+	var previousSquareButton:Bool = false
+
 	var directionalPad:UInt8 = 0
 	var previousDirectionalPad:UInt8 = 0
 
+	/// contains the shoulder buttons, triggers (digital input), thumbstick buttons, share and options buttons
 	var secondaryButtons:UInt8 = 0
 	var previousSecondaryButtons:UInt8 = 0
 
+	// shoulder buttons
 	var l1:Bool = false
 	var previousL1:Bool = false
 	var r1:Bool = false
 	var previousR1:Bool = false
 	var l2:Bool = false // there's also the analog reading for this one
 	var previousL2:Bool = false
-	var r2:Bool = false
+	var r2:Bool = false // there's also the analog reading for this one
 	var previousR2:Bool = false
-	var l3:Bool = false // there's also the analog reading for this one
+
+	// thumbstick buttons
+	var l3:Bool = false
 	var previousL3:Bool = false
 	var r3:Bool = false
 	var previousR3:Bool = false
+
+	// other buttons
 
 	var shareButton:Bool = false
 	var previousShareButton:Bool = false
@@ -108,23 +125,29 @@ class DualShock4Controller {
 	var previousReportIterator:UInt8 = 0
 
 	init(_ device:IOHIDDevice) {
+
+		self.id = DualShock4Controller.nextId
+		DualShock4Controller.nextId = DualShock4Controller.nextId + 1
+
 		self.device = device
 		IOHIDDeviceOpen(self.device, IOOptionBits(kIOHIDOptionsTypeNone)) // or kIOHIDManagerOptionUsePersistentProperties
+
 		self.sendReport()
+		
 	}
 
 	func parseReport(_ report:Data) {
 
 		self.mainButtons = report[5]
 
-		self.triangleButton = (self.mainButtons & 0b10000000) == 0b10000000
-		self.circleButton = self.mainButtons & 0b01000000 == 0b01000000
-		self.squareButton = self.mainButtons & 0b00010000 == 0b00010000
-		self.crossButton = self.mainButtons & 0b00100000 == 0b00100000
+		self.triangleButton = self.mainButtons & 0b10000000 == 0b10000000
+		self.circleButton   = self.mainButtons & 0b01000000 == 0b01000000
+		self.squareButton   = self.mainButtons & 0b00010000 == 0b00010000
+		self.crossButton    = self.mainButtons & 0b00100000 == 0b00100000
 
-		// directional pad
 		self.directionalPad = self.mainButtons & 0b00001111
 		/*
+		// up is reversed?? 1 is off, 0 is on?
 		0=N, 1=NE, 2=E, 3=SE, 4=S, 5=SW, 6=W, 7=NW)
 		dPadUp:    dPad === 0 || dPad === 1 || dPad === 7,
 		dPadRight: dPad === 1 || dPad === 2 || dPad === 3,
@@ -134,14 +157,15 @@ class DualShock4Controller {
 
 		self.secondaryButtons = report[6]
 
-		self.l1 = self.secondaryButtons & 0b00000001 == 0b00000001
-		self.r1 = self.secondaryButtons & 0b00000010 == 0b00000010
-		self.l2 = self.secondaryButtons & 0b00000100 == 0b00000100
-		self.r2 = self.secondaryButtons & 0b00001000 == 0b00001000
-		self.l3 = self.secondaryButtons & 0b01000000 == 0b01000000
-		self.r3 = self.secondaryButtons & 0b10000000 == 0b10000000
+		self.l1            = self.secondaryButtons & 0b00000001 == 0b00000001
+		self.r1            = self.secondaryButtons & 0b00000010 == 0b00000010
+		self.l2            = self.secondaryButtons & 0b00000100 == 0b00000100
+		self.r2            = self.secondaryButtons & 0b00001000 == 0b00001000
 
-		self.shareButton = self.secondaryButtons & 0b00010000 == 0b00010000
+		self.l3            = self.secondaryButtons & 0b01000000 == 0b01000000
+		self.r3            = self.secondaryButtons & 0b10000000 == 0b10000000
+
+		self.shareButton   = self.secondaryButtons & 0b00010000 == 0b00010000
 		self.optionsButton = self.secondaryButtons & 0b00100000 == 0b00100000
 
 		self.psButton = report[7] & 0b00000001 == 0b00000001
@@ -389,7 +413,7 @@ class DualShock4Controller {
 		dualshock4ControllerInputReportUSB[0] = 0x05;
 		// enable rumble (0x01), lightbar (0x02), flash (0x04) 0b00000111
 		dualshock4ControllerInputReportUSB[1] = 0xf7; // 0b11110111
-		dualshock4ControllerInputReportUSB[2] = 0x04; // 0x04?
+		dualshock4ControllerInputReportUSB[2] = 0x04;
 		dualshock4ControllerInputReportUSB[4] = rightLightFastRumble;
 		dualshock4ControllerInputReportUSB[5] = leftHeavySlowRumble;
 		dualshock4ControllerInputReportUSB[6] = red;

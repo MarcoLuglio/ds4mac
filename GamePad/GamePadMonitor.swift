@@ -144,7 +144,7 @@ class GamePadMonitor {
 				//var report = [Int16](repeating: 0, count: reportLength)
 				//(report as NSData).getBytes(&bytes1, length: length)
 				//var report = NSData(bytes:reportPointer, length: reportLength)
-				var report = Data(bytes:reportPointer, count: 64)
+				var report = Data(bytes:reportPointer, count:reportLength)
 
 				// UnsafeMutablePointer<UInt8>
 
@@ -192,7 +192,9 @@ class GamePadMonitor {
 
 		if vendorID == Xbox360Controller.VENDOR_ID_MICROSOFT && productID == Xbox360Controller.CONTROLLER_ID_XBOX_360 {
 			self.xbox360Controller = Xbox360Controller(device)
-		} else if vendorID == DualShock4Controller.VENDOR_ID_SONY && productID == DualShock4Controller.CONTROLLER_ID_DUALSHOCK_4 {
+		} else if vendorID == DualShock4Controller.VENDOR_ID_SONY
+			&& (productID == DualShock4Controller.CONTROLLER_ID_DUALSHOCK_4_USB || productID == DualShock4Controller.CONTROLLER_ID_DUALSHOCK_4_USB_V2 || productID == DualShock4Controller.CONTROLLER_ID_DUALSHOCK_4_BLUETOOTH)
+		{
 			self.dualShock4Controller = DualShock4Controller(device)
 		}
 
@@ -215,7 +217,7 @@ class GamePadMonitor {
 		// for ds4
 		// type 0, id 1, length 64 bytes
 
-		if report.count == 20 { // TODO xbox360, improve this later, maybe by checking the sender?
+		if report.count == 14 { // TODO xbox360, improve this later, maybe by checking the sender?
 			self.xbox360Controller.parseReport(report)
 		} else if report.count == 64 { // TODO ds4, improve this later, maybe checking the sender?
 			self.dualShock4Controller.parseReport(report)

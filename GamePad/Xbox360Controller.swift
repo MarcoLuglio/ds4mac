@@ -83,10 +83,10 @@ class Xbox360Controller {
 
 	// analog buttons
 
-	var leftStickX:UInt16 = 0
-	var leftStickY:UInt16 = 0
-	var rightStickX:UInt16 = 0
-	var rightStickY:UInt16 = 0
+	var leftStickX:Int16 = 0
+	var leftStickY:Int16 = 0
+	var rightStickX:Int16 = 0
+	var rightStickY:Int16 = 0
 	var leftTrigger:UInt8 = 0
 	var rightTrigger:UInt8 = 0
 
@@ -138,16 +138,16 @@ class Xbox360Controller {
 		self.directionalPad   = secondaryButtons & 0b00001111
 
 		// analog buttons
-		// origin?
-		self.leftStickX = UInt16(report[6] << 8) | UInt16(report[7]) // 0 left?
-		self.leftStickY = UInt16(report[8] << 8) | UInt16(report[9]) // 0 up?
-		self.rightStickX = UInt16(report[10] << 8) | UInt16(report[11])
-		self.rightStickY = UInt16(report[12] << 8) | UInt16(report[13])
+		// origin left top
+		// FIXME these are signed integers
+		// 6 goes crazy :P
+		// 7 left goes from 128 until 255 right goes from 0 to 128
+		self.leftStickX = Int16(report[7]) << 8 | Int16(report[6]) // 0 left
+		self.leftStickY = Int16(report[9]) << 8 | Int16(report[8]) // 0 up
+		self.rightStickX = Int16(report[11]) << 8 | Int16(report[10])
+		self.rightStickY = Int16(report[13]) << 8 | Int16(report[12])
 		self.leftTrigger = report[4] // 0 - 65535
 		self.rightTrigger = report[5] // 0 - 65535
-
-		// print(self.leftStickX) // got the sign wrong
-		// print(self.leftStickY) // when i pull up is conts down, when I pull down it is ok
 
 		/*
 		00 14 tt tt xx yy aa aa aa aa bb bb bb bb 00 00 00 00 00 00
@@ -182,7 +182,7 @@ class Xbox360Controller {
 		0x09 0b00001001	4 on
 		0x0A 0b00001010	Rotating (e.g. 1-2-4-3)
 
-		can it be combined with two messages?
+		these return to previous states after they complete
 		0x0B 0b00000111 Blinking*
 		0x0C 0b00001100	Slow blinking*
 		0x0D 0b00001101	Alternating (e.g. 1+4-2+3), then back to previous

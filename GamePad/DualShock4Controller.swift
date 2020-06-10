@@ -80,7 +80,7 @@ class DualShock4Controller {
 
 	// analog buttons
 
-	var leftStickX:UInt8 = 0
+	var leftStickX:UInt8 = 0 // TODO transform to Int16
 	var leftStickY:UInt8 = 0
 	var rightStickX:UInt8 = 0
 	var rightStickY:UInt8 = 0
@@ -346,10 +346,15 @@ class DualShock4Controller {
 			|| self.previousTrackpadButton != self.trackpadButton
 		{
 
-			NotificationCenter.default.post(
-				name: DualShock4Controller.NOTIFICATION_NAME_BUTTONS,
-				object: GamePadButtonChangedNotification()
-			)
+			DispatchQueue.main.async {
+				NotificationCenter.default.post(
+					name: DualShock4Controller.NOTIFICATION_NAME_BUTTONS,
+					object: GamePadButtonChangedNotification(
+						leftButton: self.l1,
+						rightButton: self.r1
+					)
+				)
+			}
 
 			self.previousMainButtons = self.mainButtons
 

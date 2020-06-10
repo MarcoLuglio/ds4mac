@@ -8,13 +8,90 @@
 
 import SwiftUI
 
+struct Xbox360Tab: View {
+    var body: some View {
+        Text("View 1")
+    }
+}
+
+struct DualShock4Tab: View {
+
+	@ObservedObject var dualShock4:DualShock4UIModel = DualShock4UIModel()
+
+    var body: some View {
+
+        VStack {
+
+			Group {
+				Button(action: addItem) {
+					if self.dualShock4.leftButton {
+						Text("pressed")
+					} else {
+						Text("Left button")
+					}
+				}
+				Slider(value: $dualShock4.leftTrigger, in: 0...255, step: 1)
+			}
+
+			Group {
+				Button("Up", action: addItem)
+				Button("Right", action: addItem)
+				Button("Down", action: addItem)
+				Button("Left", action: addItem)
+			}
+
+			Button("Share", action: addItem)
+
+			Text("Left stick")
+			Text("Trackpad")
+			Button("PS", action: addItem)
+			Text("Right stick")
+
+			Button("Options", action: addItem)
+
+			Group {
+				Button("Triangle", action: addItem)
+				Button("Circle", action: addItem)
+				Button("Cross", action: addItem)
+				Button("Square", action: addItem)
+			}
+
+			Group {
+				Button("Right button", action: addItem)
+				Slider(value: $dualShock4.rightTrigger, in: 0...255, step: 1)
+			}
+
+		}
+
+    }
+
+}
+
+struct JoyConTab: View {
+    var body: some View {
+        Text("View 2")
+    }
+}
+
 struct ContentView: View {
 
-	//@Model var a:Bool
-
 	var body: some View {
-		Text("Hello, World!")
-			.frame(maxWidth: .infinity, maxHeight: .infinity)
+
+		TabView {
+			Xbox360Tab()
+				.tabItem {
+					Text("First")
+				}
+			DualShock4Tab()
+				.tabItem {
+					Text("Second")
+				}
+			JoyConTab()
+				.tabItem {
+					Text("Third")
+				}
+		}
+
 	}
 
 }
@@ -25,11 +102,7 @@ struct ContentView_Previews: PreviewProvider {
 	}
 }
 
-/*
-NotificationCenter.addObserver(
-	self,
-	selector: #selector(userLoggedIn),
-	name: Notification.Name("UserLoggedIn"),
-	object: nil
-)
-*/
+
+func addItem() {
+	//
+}

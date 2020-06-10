@@ -14,9 +14,16 @@ class GamePadButtonChangedNotification {
 
 	static let Name = Notification.Name("GamePadButtonChangedNotification")
 
-	init() {
+	let leftButton:Bool
+	let rightButton:Bool
 
-		//
+	init(
+		leftButton:Bool,
+		rightButton:Bool
+	) {
+
+		self.leftButton = leftButton
+		self.rightButton = rightButton
 
 	}
 

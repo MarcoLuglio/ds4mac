@@ -34,6 +34,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		self.gamePadMonitor = GamePadMonitor()
 		let temp = Thread(target: self.gamePadMonitor, selector:#selector(self.gamePadMonitor.setupHidObservers), object: nil)
         temp.start()
+
+		// TODO check where I can call this
+		let cp = NSColorPanel.shared
+		cp.makeKeyAndOrderFront(self)
 	}
 
 	func applicationWillTerminate(_ aNotification: Notification) {

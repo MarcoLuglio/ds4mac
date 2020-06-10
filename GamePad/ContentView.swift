@@ -25,7 +25,7 @@ struct DualShock4Tab: View {
 			Group {
 				Button(action: addItem) {
 					if self.dualShock4.leftButton {
-						Text("pressed")
+						Text("Pressed")
 					} else {
 						Text("Left button")
 					}
@@ -57,7 +57,13 @@ struct DualShock4Tab: View {
 			}
 
 			Group {
-				Button("Right button", action: addItem)
+				Button(action: addItem) {
+					if self.dualShock4.leftButton {
+						Text("Pressed")
+					} else {
+						Text("Right button")
+					}
+				}
 				Slider(value: $dualShock4.rightTrigger, in: 0...255, step: 1)
 			}
 
@@ -80,15 +86,15 @@ struct ContentView: View {
 		TabView {
 			Xbox360Tab()
 				.tabItem {
-					Text("First")
+					Text("Xbox 360")
 				}
 			DualShock4Tab()
 				.tabItem {
-					Text("Second")
+					Text("DualShock 4")
 				}
 			JoyConTab()
 				.tabItem {
-					Text("Third")
+					Text("Joy-Con")
 				}
 		}
 

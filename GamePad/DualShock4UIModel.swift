@@ -16,6 +16,11 @@ class DualShock4UIModel: ObservableObject {
 	var leftButton:Bool = false
 	var leftTrigger:Float = 0
 
+	var leftStickX:Float = 0
+	var leftStickY:Float = 0
+	var rightStickX:Float = 0
+	var rightStickY:Float = 0
+
 	var rightButton:Bool = false
 	var rightTrigger:Float = 0
 
@@ -27,7 +32,15 @@ class DualShock4UIModel: ObservableObject {
 			.addObserver(
 				self,
 				selector: #selector(self.updateButtons),
-				name: DualShock4Controller.NOTIFICATION_NAME_BUTTONS, // TODO put the names in a separate class
+				name: GamePadButtonChangedNotification.Name,
+				object: nil
+			)
+
+		NotificationCenter.default
+			.addObserver(
+				self,
+				selector: #selector(self.updateAnalog),
+				name: GamePadAnalogChangedNotification.Name,
 				object: nil
 			)
 
@@ -39,6 +52,24 @@ class DualShock4UIModel: ObservableObject {
 
 		self.leftButton = o.leftButton
 		self.rightButton = o.rightButton
+
+		objectWillChange.send()
+
+	}
+
+	@objc func updateAnalog(_ notification:Notification) {
+
+		let o = notification.object as! GamePadAnalogChangedNotification
+
+		self.leftTrigger = Float(o.leftTrigger)
+
+		self.leftStickX = Float(o.leftStickX)
+		self.leftStickY = Float(o.leftStickY)
+
+		self.rightStickX = Float(o.rightStickX)
+		self.rightStickY = Float(o.rightStickY)
+
+		self.rightTrigger = Float(o.rightTrigger)
 
 		objectWillChange.send()
 

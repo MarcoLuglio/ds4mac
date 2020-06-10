@@ -16,8 +16,6 @@ class DualShock4Controller {
 	static let CONTROLLER_ID_DUALSHOCK_4_USB:Int64 = 0x05C4 // 1476
 	static let CONTROLLER_ID_DUALSHOCK_4_USB_V2:Int64 = 0x09CC // 2508, this controller has an led strip on its face
 	static let CONTROLLER_ID_DUALSHOCK_4_BLUETOOTH:Int64 = 0x081F // 
-	static let NOTIFICATION_NAME_BUTTONS = Notification.Name("DigitalButtonsChanged")
-	static let NOTIFICATION_NAME_TOUCHPAD = Notification.Name("TouchpadChanged")
 
 	static var nextId:UInt8 = 0
 
@@ -348,7 +346,7 @@ class DualShock4Controller {
 
 			DispatchQueue.main.async {
 				NotificationCenter.default.post(
-					name: DualShock4Controller.NOTIFICATION_NAME_BUTTONS,
+					name: GamePadButtonChangedNotification.Name,
 					object: GamePadButtonChangedNotification(
 						leftButton: self.l1,
 						rightButton: self.r1
@@ -383,13 +381,33 @@ class DualShock4Controller {
 
 		}
 
+		//if previousSti {
+
+			DispatchQueue.main.async {
+				NotificationCenter.default.post(
+					name: GamePadAnalogChangedNotification.Name,
+					object: GamePadAnalogChangedNotification(
+						leftStickX: self.leftStickX,
+						leftStickY: self.leftStickY,
+						rightStickX: self.rightStickX,
+						rightStickY: self.rightStickY,
+						leftTrigger: self.leftTrigger,
+						rightTrigger: self.rightTrigger
+					)
+				)
+			}
+
+		//}
+
 		if previousTrackpadTouch0IsActive != trackpadTouch0IsActive
 			|| previousTrackpadTouch1IsActive != trackpadTouch1IsActive
 		{
 
 			NotificationCenter.default.post(
-				name: DualShock4Controller.NOTIFICATION_NAME_TOUCHPAD,
-				object: GamePadTouchpadChangedNotification()
+				name: GamePadTouchpadChangedNotification.Name,
+				object: GamePadTouchpadChangedNotification(
+					//
+				)
 			)
 
 			previousTrackpadTouch0IsActive = trackpadTouch0IsActive

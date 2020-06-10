@@ -37,7 +37,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
 		// TODO check where I can call this
 		let cp = NSColorPanel.shared
+		cp.setTarget(self)
+		cp.setAction(#selector(self.colorDidChange))
 		cp.makeKeyAndOrderFront(self)
+		cp.isContinuous = true
+	}
+
+	@objc func colorDidChange(sender:Any) {
+
+		if let cp = sender as? NSColorPanel {
+			print(cp.color)
+			//self.window.backgroundColor = cp.color
+		}
+
 	}
 
 	func applicationWillTerminate(_ aNotification: Notification) {

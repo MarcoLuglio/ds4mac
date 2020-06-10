@@ -13,11 +13,7 @@ import Combine
 
 class DualShock4UIModel: ObservableObject {
 
-	var leftButton:Bool = false  {
-	   willSet {
-		   objectWillChange.send()
-	   }
-   }
+	var leftButton:Bool = false
 	var leftTrigger:Float = 0
 
 	var rightButton:Bool = false
@@ -43,6 +39,8 @@ class DualShock4UIModel: ObservableObject {
 
 		self.leftButton = o.leftButton
 		self.rightButton = o.rightButton
+
+		objectWillChange.send()
 
 	}
 

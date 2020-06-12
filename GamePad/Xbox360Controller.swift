@@ -104,6 +104,7 @@ class Xbox360Controller {
 
 	}
 
+	/// Gets called by GamePadMonitor
 	func parseReport(_ report:Data) {
 
 		// report[0] // always 0x00

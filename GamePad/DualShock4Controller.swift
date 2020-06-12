@@ -397,12 +397,14 @@ class DualShock4Controller {
 			|| previousTrackpadTouch1IsActive != trackpadTouch1IsActive
 		{
 
-			NotificationCenter.default.post(
-				name: GamePadTouchpadChangedNotification.Name,
-				object: GamePadTouchpadChangedNotification(
-					//
+			DispatchQueue.main.async {
+				NotificationCenter.default.post(
+					name: GamePadTouchpadChangedNotification.Name,
+					object: GamePadTouchpadChangedNotification(
+						//
+					)
 				)
-			)
+			}
 
 			previousTrackpadTouch0IsActive = trackpadTouch0IsActive
 			previousTrackpadTouch1IsActive = trackpadTouch1IsActive
@@ -503,14 +505,16 @@ class DualShock4Controller {
 
 			self.previousBatteryLevel = self.batteryLevel
 
-			NotificationCenter.default.post(
-				name: GamePadBatteryChangedNotification.Name,
-				object: GamePadBatteryChangedNotification(
-					battery: self.batteryLevel,
-					batteryMin: 0,
-					batteryMax: 8
+			DispatchQueue.main.async {
+				NotificationCenter.default.post(
+					name: GamePadBatteryChangedNotification.Name,
+					object: GamePadBatteryChangedNotification(
+						battery: self.batteryLevel,
+						batteryMin: 0,
+						batteryMax: 8
+					)
 				)
-			)
+			}
 
 		}
 

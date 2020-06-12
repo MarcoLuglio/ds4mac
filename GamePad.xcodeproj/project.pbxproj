@@ -15,6 +15,7 @@
 		A9879C23248592B600AB4DE9 /* GamePadTouchpadChangedNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9879C22248592B600AB4DE9 /* GamePadTouchpadChangedNotification.swift */; };
 		A9888F9B24904BDD0084EA3C /* DualShock4UIModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9888F9A24904BDD0084EA3C /* DualShock4UIModel.swift */; };
 		A9888FA0249063580084EA3C /* GamePadAnalogChangedNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9888F9F249063580084EA3C /* GamePadAnalogChangedNotification.swift */; };
+		A9C66D34249417B900DB799F /* GamePadBatteryChangedNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9C66D33249417B900DB799F /* GamePadBatteryChangedNotification.swift */; };
 		A9D72F7B248202350000A89F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9D72F7A248202350000A89F /* AppDelegate.swift */; };
 		A9D72F7D248202350000A89F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9D72F7C248202350000A89F /* ContentView.swift */; };
 		A9D72F7F248202360000A89F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A9D72F7E248202360000A89F /* Assets.xcassets */; };
@@ -54,6 +55,7 @@
 		A9879C22248592B600AB4DE9 /* GamePadTouchpadChangedNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamePadTouchpadChangedNotification.swift; sourceTree = "<group>"; };
 		A9888F9A24904BDD0084EA3C /* DualShock4UIModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DualShock4UIModel.swift; sourceTree = "<group>"; };
 		A9888F9F249063580084EA3C /* GamePadAnalogChangedNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamePadAnalogChangedNotification.swift; sourceTree = "<group>"; };
+		A9C66D33249417B900DB799F /* GamePadBatteryChangedNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamePadBatteryChangedNotification.swift; sourceTree = "<group>"; };
 		A9D72F77248202350000A89F /* GamePad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GamePad.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A9D72F7A248202350000A89F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A9D72F7C248202350000A89F /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -117,6 +119,7 @@
 				A9879C202485833000AB4DE9 /* GamePadButtonChangedNotification.swift */,
 				A9888F9F249063580084EA3C /* GamePadAnalogChangedNotification.swift */,
 				A9879C22248592B600AB4DE9 /* GamePadTouchpadChangedNotification.swift */,
+				A9C66D33249417B900DB799F /* GamePadBatteryChangedNotification.swift */,
 			);
 			name = Notifications;
 			sourceTree = "<group>";
@@ -334,6 +337,7 @@
 				A9879C212485833000AB4DE9 /* GamePadButtonChangedNotification.swift in Sources */,
 				A9879C1F248481C200AB4DE9 /* CRC32.swift in Sources */,
 				A9879C23248592B600AB4DE9 /* GamePadTouchpadChangedNotification.swift in Sources */,
+				A9C66D34249417B900DB799F /* GamePadBatteryChangedNotification.swift in Sources */,
 				A9D72FAA248204080000A89F /* GamePadMonitor.swift in Sources */,
 				A97E75CB2482E7A200FAA13A /* DualShock4Controller.swift in Sources */,
 				A9D72F7D248202350000A89F /* ContentView.swift in Sources */,

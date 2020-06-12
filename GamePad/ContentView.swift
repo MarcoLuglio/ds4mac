@@ -24,48 +24,164 @@ struct DualShock4Tab: View {
 
 			Group {
 				Button(action: addItem) {
-					if self.dualShock4.leftButton {
+					if self.dualShock4.leftShoulderButton {
 						Text("Pressed")
 					} else {
-						Text("Left button")
+						Text("Left shoulder")
 					}
 				}
 				Slider(value: $dualShock4.leftTrigger, in: 0...255, step: 1)
 			}
 
 			Group {
-				Button("Up", action: addItem)
-				Button("Right", action: addItem)
-				Button("Down", action: addItem)
-				Button("Left", action: addItem)
-			}
-
-			Button("Share", action: addItem)
-
-			Text("Left stick")
-			Text("Trackpad")
-			Button("PS", action: addItem)
-			Text("Right stick")
-
-			Button("Options", action: addItem)
-
-			Group {
-				Button("Triangle", action: addItem)
-				Button("Circle", action: addItem)
-				Button("Cross", action: addItem)
-				Button("Square", action: addItem)
-			}
-
-			Group {
+				Button(action: addItem) {
+					if self.dualShock4.upButton {
+						Text("Pressed")
+					} else {
+						Text("Up")
+					}
+				}
+				Button(action: addItem) {
+					if self.dualShock4.rightButton {
+						Text("Pressed")
+					} else {
+						Text("Right")
+					}
+				}
+				Button(action: addItem) {
+					if self.dualShock4.downButton {
+						Text("Pressed")
+					} else {
+						Text("Down")
+					}
+				}
 				Button(action: addItem) {
 					if self.dualShock4.leftButton {
 						Text("Pressed")
 					} else {
-						Text("Right button")
+						Text("Left")
+					}
+				}
+			}
+
+			Group {
+
+				Button(action: addItem) {
+					if self.dualShock4.shareButton {
+						Text("Pressed")
+					} else {
+						Text("Share")
+					}
+				}
+
+				Button(action: addItem) {
+					if self.dualShock4.leftStickButton {
+						Text("Pressed")
+					} else {
+						Text("Left stick")
+					}
+				}
+				Text("Left stick analog")
+
+			}
+
+			Group {
+
+				Button(action: addItem) {
+					if self.dualShock4.trackPadButton {
+						Text("Pressed")
+					} else {
+						Text("TrackPad")
+					}
+				}
+				Text("Trackpad analog")
+
+				Button(action: addItem) {
+					if self.dualShock4.psButton {
+						Text("Pressed")
+					} else {
+						Text("PS")
+					}
+				}
+
+			}
+
+			Group {
+
+				Text("Right stick analog")
+				Button(action: addItem) {
+					if self.dualShock4.rightStickButton {
+						Text("Pressed")
+					} else {
+						Text("Right stick")
+					}
+				}
+
+				Button(action: addItem) {
+					if self.dualShock4.optionsButton {
+						Text("Pressed")
+					} else {
+						Text("Options")
+					}
+				}
+
+			}
+
+			Group {
+				Button(action: addItem) {
+					if self.dualShock4.triangleButton {
+						Text("Pressed")
+					} else {
+						Text("Triangle")
+					}
+				}
+				Button(action: addItem) {
+					if self.dualShock4.circleButton {
+						Text("Pressed")
+					} else {
+						Text("Circle")
+					}
+				}
+				Button(action: addItem) {
+					if self.dualShock4.crossButton {
+						Text("Pressed")
+					} else {
+						Text("Cross")
+					}
+				}
+				Button(action: addItem) {
+					if self.dualShock4.squareButton {
+						Text("Pressed")
+					} else {
+						Text("Square")
+					}
+				}
+			}
+
+			Group {
+				Button(action: addItem) {
+					if self.dualShock4.rightShoulderButton {
+						Text("Pressed")
+					} else {
+						Text("Right shoulder")
 					}
 				}
 				Slider(value: $dualShock4.rightTrigger, in: 0...255, step: 1)
 			}
+
+			Group {
+				Slider(value: $dualShock4.battery, in: 0...8, step: 1)
+			}
+
+			/*Slider(
+				value: $dualShock4.battery,
+				in: 0...8,
+				step: 1,
+				onEditingChanged: editingChanged,
+				minimumValueLabel: "0",
+				maximumValueLabel: "100%",
+				label: "Battery"
+			)*/
 
 		}
 
@@ -84,6 +200,7 @@ struct ContentView: View {
 	var body: some View {
 
 		TabView {
+			// TODO do a for each here
 			Xbox360Tab()
 				.tabItem {
 					Text("Xbox 360")
@@ -111,4 +228,8 @@ struct ContentView_Previews: PreviewProvider {
 
 func addItem() {
 	//
+}
+
+func editingChanged() -> Bool {
+	return true
 }

@@ -14,7 +14,7 @@ class DualShock4Controller {
 
 	static let VENDOR_ID_SONY:Int64 = 0x054C // 1356
 	static let CONTROLLER_ID_DUALSHOCK_4_USB:Int64 = 0x05C4 // 1476
-	static let CONTROLLER_ID_DUALSHOCK_4_USB_V2:Int64 = 0x09CC // 2508, this controller has an led strip on its face
+	static let CONTROLLER_ID_DUALSHOCK_4_USB_V2:Int64 = 0x09CC // 2508, this controller has an led strip above the trackpad
 	static let CONTROLLER_ID_DUALSHOCK_4_BLUETOOTH:Int64 = 0x081F // 
 
 	static var nextId:UInt8 = 0
@@ -22,6 +22,16 @@ class DualShock4Controller {
 	let device:IOHIDDevice
 
 	var id:UInt8 = 0
+
+	/// Used for inertial measurement calculations (gyro and accel)
+
+	var time:Date = Date()
+	var previousTime:Date = Date()
+	var timeInterval:TimeInterval = 0
+
+	var reportTime:Int32 = 0
+	var previousReportTime:Int32 = 0
+	var reportTimeInterval:Int32 = 0
 
 	/// contains triangle, circle, cross, square and directional pad buttons
 	var mainButtons:UInt8 = 0
@@ -78,12 +88,19 @@ class DualShock4Controller {
 
 	// analog buttons
 
-	var leftStickX:UInt8 = 0 // TODO transform to Int16
+	var leftStickX:UInt8 = 0 // TODO transform to Int16, why?
+	var previousLeftStickX:UInt8 = 0
 	var leftStickY:UInt8 = 0
+	var previousLeftStickY:UInt8 = 0
 	var rightStickX:UInt8 = 0
+	var previousRightStickX:UInt8 = 0
 	var rightStickY:UInt8 = 0
+	var previousRightStickY:UInt8 = 0
+
 	var leftTrigger:UInt8 = 0
+	var previousLeftTrigger:UInt8 = 0
 	var rightTrigger:UInt8 = 0
+	var previousRightTrigger:UInt8 = 0
 
 	// trackpad
 
@@ -104,17 +121,19 @@ class DualShock4Controller {
 
 	// inertial measurement unit
 
-	var gyroX:Int16 = 0
-	var gyroY:Int16 = 0
-	var gyroZ:Int16 = 0
+	var gyroX:Float32 = 0
+	var gyroY:Float32 = 0
+	var _gyroZ:Float32 = 0
 
-	var accelX:Int16 = 0
-	var accelY:Int16 = 0
-	var accelZ:Int16 = 0
+	var accelX:Float32 = 0
+	var accelY:Float32 = 0
+	var accelZ:Float32 = 0
+
+	var rotationZ:Float32 = 0
 
 	// battery
 
-	var batteryLevel:UInt8 = 0
+	var batteryLevel:UInt8 = 0 // 0 to 8 on USB, 0 - 10 on Bluetooth
 	var previousBatteryLevel:UInt8 = 0
 
 	// misc
@@ -134,7 +153,40 @@ class DualShock4Controller {
 		
 	}
 
+	public private(set) var gyroZ:Float32 {
+
+		get {
+			return self._gyroZ
+		}
+
+		set(newValue) {
+
+			var newGyroZ = newValue
+
+			if newGyroZ > 128 {
+				newGyroZ = newGyroZ - 255
+			}
+			//newGyroZ /= 64.0 // according to joyshock, unit is radians / second when divided by 64, need the timestamp
+
+			self._gyroZ = newGyroZ
+			self.rotationZ += self._gyroZ
+		}
+
+	}
+
+	/// Gets called by GamePadMonitor
 	func parseReport(_ report:Data) {
+
+		self.previousTime = self.time
+		self.time = Date()
+		self.timeInterval = self.time.timeIntervalSince(self.previousTime) * 1_000_000
+
+		self.previousReportTime = self.reportTime
+		self.reportTime = (Int32(report[11]) << 8 | Int32(report[10]))
+		self.reportTimeInterval = self.reportTime - self.previousReportTime
+		if self.reportTimeInterval < 0 {
+			self.reportTimeInterval += UINT16_MAX
+		}
 
 		self.mainButtons = report[5]
 
@@ -144,14 +196,6 @@ class DualShock4Controller {
 		self.crossButton    = self.mainButtons & 0b00100000 == 0b00100000
 
 		self.directionalPad = self.mainButtons & 0b00001111
-		/*
-		// up is reversed?? 1 is off, 0 is on?
-		0=N, 1=NE, 2=E, 3=SE, 4=S, 5=SW, 6=W, 7=NW)
-		dPadUp:    dPad === 0 || dPad === 1 || dPad === 7,
-		dPadRight: dPad === 1 || dPad === 2 || dPad === 3,
-		dPadDown:  dPad === 3 || dPad === 4 || dPad === 5,
-		dPadLeft:  dPad === 5 || dPad === 6 || dPad === 7,
-		*/
 
 		self.secondaryButtons = report[6]
 
@@ -168,6 +212,78 @@ class DualShock4Controller {
 
 		self.psButton = report[7] & 0b00000001 == 0b00000001
 
+		self.reportIterator = report[7] >> 2 // [7] 	Counter (counts up by 1 per report), I guess this is only relevant to bluetooth
+
+		if self.previousMainButtons != self.mainButtons
+			|| self.previousSecondaryButtons != self.secondaryButtons
+			|| self.previousPsButton != self.psButton
+			|| self.previousTrackpadButton != self.trackpadButton
+		{
+
+			print(String(self.directionalPad, radix: 2))
+
+			DispatchQueue.main.async {
+				NotificationCenter.default.post(
+					name: GamePadButtonChangedNotification.Name,
+					object: GamePadButtonChangedNotification(
+						// left trigger digital reading l2
+						leftShoulderButton: self.l1,
+
+						/*
+						// up is reversed?? 1 is off, 0 is on?
+						0=N, 1=NE, 2=E, 3=SE, 4=S, 5=SW, 6=W, 7=NW)
+						dPadUp:    dPad === 0 || dPad === 1 || dPad === 7,
+						dPadRight: dPad === 1 || dPad === 2 || dPad === 3,
+						dPadDown:  dPad === 3 || dPad === 4 || dPad === 5,
+						dPadLeft:  dPad === 5 || dPad === 6 || dPad === 7,
+						*/
+
+						upButton: self.directionalPad & 0b00001000 == 0b00001000,
+						rightButton: self.directionalPad & 0b00000100 == 0b00000100,
+						downButton: self.directionalPad & 0b00000010 == 0b00000010,
+						leftButton: self.directionalPad & 0b00000001 == 0b00000001,
+						shareButton: self.shareButton,
+						leftStickButton: self.l3,
+						trackPadButton: self.trackpadButton,
+						psButton: self.psButton,
+						rightStickButton: self.r3,
+						optionsButton: self.optionsButton,
+						triangleButton: self.triangleButton,
+						circleButton: self.circleButton,
+						crossButton: self.crossButton,
+						squareButton: self.squareButton,
+						rightShoulderButton: self.r1
+						// right trigger digital reading r2
+					)
+				)
+			}
+
+			self.previousMainButtons = self.mainButtons
+
+			self.previousSquareButton = self.squareButton
+			self.previousCrossButton = self.crossButton
+			self.previousCircleButton = self.circleButton
+			self.previousTriangleButton = self.triangleButton
+
+			self.previousDirectionalPad = self.directionalPad
+
+			self.previousSecondaryButtons = self.secondaryButtons
+
+			self.previousL1 = self.l1
+			self.previousR1 = self.r1
+			self.previousL2 = self.l2
+			self.previousR2 = self.r2
+			self.previousL3 = self.l3
+			self.previousR3 = self.r3
+
+			self.previousShareButton = self.shareButton
+			self.previousOptionsButton = self.optionsButton
+
+			self.previousPsButton = self.psButton
+			self.previousTrackpadButton = self.trackpadButton
+
+		}
+
 		// analog buttons
 		// origin left top
 		self.leftStickX = report[1] // 0 left
@@ -176,6 +292,37 @@ class DualShock4Controller {
 		self.rightStickY = report[4]
 		self.leftTrigger = report[8] // 0 - 255
 		self.rightTrigger = report[9] // 0 - 255
+
+		if self.previousLeftStickX != self.leftStickX
+			|| self.previousLeftStickY != self.leftStickY
+			|| self.previousRightStickX != self.rightStickX
+			|| self.previousRightStickY != self.rightStickY
+			|| self.previousLeftTrigger != self.leftTrigger
+			|| self.previousRightTrigger != self.rightTrigger
+		{
+
+			DispatchQueue.main.async {
+				NotificationCenter.default.post(
+					name: GamePadAnalogChangedNotification.Name,
+					object: GamePadAnalogChangedNotification(
+						leftStickX: self.leftStickX,
+						leftStickY: self.leftStickY,
+						rightStickX: self.rightStickX,
+						rightStickY: self.rightStickY,
+						leftTrigger: self.leftTrigger,
+						rightTrigger: self.rightTrigger
+					)
+				)
+			}
+
+			self.previousLeftStickX = self.leftStickX
+			self.previousLeftStickY = self.leftStickY
+			self.previousRightStickX = self.rightStickX
+			self.previousRightStickY = self.rightStickY
+			self.previousLeftTrigger = self.leftTrigger
+			self.previousRightTrigger = self.rightTrigger
+
+		}
 
 		// trackpad
 
@@ -246,41 +393,53 @@ class DualShock4Controller {
 		for multiple monitors, check finding displays https://developer.apple.com/documentation/coregraphics/quartz_display_services#1655882
 		*/
 
+		if previousTrackpadTouch0IsActive != trackpadTouch0IsActive
+			|| previousTrackpadTouch1IsActive != trackpadTouch1IsActive
+		{
+
+			NotificationCenter.default.post(
+				name: GamePadTouchpadChangedNotification.Name,
+				object: GamePadTouchpadChangedNotification(
+					//
+				)
+			)
+
+			previousTrackpadTouch0IsActive = trackpadTouch0IsActive
+			previousTrackpadTouch1IsActive = trackpadTouch1IsActive
+
+		}
+
+		// TODO IMU
+
 		/*
+		gyros and accelerometers need to be calibrated based on the feature report (we receive before the inpur reports start coming):
+		#define DS4_FEATURE_REPORT_0x02_SIZE 37
+		#define DS4_FEATURE_REPORT_0x05_SIZE 41
+		#define DS4_FEATURE_REPORT_0x81_SIZE 7
+		#define DS4_INPUT_REPORT_0x11_SIZE 78
+		#define DS4_OUTPUT_REPORT_0x05_SIZE 32
+
 		q
 		byte index 	bit 7 	bit 6 	bit 5 	bit 4 	bit 3 	bit 2 	bit 1 	bit 0
 		[0] 	Report ID (always 0x01)
+
+		// 6 bytes for gyro, and 6 bytes for accel
 		[10] 	Unknown, seems to count downwards, non-random pattern
 		[11] 	Unknown, seems to count upwards by 3, but by 2 when [10] underflows
+
+		[10 - 11] 	Seems to be a timestamp.
+		A common increment value between two reports is 188 (at full rate the report period is 1.25ms).
+		This timestamp is used by the PS4 to process acceleration and gyroscope data.
+
 		[12] 	Unknown yet, 0x03 or 0x04
 		*/
 
-		// 6 bytes for gyro, and 6 bytes for accel
-		/*
-		int currentX = (short)((ushort)(gyro[0] << 8) | gyro[1]) / 64;
-		int currentY = (short)((ushort)(gyro[2] << 8) | gyro[3]) / 64;
-		int currentZ = (short)((ushort)(gyro[4] << 8) | gyro[5]) / 64;
-		int AccelX = (short)((ushort)(accel[2] << 8) | accel[3]) / 256;
-		int AccelY = (short)((ushort)(accel[0] << 8) | accel[1]) / 256;
-		int AccelZ = (short)((ushort)(accel[4] << 8) | accel[5]) / 256;
-		*/
+		self.gyroX =  Float32(Int16(report[14] << 8) | Int16(report[13]))
+		self.gyroY =  Float32(Int16(report[16] << 8) | Int16(report[15]))
+		self.gyroZ =  Float32(Int16(report[18] << 8) | Int16(report[17]))
 
-		// I don't think this is it, the index that is shifted is too random
-
-		/*
-		accel = new Vector3(
-			System.BitConverter.ToInt16(_inputBuffer, 19),
-			System.BitConverter.ToInt16(_inputBuffer, 21),
-			System.BitConverter.ToInt16(_inputBuffer, 23)
-			)/8192f;
-		*/
-
-		// unit is radians / second when divided by 64
-		self.gyroX =  (Int16(report[13] << 8) | Int16(report[14])) - 32 // / 64
-		self.gyroY =  (Int16(report[15] << 8) | Int16(report[16])) - 32 // / 64
-		self.gyroZ =  (Int16(report[17] << 8) | Int16(report[18])) - 32 // / 64
-
-		// I don't think this is it, the index that is shifted is too random
+		/*print("gyro z: \(self._gyroZ)")
+		print("rotation z: \(self.rotationZ)")*/
 
 		/*
 		gyro = new Vector3(
@@ -290,9 +449,14 @@ class DualShock4Controller {
 			)/1024f;
 		*/
 
-		self.accelX = (Int16(report[21] << 8) | Int16(report[22])) - 128 // / 256
-		self.accelY = (Int16(report[19] << 8) | Int16(report[20])) - 128 // / 256
-		self.accelZ = (Int16(report[23] << 8) | Int16(report[24])) - 128 // / 256
+		self.accelX = Float32(Int16(report[22] << 8) | Int16(report[21]))
+		self.accelY = Float32(Int16(report[20] << 8) | Int16(report[19]))
+		self.accelZ = Float32(Int16(report[24] << 8) | Int16(report[23]))
+
+		/*print("accel x: \(self.accelX)")
+		print("accel y: \(self.accelY)")
+		print("accel z: \(self.accelZ)") // when rolling, z should be near 0*/
+
 
 		// battery
 
@@ -333,87 +497,32 @@ class DualShock4Controller {
 		}
 		*/
 
-		self.batteryLevel = report[12] // read somewhere that sometimes it is 0-9, sometimes it is 1-10 //
+		self.batteryLevel = report[12]
 
-		self.reportIterator = report[7] >> 2 // [7] 	Counter (counts up by 1 per report), I guess this is only relevant to bluetooth
-
-		if self.previousMainButtons != self.mainButtons
-			|| self.previousSecondaryButtons != self.secondaryButtons
-			|| self.previousBatteryLevel != self.batteryLevel
-			|| self.previousPsButton != self.psButton
-			|| self.previousTrackpadButton != self.trackpadButton
-		{
-
-			DispatchQueue.main.async {
-				NotificationCenter.default.post(
-					name: GamePadButtonChangedNotification.Name,
-					object: GamePadButtonChangedNotification(
-						leftButton: self.l1,
-						rightButton: self.r1
-					)
-				)
-			}
-
-			self.previousMainButtons = self.mainButtons
-
-			self.previousSquareButton = self.squareButton
-			self.previousCrossButton = self.crossButton
-			self.previousCircleButton = self.circleButton
-			self.previousTriangleButton = self.triangleButton
-
-			self.previousDirectionalPad = self.directionalPad
-
-			self.previousSecondaryButtons = self.secondaryButtons
-
-			self.previousL1 = self.l1
-			self.previousR1 = self.r1
-			self.previousL2 = self.l2
-			self.previousR2 = self.r2
-			self.previousL3 = self.l3
-			self.previousR3 = self.r3
-
-			self.previousShareButton = self.shareButton
-			self.previousOptionsButton = self.optionsButton
+		if self.previousBatteryLevel != self.batteryLevel { // TODO there are differences when measuring over bluetooth
 
 			self.previousBatteryLevel = self.batteryLevel
-			self.previousPsButton = self.psButton
-			self.previousTrackpadButton = self.trackpadButton
-
-		}
-
-		//if previousSti {
-
-			DispatchQueue.main.async {
-				NotificationCenter.default.post(
-					name: GamePadAnalogChangedNotification.Name,
-					object: GamePadAnalogChangedNotification(
-						leftStickX: self.leftStickX,
-						leftStickY: self.leftStickY,
-						rightStickX: self.rightStickX,
-						rightStickY: self.rightStickY,
-						leftTrigger: self.leftTrigger,
-						rightTrigger: self.rightTrigger
-					)
-				)
-			}
-
-		//}
-
-		if previousTrackpadTouch0IsActive != trackpadTouch0IsActive
-			|| previousTrackpadTouch1IsActive != trackpadTouch1IsActive
-		{
 
 			NotificationCenter.default.post(
-				name: GamePadTouchpadChangedNotification.Name,
-				object: GamePadTouchpadChangedNotification(
-					//
+				name: GamePadBatteryChangedNotification.Name,
+				object: GamePadBatteryChangedNotification(
+					battery: self.batteryLevel,
+					batteryMin: 0,
+					batteryMax: 8
 				)
 			)
 
-			previousTrackpadTouch0IsActive = trackpadTouch0IsActive
-			previousTrackpadTouch1IsActive = trackpadTouch1IsActive
-
 		}
+
+		/*
+		[30] 	EXT/HeadSet/Earset: bitmask
+
+		01111011 is headset with mic (0x7B)
+		00111011 is headphones (0x3B)
+		00011011 is nothing attached (0x1B)
+		00001000 is bluetooth? (0x08)
+		00000101 is ? (0x05)
+		*/
 
 		//self.sendReport()
 
@@ -422,13 +531,13 @@ class DualShock4Controller {
 	func sendReport() {
 
 		//let toggleMotor:UInt8 = 0xf0 // 0xf0 disable 0xf3 enable or 0b00001111 // enable unknown, flash, color, rumble
-		let rightLightFastRumble:UInt8 = 0x00 // weak motor 1-255
-		let leftHeavySlowRumble:UInt8 = 0x00 // strong motor 1-255
+		let rightLightFastRumble:UInt8 = 0x00 // 0-255
+		let leftHeavySlowRumble:UInt8 = 0x00 // 0-255
 		let red:UInt8 = 0x0F
 		let green:UInt8 = 0x00
 		let blue:UInt8 = 0x0F
-		let flashOn:UInt8 = 0x00 // flash on duration
-		let flashOff:UInt8 = 0x00 // flash off duration
+		let flashOn:UInt8 = 0x00 // flash on duration (in what units??)
+		let flashOff:UInt8 = 0x00 // flash off duration (in what units??)
 		let bluetoothOffset = 2
 
 		var dualshock4ControllerInputReportUSB = [UInt8](repeating: 0, count: 11)
@@ -469,7 +578,7 @@ class DualShock4Controller {
 		IOHIDDeviceSetReport(
 			device,
 			kIOHIDReportTypeOutput,
-			0x01,
+			0x01, // report id
 			dualshock4ControllerInputReportUSB,
 			dualshock4ControllerInputReportUSB.count
 		)

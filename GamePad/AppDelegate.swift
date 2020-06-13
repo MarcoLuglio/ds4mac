@@ -16,6 +16,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
 	var gamePadMonitor:GamePadMonitor!
 
+	var gamePadThread:Thread!
+
 	func applicationDidFinishLaunching(_ aNotification: Notification) {
 		// Create the SwiftUI view that provides the window contents.
 		let contentView = ContentView()
@@ -27,13 +29,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		    backing: .buffered, defer: false
 		)
 		window.center()
-		window.setFrameAutosaveName("Main Window")
+		window.setFrameAutosaveName("DS4Mac")
 		window.contentView = NSHostingView(rootView: contentView)
 		window.makeKeyAndOrderFront(nil)
 
 		self.gamePadMonitor = GamePadMonitor()
-		let temp = Thread(target: self.gamePadMonitor, selector:#selector(self.gamePadMonitor.setupHidObservers), object: nil)
-        temp.start()
+		self.gamePadThread = Thread(target: self.gamePadMonitor, selector:#selector(self.gamePadMonitor.setupHidObservers), object: nil)
+		self.gamePadThread.start()
 
 		// TODO check where I can call this
 		let cp = NSColorPanel.shared
@@ -46,8 +48,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	@objc func colorDidChange(sender:Any) {
 
 		if let cp = sender as? NSColorPanel {
-			print(cp.color)
+
+			DispatchQueue.main.async {
+				NotificationCenter.default.post(
+					name: DualShock4ChangeLedNotification.Name,
+					object: DualShock4ChangeLedNotification(
+						red: cp.color.redComponent,
+						green: cp.color.greenComponent,
+						blue: cp.color.blueComponent
+					)
+				)
+			}
+
 			//self.window.backgroundColor = cp.color
+
 		}
 
 	}

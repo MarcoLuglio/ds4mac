@@ -23,6 +23,7 @@ struct DualShock4Tab: View {
         VStack {
 
 			Group {
+				Button("Left heavy slow motor", action: rumbleLeft(intensity: 1))
 				Button(action: addItem) {
 					if self.dualShock4.leftShoulderButton {
 						Text("Pressed")
@@ -167,6 +168,7 @@ struct DualShock4Tab: View {
 					}
 				}
 				Slider(value: $dualShock4.rightTrigger, in: 0...255, step: 1)
+				Button("Right light fast motor", action: rumbleRight(intensity: 1))
 			}
 
 			Group {
@@ -225,11 +227,26 @@ struct ContentView_Previews: PreviewProvider {
 	}
 }
 
+func rumbleLeft(intensity:UInt8) -> () -> Void {
+	return {
+		print(intensity)
+	}
+}
+
+func rumbleRight(intensity:UInt8) -> () -> Void {
+	return {
+		DispatchQueue.main.async {
+			NotificationCenter.default.post(
+				name: DualShock4ChangeRumbleNotification.Name,
+				object: DualShock4ChangeRumbleNotification(
+					leftHeavySlowRumble: 0,
+					rightLightFastRumble: intensity
+				)
+			)
+		}
+	}
+}
 
 func addItem() {
 	//
-}
-
-func editingChanged() -> Bool {
-	return true
 }

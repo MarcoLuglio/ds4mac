@@ -149,7 +149,21 @@ class DualShock4Controller {
 		self.device = device
 		IOHIDDeviceOpen(self.device, IOOptionBits(kIOHIDOptionsTypeNone)) // or kIOHIDManagerOptionUsePersistentProperties
 
-		self.sendReport()
+		NotificationCenter.default
+			.addObserver(
+				self,
+				selector: #selector(self.changeRumble),
+				name: DualShock4ChangeRumbleNotification.Name,
+				object: nil
+			)
+
+		NotificationCenter.default
+			.addObserver(
+				self,
+				selector: #selector(self.changeLed),
+				name: DualShock4ChangeLedNotification.Name,
+				object: nil
+			)
 		
 	}
 
@@ -196,6 +210,12 @@ class DualShock4Controller {
 		self.crossButton    = self.mainButtons & 0b00100000 == 0b00100000
 
 		self.directionalPad = self.mainButtons & 0b00001111
+		/*
+		self.upButton: (self.directionalPad == 0 || self.directionalPad == 1 || self.directionalPad == 7),
+		self.rightButton: (self.directionalPad == 2 || self.directionalPad == 1 || self.directionalPad == 3),
+		self.downButton: (self.directionalPad == 4 || self.directionalPad == 3 || self.directionalPad == 5),
+		self.leftButton: (self.directionalPad == 6 || self.directionalPad == 5 || self.directionalPad == 7),
+		*/
 
 		self.secondaryButtons = report[6]
 
@@ -220,28 +240,16 @@ class DualShock4Controller {
 			|| self.previousTrackpadButton != self.trackpadButton
 		{
 
-			print(String(self.directionalPad, radix: 2))
-
 			DispatchQueue.main.async {
 				NotificationCenter.default.post(
 					name: GamePadButtonChangedNotification.Name,
 					object: GamePadButtonChangedNotification(
 						// left trigger digital reading l2
 						leftShoulderButton: self.l1,
-
-						/*
-						// up is reversed?? 1 is off, 0 is on?
-						0=N, 1=NE, 2=E, 3=SE, 4=S, 5=SW, 6=W, 7=NW)
-						dPadUp:    dPad === 0 || dPad === 1 || dPad === 7,
-						dPadRight: dPad === 1 || dPad === 2 || dPad === 3,
-						dPadDown:  dPad === 3 || dPad === 4 || dPad === 5,
-						dPadLeft:  dPad === 5 || dPad === 6 || dPad === 7,
-						*/
-
-						upButton: self.directionalPad & 0b00001000 == 0b00001000,
-						rightButton: self.directionalPad & 0b00000100 == 0b00000100,
-						downButton: self.directionalPad & 0b00000010 == 0b00000010,
-						leftButton: self.directionalPad & 0b00000001 == 0b00000001,
+						upButton: (self.directionalPad == 0 || self.directionalPad == 1 || self.directionalPad == 7),
+						rightButton: (self.directionalPad == 2 || self.directionalPad == 1 || self.directionalPad == 3),
+						downButton: (self.directionalPad == 4 || self.directionalPad == 3 || self.directionalPad == 5),
+						leftButton: (self.directionalPad == 6 || self.directionalPad == 5 || self.directionalPad == 7),
 						shareButton: self.shareButton,
 						leftStickButton: self.l3,
 						trackPadButton: self.trackpadButton,
@@ -532,16 +540,49 @@ class DualShock4Controller {
 
 	}
 
-	func sendReport() {
+	@objc func changeRumble(_ notification:Notification) {
+
+		let o = notification.object as! DualShock4ChangeRumbleNotification
+
+		sendReport(
+			leftHeavySlowRumble: o.leftHeavySlowRumble,
+			rightLightFastRumble: o.rightLightFastRumble,
+			red: 0,
+			green: 0,
+			blue: 255
+		)
+
+	}
+
+	@objc func changeLed(_ notification:Notification) {
+
+		let o = notification.object as! DualShock4ChangeLedNotification
+
+		sendReport(
+			leftHeavySlowRumble: 0,
+			rightLightFastRumble: 0,
+			red: UInt8(o.red * 255),
+			green: UInt8(o.green * 255),
+			blue: UInt8(o.blue * 255)
+		)
+
+	}
+
+	/// How to document parameters?
+	/// - Parameter leftHeavySlowRumble: Intensity of the heavy motor
+	/// - Parameter rightLightFastRumble: Intensity of the light motor
+	/// - Parameter red: Red component of the controller led
+	/// - Parameter green: Green component of the controller led
+	/// - Parameter blue: Blue component of the controller led
+	/// - Parameter flashOn: Duration in a cycle which the led remains on
+	/// - Parameter flashOff: Duration in a cycle which the led remains off
+	func sendReport(leftHeavySlowRumble:UInt8, rightLightFastRumble:UInt8, red:UInt8, green:UInt8, blue:UInt8, flashOn:UInt8 = 0, flashOff:UInt8 = 0) {
 
 		//let toggleMotor:UInt8 = 0xf0 // 0xf0 disable 0xf3 enable or 0b00001111 // enable unknown, flash, color, rumble
-		let rightLightFastRumble:UInt8 = 0x00 // 0-255
-		let leftHeavySlowRumble:UInt8 = 0x00 // 0-255
-		let red:UInt8 = 0x0F
-		let green:UInt8 = 0x00
-		let blue:UInt8 = 0x0F
-		let flashOn:UInt8 = 0x00 // flash on duration (in what units??)
-		let flashOff:UInt8 = 0x00 // flash off duration (in what units??)
+
+		//let flashOn:UInt8 = 0x00 // flash on duration (in what units??)
+		//let flashOff:UInt8 = 0x00 // flash off duration (in what units??)
+
 		let bluetoothOffset = 2
 
 		var dualshock4ControllerInputReportUSB = [UInt8](repeating: 0, count: 11)

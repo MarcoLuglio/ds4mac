@@ -18,7 +18,7 @@ class Xbox360Controller {
 	// 0x02D1 is the xbox one controller
 	// 0x02DD Xbox One Controller (Firmware 2015)
 	// 0x02E3 Xbox One Elite Controller
-	// 0x02E6 Wireless XBox Controller Dongle
+	// 0x02E6 Wireless Xbox Controller Dongle
 	// 0x02EA Xbox One S Controller
 	// 0x02FD Xbox One S Controller [Bluetooth]
 
@@ -100,7 +100,39 @@ class Xbox360Controller {
 		self.device = device
 		IOHIDDeviceOpen(self.device, IOOptionBits(kIOHIDOptionsTypeNone)) // or kIOHIDManagerOptionUsePersistentProperties
 
-		self.sendReport()
+		NotificationCenter.default
+			.addObserver(
+				self,
+				selector: #selector(self.changeRumble),
+				name: Xbox360ChangeRumbleNotification.Name,
+				object: nil
+			)
+
+		NotificationCenter.default
+			.addObserver(
+				self,
+				selector: #selector(self.changeLed),
+				name: Xbox360ChangeLedNotification.Name,
+				object: nil
+			)
+
+		var ledPattern:Xbox360LedPattern
+
+		switch self.id {
+			case 0:
+				ledPattern = Xbox360LedPattern.blink1
+			case 1:
+				ledPattern = Xbox360LedPattern.blink1
+			case 2:
+				ledPattern = Xbox360LedPattern.blink1
+			case 3:
+				ledPattern = Xbox360LedPattern.blink1
+			default:
+				ledPattern = Xbox360LedPattern.allBlink
+		}
+
+		sendLedReport(ledPattern:ledPattern)
+		//sendRumbleReport(leftHeavySlowRumble: 30, rightLightFastRumble: 50)
 
 	}
 
@@ -159,7 +191,23 @@ class Xbox360Controller {
 
 	}
 
-	private func sendReport() {
+	@objc func changeRumble(_ notification:Notification) {
+
+		let o = notification.object as! Xbox360ChangeRumbleNotification
+
+		sendRumbleReport(
+			leftHeavySlowRumble: o.leftHeavySlowRumble,
+			rightLightFastRumble: o.rightLightFastRumble
+		)
+
+	}
+
+	@objc func changeLed(_ notification:Notification) {
+		let o = notification.object as! Xbox360ChangeLedNotification
+		sendLedReport(ledPattern:o.ledPattern)
+	}
+
+	private func sendLedReport(ledPattern:Xbox360LedPattern) {
 
 		/*
 		message of the following form:
@@ -169,35 +217,16 @@ class Xbox360Controller {
 		0x03 is the message length
 		0xXX is the desired pattern:
 
-		Where xx is the desired pattern:
-
-		0x00 0b00000000 All off
-		0x01 0b00000001 All blinking
-		0x02 0b00000010 1 flashes, then on
-		0x03 0b00000011 2 flashes, then on
-		0x04 0b00000100 3 flashes, then on
-		0x05 0b00000101 4 flashes, then on
-		0x06 0b00000110 1 on
-		0x07 0b00000111 2 on
-		0x08 0b00001000	3 on
-		0x09 0b00001001	4 on
-		0x0A 0b00001010	Rotating (e.g. 1-2-4-3)
-
-		these return to previous states after they complete
-		0x0B 0b00000111 Blinking*
-		0x0C 0b00001100	Slow blinking*
-		0x0D 0b00001101	Alternating (e.g. 1+4-2+3), then back to previous
-
-		0x0E 0b00001110 At start it sends this, is it to reset/disable everything?
+		Where xx is the byte led pattern
 		*/
 
-
-
-		let xbox360ControllerInputReport:[UInt8] = [0x01, 0x03, 0x02]
+		let xbox360ControllerInputReport:[UInt8] = [0x01, 0x03, ledPattern.rawValue]
 		let xbox360ControllerInputReportLength = xbox360ControllerInputReport.count
-		//let pointer = unsafeBitCast(xbox360ControllerInputReport, to: UnsafePointer<Any>.self)
 
-		/*IOHIDDeviceSetReportWithCallback(
+		/*
+		let pointer = unsafeBitCast(xbox360ControllerInputReport, to: UnsafePointer<Any>.self)
+
+		IOHIDDeviceSetReportWithCallback(
 			device,
 			kIOHIDReportTypeInput,
 			1,
@@ -208,7 +237,8 @@ class Xbox360Controller {
 				//
 			},
 			hidContext
-		)*/
+		)
+		*/
 
 		IOHIDDeviceSetReport(
 			self.device,
@@ -218,16 +248,63 @@ class Xbox360Controller {
 			xbox360ControllerInputReportLength
 		)
 
+	}
+
+	private func sendRumbleReport(leftHeavySlowRumble:UInt8, rightLightFastRumble:UInt8) {
+
+		// FIXME not working :(
+		// maybe try a different driver...
+
 		/*
-		Rumbling is also similar to on the original controller. Rumble commands take the following form:
+
+		Updates to the controller’s user feedback features are sent on endpoint 1 OUT (0x01), also on interface 0.
+		These updates follow the same format as the sent data, where byte 0 is the ‘type’ identifier and byte 1 is the packet length (in bytes).
+
+		message of the following form:
+
 		00 08 00 bb ll 00 00 00
+
+		0x00 is the message type
+		0x08 is the message length
+		other 0x00 reserved for future use?
+
 		Where b is the speed to set the motor with the big weight
 		and l is the speed to set the small weight
 		(0x00 to 0xFF in both cases).
+
 		left motor low frequency
 		right motor high frequency
+
 		xinput allows values of ??
 		*/
+
+		let xbox360ControllerInputReport:[UInt8] = [0x00, 0x08, 0x00, leftHeavySlowRumble, rightLightFastRumble, 0x00, 0x00, 0x00]
+		let xbox360ControllerInputReportLength = xbox360ControllerInputReport.count
+
+		/*
+		let pointer = unsafeBitCast(xbox360ControllerInputReport, to: UnsafePointer<Any>.self)
+
+		IOHIDDeviceSetReportWithCallback(
+			device,
+			kIOHIDReportTypeInput,
+			1,
+			unsafeBitCast(xbox360ControllerInputReport, to: UnsafePointer.self),
+			xbox360ControllerInputReportLength,
+			500, // timeout in what?? ms
+			{() in
+				//
+			},
+			hidContext
+		)
+		*/
+
+		IOHIDDeviceSetReport(
+			self.device,
+			kIOHIDReportTypeOutput,
+			0x00, // report id, not sure which, 0x00, 0x01?
+			xbox360ControllerInputReport,
+			xbox360ControllerInputReportLength
+		)
 
 	}
 

@@ -15,7 +15,7 @@ class Xbox360Controller {
 	static let VENDOR_ID_MICROSOFT:Int64 = 0x045E // 1118
 	static let CONTROLLER_ID_XBOX_360:Int64 = 0x028E // 654
 	// 0x028F is the wireless version
-	// 0x02D1 is the xbox one controller
+	// 0x02D1 Xbox One controller -- see lloeki driver
 	// 0x02DD Xbox One Controller (Firmware 2015)
 	// 0x02E3 Xbox One Elite Controller
 	// 0x02E6 Wireless Xbox Controller Dongle
@@ -84,11 +84,18 @@ class Xbox360Controller {
 	// analog buttons
 
 	var leftStickX:Int16 = 0
+	var previousLeftStickX:Int16 = 0
 	var leftStickY:Int16 = 0
+	var previousLeftStickY:Int16 = 0
 	var rightStickX:Int16 = 0
+	var previousRightStickX:Int16 = 0
 	var rightStickY:Int16 = 0
+	var previousRightStickY:Int16 = 0
+	
 	var leftTrigger:UInt8 = 0
+	var previousLeftTrigger:UInt8 = 0
 	var rightTrigger:UInt8 = 0
+	var previousRightTrigger:UInt8 = 0
 
 	// battery ??
 
@@ -162,32 +169,110 @@ class Xbox360Controller {
 		self.leftStickButton  = secondaryButtons & 0b01000000 == 0b01000000
 		self.rightStickButton = secondaryButtons & 0b10000000 == 0b10000000
 
-		/*
-		0x00000001 	D-pad up
-		0x00000010 	D-pad down
-		0x00000100 	D-pad left
-		0x00001000 	D-pad right
-		*/
 		self.directionalPad   = secondaryButtons & 0b00001111
+
+		// triggers put here to enable digital reading of them
+		self.leftTrigger = report[4]
+		self.rightTrigger = report[5]
+
+		if self.previousMainButtons != self.mainButtons
+			|| self.previousSecondaryButtons != self.secondaryButtons
+			|| self.previousDirectionalPad != self.directionalPad
+			|| self.previousLeftTrigger != self.leftTrigger
+			|| self.previousRightTrigger != self.rightTrigger
+		{
+
+			DispatchQueue.main.async {
+				NotificationCenter.default.post(
+					name: GamePadButtonChangedNotification.Name,
+					object: GamePadButtonChangedNotification(
+						leftTriggerButton: self.leftTrigger > 0, // TODO improve this with a getter
+						leftShoulderButton: self.leftShoulderButton,
+						// TODO maybe save the dpad states individually?
+						upButton:    self.secondaryButtons & 0b00000001 == 0b00000001,
+						rightButton: self.secondaryButtons & 0b00001000 == 0b00001000,
+						downButton:  self.secondaryButtons & 0b00000010 == 0b00000010,
+						leftButton:  self.secondaryButtons & 0b00000100 == 0b00000100,
+						socialButton: self.backButton,
+						leftStickButton: self.leftStickButton,
+						trackPadButton: false,
+						centralButton: self.xboxButton,
+						rightStickButton: self.rightStickButton,
+						rightAuxiliaryButton: self.startButton,
+						faceNorthButton: self.yButton,
+						faceEastButton: self.bButton,
+						faceSouthButton: self.aButton,
+						faceWestButton: self.xButton,
+						rightShoulderButton: self.rightShoulderButton,
+						rightTriggerButton: self.rightTrigger > 0 // TODO improve this with a getter
+					)
+				)
+			}
+
+			self.previousMainButtons = self.mainButtons
+
+			self.previousYButton = self.yButton
+			self.previousBButton = self.bButton
+			self.previousAButton = self.aButton
+			self.previousXButton = self.xButton
+
+			self.previousDirectionalPad = self.directionalPad
+
+			self.previousSecondaryButtons = self.secondaryButtons
+
+			self.previousLeftShoulderButton = self.leftShoulderButton
+			self.previousRightShoulderButton = self.rightShoulderButton
+			// TODO save and notify the triggers as digital readings for compatibility
+			//self.previousLeftTriggerButton = self.leftTriggerButton
+			//self.previousRightTriggerButton = self.rightTriggerButton
+			self.previousLeftStickButton = self.leftStickButton
+			self.previousRightStickButton = self.rightStickButton
+
+			self.previousBackButton = self.backButton
+			self.previousStartButton = self.startButton
+
+			self.previousXboxButton = self.xboxButton
+
+		}
 
 		// analog buttons
 		// origin left top
-		// FIXME these are signed integers
-		// 6 goes crazy :P
-		// 7 left goes from 128 until 255 right goes from 0 to 128
+
 		self.leftStickX = Int16(report[7]) << 8 | Int16(report[6]) // 0 left
 		self.leftStickY = Int16(report[9]) << 8 | Int16(report[8]) // 0 up
 		self.rightStickX = Int16(report[11]) << 8 | Int16(report[10])
 		self.rightStickY = Int16(report[13]) << 8 | Int16(report[12])
-		self.leftTrigger = report[4] // 0 - 65535
-		self.rightTrigger = report[5] // 0 - 65535
 
-		/*
-		00 14 tt tt xx yy aa aa aa aa bb bb bb bb 00 00 00 00 00 00
+		if self.previousLeftStickX != self.leftStickX
+			|| self.previousLeftStickY != self.leftStickY
+			|| self.previousRightStickX != self.rightStickX
+			|| self.previousRightStickY != self.rightStickY
+			|| self.previousLeftTrigger != self.leftTrigger
+			|| self.previousRightTrigger != self.rightTrigger
+		{
 
-		a is the left hat,
-		b is the right hat
-		*/
+			DispatchQueue.main.async {
+				NotificationCenter.default.post(
+					name: GamePadAnalogChangedNotification.Name,
+					object: GamePadAnalogChangedNotification(
+						leftStickX: self.leftStickX,
+						leftStickY: self.leftStickY,
+						rightStickX: self.rightStickX,
+						rightStickY: self.rightStickY,
+						leftTrigger: self.leftTrigger,
+						rightTrigger: self.rightTrigger
+					)
+				)
+			}
+
+			self.previousLeftStickX = self.leftStickX
+			self.previousLeftStickY = self.leftStickY
+			self.previousRightStickX = self.rightStickX
+			self.previousRightStickY = self.rightStickY
+			self.previousLeftTrigger = self.leftTrigger
+			self.previousRightTrigger = self.rightTrigger
+
+		}
 
 	}
 

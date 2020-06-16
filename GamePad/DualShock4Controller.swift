@@ -65,9 +65,13 @@ class DualShock4Controller {
 	var previousL1:Bool = false
 	var r1:Bool = false
 	var previousR1:Bool = false
-	var l2:Bool = false // there's also the analog reading for this one
+	/// digital reading for left trigger
+	/// for the analog reading see leftTrigger
+	var l2:Bool = false
 	var previousL2:Bool = false
-	var r2:Bool = false // there's also the analog reading for this one
+	/// digital reading for right trigger
+	/// for the analog reading see rightTrigger
+	var r2:Bool = false
 	var previousR2:Bool = false
 
 	// thumbstick buttons
@@ -88,7 +92,7 @@ class DualShock4Controller {
 
 	// analog buttons
 
-	var leftStickX:UInt8 = 0 // TODO transform to Int16, why?
+	var leftStickX:UInt8 = 0 // TODO transform to Int16 because of xbox? or do this in the notification?
 	var previousLeftStickX:UInt8 = 0
 	var leftStickY:UInt8 = 0
 	var previousLeftStickY:UInt8 = 0
@@ -244,24 +248,24 @@ class DualShock4Controller {
 				NotificationCenter.default.post(
 					name: GamePadButtonChangedNotification.Name,
 					object: GamePadButtonChangedNotification(
-						// left trigger digital reading l2
+						leftTriggerButton: self.l2,
 						leftShoulderButton: self.l1,
 						upButton: (self.directionalPad == 0 || self.directionalPad == 1 || self.directionalPad == 7),
 						rightButton: (self.directionalPad == 2 || self.directionalPad == 1 || self.directionalPad == 3),
 						downButton: (self.directionalPad == 4 || self.directionalPad == 3 || self.directionalPad == 5),
 						leftButton: (self.directionalPad == 6 || self.directionalPad == 5 || self.directionalPad == 7),
-						shareButton: self.shareButton,
+						socialButton: self.shareButton,
 						leftStickButton: self.l3,
 						trackPadButton: self.trackpadButton,
-						psButton: self.psButton,
+						centralButton: self.psButton,
 						rightStickButton: self.r3,
-						optionsButton: self.optionsButton,
-						triangleButton: self.triangleButton,
-						circleButton: self.circleButton,
-						crossButton: self.crossButton,
-						squareButton: self.squareButton,
-						rightShoulderButton: self.r1
-						// right trigger digital reading r2
+						rightAuxiliaryButton: self.optionsButton,
+						faceNorthButton: self.triangleButton,
+						faceEastButton: self.circleButton,
+						faceSouthButton: self.crossButton,
+						faceWestButton: self.squareButton,
+						rightShoulderButton: self.r1,
+						rightTriggerButton: self.r2
 					)
 				)
 			}
@@ -313,10 +317,10 @@ class DualShock4Controller {
 				NotificationCenter.default.post(
 					name: GamePadAnalogChangedNotification.Name,
 					object: GamePadAnalogChangedNotification(
-						leftStickX: self.leftStickX,
-						leftStickY: self.leftStickY,
-						rightStickX: self.rightStickX,
-						rightStickY: self.rightStickY,
+						leftStickX: Int16(self.leftStickX),
+						leftStickY: Int16(self.leftStickY),
+						rightStickX: Int16(self.rightStickX),
+						rightStickY: Int16(self.rightStickY),
 						leftTrigger: self.leftTrigger,
 						rightTrigger: self.rightTrigger
 					)

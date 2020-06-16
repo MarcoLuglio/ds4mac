@@ -14,72 +14,119 @@ class GamePadButtonChangedNotification {
 
 	static let Name = Notification.Name("GamePadButtonChangedNotification")
 
+	/// for playstation and xbox, if the trigger is pressed or not
+	/// for nintendo, the trigger is not analog anyway
+	var leftTriggerButton = false
+
 	var leftShoulderButton = false
+
+	/// only nintendo
+	var minusButton = false
+
+	/// only nintendo switch, SL button on left joy-con
+	var leftSideTopButton = false
+
+	/// only nintendo switch, SR on left joy-con
+	var leftSideButtonButton = false
 
 	var upButton = false
 	var rightButton = false
 	var downButton = false
 	var leftButton = false
 
-	var shareButton = false
+	/// share/create button on playstation
+	/// back button on xbox 360
+	/// upload button on xbox series x
+	/// capture button on nintendo switch
+	var socialButton = false
+
+	/// windows button on xbox one and series x
+	var windowsButton = false
 
 	var leftStickButton = false
 	var leftStickX:Float = 0
 	var leftStickY:Float = 0
 
 	var trackPadButton = false
-	var psButton = false
+
+	/// ps button, xbox button, home button on nintendo
+	var centralButton = false
 
 	var rightStickButton = false
 	var rightStickX:Float = 0
 	var rightStickY:Float = 0
 
-	var optionsButton = false
+	/// options on playstation
+	/// start on xbox 360
+	/// hamburguer on xbox one and series x
+	var rightAuxiliaryButton = false
 
-	var triangleButton = false
-	var circleButton = false
-	var crossButton = false
-	var squareButton = false
+	/// triangle, y on xbox, x on intendo
+	var faceNorthButton = false
+
+	/// circle button, b on xbox, a on nintendo
+	var faceEastButton = false
+
+	/// triangle, a on xbox, b on nintendo
+	var faceSouthButton = false
+
+	/// square, x on xbox, y on nintendo
+	var faceWestButton = false
+
+	/// only nintendo switch, SL on the right joy-con
+	var rightSideButtonButton = false
+
+	/// only nintendo switch, SR on the right joycon
+	var rightSideTopButton = false
+
+	/// only nintendo
+	var plusButton = false
 
 	var rightShoulderButton = false
 
+	/// for playstation and xbox, if the trigger is pressed or not
+	/// for nintendo, the trigger is not analog anyway
+	var rightTriggerButton = false
+
 	init(
-		// left trigger digital reading
+		leftTriggerButton:Bool,
 		leftShoulderButton:Bool,
 		upButton:Bool,
 		rightButton:Bool,
 		downButton:Bool,
 		leftButton:Bool,
-		shareButton:Bool,
+		socialButton:Bool,
 		leftStickButton:Bool,
 		trackPadButton:Bool,
-		psButton:Bool,
+		centralButton:Bool,
 		rightStickButton:Bool,
-		optionsButton:Bool,
-		triangleButton:Bool,
-		circleButton:Bool,
-		crossButton:Bool,
-		squareButton:Bool,
-		rightShoulderButton:Bool
-		// right trigger digital reading
+		rightAuxiliaryButton:Bool,
+		faceNorthButton:Bool,
+		faceEastButton:Bool,
+		faceSouthButton:Bool,
+		faceWestButton:Bool,
+		rightShoulderButton:Bool,
+		rightTriggerButton:Bool
 	) {
 
+		self.leftTriggerButton = leftTriggerButton
 		self.leftShoulderButton = leftShoulderButton
 		self.upButton = upButton
 		self.rightButton = rightButton
 		self.downButton = downButton
 		self.leftButton = leftButton
-		self.shareButton = shareButton
+		self.socialButton = socialButton
 		self.leftStickButton = leftStickButton
 		self.trackPadButton = trackPadButton
-		self.psButton = psButton
+		self.centralButton = centralButton
 		self.rightStickButton = rightStickButton
-		self.optionsButton = optionsButton
-		self.triangleButton = triangleButton
-		self.circleButton = circleButton
-		self.crossButton = crossButton
-		self.squareButton = squareButton
+		self.rightAuxiliaryButton = rightAuxiliaryButton
+		self.faceNorthButton = faceNorthButton
+		self.faceEastButton = faceEastButton
+		self.faceSouthButton = faceSouthButton
+		self.faceWestButton = faceWestButton
 		self.rightShoulderButton = rightShoulderButton
+		self.rightTriggerButton = rightTriggerButton
 
 	}
 

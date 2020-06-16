@@ -8,22 +8,188 @@
 
 import SwiftUI
 
-struct Xbox360Tab: View {
-    var body: some View {
-        Text("View 1")
+struct XboxSeriesXTab: View {
+
+    @ObservedObject var xboxSeriesX = XboxSeriesXUIModel()
+
+	var body: some View {
+
+		VStack {
+
+			Group {
+				Button("Left heavy slow motor", action: rumbleLeft(intensity: 1))
+				Slider(value: $xboxSeriesX.leftTrigger, in: 0...255, step: 1)
+				Button(action: addItem) {
+					if self.xboxSeriesX.leftTriggerButton {
+						Text("Pressed")
+					} else {
+						Text("Left trigger")
+					}
+				}
+				Button(action: addItem) {
+					if self.xboxSeriesX.leftShoulderButton {
+						Text("Pressed")
+					} else {
+						Text("Left shoulder")
+					}
+				}
+			}
+
+			Group {
+				Button(action: addItem) {
+					if self.xboxSeriesX.upButton {
+						Text("Pressed")
+					} else {
+						Text("Up")
+					}
+				}
+				Button(action: addItem) {
+					if self.xboxSeriesX.rightButton {
+						Text("Pressed")
+					} else {
+						Text("Right")
+					}
+				}
+				Button(action: addItem) {
+					if self.xboxSeriesX.downButton {
+						Text("Pressed")
+					} else {
+						Text("Down")
+					}
+				}
+				Button(action: addItem) {
+					if self.xboxSeriesX.leftButton {
+						Text("Pressed")
+					} else {
+						Text("Left")
+					}
+				}
+			}
+
+			Group {
+
+				Button(action: addItem) {
+					if self.xboxSeriesX.backButton {
+						Text("Pressed")
+					} else {
+						Text("Back")
+					}
+				}
+
+				Button(action: addItem) {
+					if self.xboxSeriesX.leftStickButton {
+						Text("Pressed")
+					} else {
+						Text("Left stick")
+					}
+				}
+				Text("Left stick analog")
+
+			}
+
+			Button(action: addItem) {
+				if self.xboxSeriesX.xboxButton {
+					Text("Pressed")
+				} else {
+					Text("Xbox")
+				}
+			}
+
+			Group {
+
+				Text("Right stick analog")
+				Button(action: addItem) {
+					if self.xboxSeriesX.rightStickButton {
+						Text("Pressed")
+					} else {
+						Text("Right stick")
+					}
+				}
+
+				Button(action: addItem) {
+					if self.xboxSeriesX.startButton {
+						Text("Pressed")
+					} else {
+						Text("Start")
+					}
+				}
+
+			}
+
+			Group {
+				Button(action: addItem) {
+					if self.xboxSeriesX.yButton {
+						Text("Pressed")
+					} else {
+						Text("Y")
+					}
+				}
+				Button(action: addItem) {
+					if self.xboxSeriesX.bButton {
+						Text("Pressed")
+					} else {
+						Text("B")
+					}
+				}
+				Button(action: addItem) {
+					if self.xboxSeriesX.aButton {
+						Text("Pressed")
+					} else {
+						Text("A")
+					}
+				}
+				Button(action: addItem) {
+					if self.xboxSeriesX.xButton {
+						Text("Pressed")
+					} else {
+						Text("X")
+					}
+				}
+			}
+
+			Group {
+				Button(action: addItem) {
+					if self.xboxSeriesX.rightShoulderButton {
+						Text("Pressed")
+					} else {
+						Text("Right shoulder")
+					}
+				}
+				Button(action: addItem) {
+					if self.xboxSeriesX.rightTriggerButton {
+						Text("Pressed")
+					} else {
+						Text("Right trigger")
+					}
+				}
+				Slider(value: $xboxSeriesX.rightTrigger, in: 0...255, step: 1)
+				Button("Right light fast motor", action: rumbleRight(intensity: 1))
+			}
+
+		}
+
     }
+
 }
 
 struct DualShock4Tab: View {
 
-	@ObservedObject var dualShock4:DualShock4UIModel = DualShock4UIModel()
+	@ObservedObject var dualShock4 = DualShock4UIModel()
 
-    var body: some View {
+	var body: some View {
 
-        VStack {
+		VStack {
 
 			Group {
 				Button("Left heavy slow motor", action: rumbleLeft(intensity: 1))
+				Slider(value: $dualShock4.leftTrigger, in: 0...255, step: 1)
+				Button(action: addItem) {
+					if self.dualShock4.leftTriggerButton {
+						Text("Pressed")
+					} else {
+						Text("Left trigger")
+					}
+				}
 				Button(action: addItem) {
 					if self.dualShock4.leftShoulderButton {
 						Text("Pressed")
@@ -31,7 +197,6 @@ struct DualShock4Tab: View {
 						Text("Left shoulder")
 					}
 				}
-				Slider(value: $dualShock4.leftTrigger, in: 0...255, step: 1)
 			}
 
 			Group {
@@ -167,6 +332,13 @@ struct DualShock4Tab: View {
 						Text("Right shoulder")
 					}
 				}
+				Button(action: addItem) {
+					if self.dualShock4.rightTriggerButton {
+						Text("Pressed")
+					} else {
+						Text("Right trigger")
+					}
+				}
 				Slider(value: $dualShock4.rightTrigger, in: 0...255, step: 1)
 				Button("Right light fast motor", action: rumbleRight(intensity: 1))
 			}
@@ -187,7 +359,7 @@ struct DualShock4Tab: View {
 
 		}
 
-    }
+	}
 
 }
 
@@ -203,9 +375,9 @@ struct ContentView: View {
 
 		TabView {
 			// TODO do a for each here
-			Xbox360Tab()
+			XboxSeriesXTab()
 				.tabItem {
-					Text("Xbox 360")
+					Text("Xbox")
 				}
 			DualShock4Tab()
 				.tabItem {
@@ -229,7 +401,15 @@ struct ContentView_Previews: PreviewProvider {
 
 func rumbleLeft(intensity:UInt8) -> () -> Void {
 	return {
-		print(intensity)
+		DispatchQueue.main.async {
+			NotificationCenter.default.post(
+				name: DualShock4ChangeRumbleNotification.Name,
+				object: DualShock4ChangeRumbleNotification(
+					leftHeavySlowRumble: intensity,
+					rightLightFastRumble: 0
+				)
+			)
+		}
 	}
 }
 

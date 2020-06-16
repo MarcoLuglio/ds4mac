@@ -1,8 +1,8 @@
 //
-//  DualShock4UIModel.swift
+//  Xbox360UIModel.swift
 //  GamePad
 //
-//  Created by Marco Luglio on 09/06/20.
+//  Created by Marco Luglio on 15/06/20.
 //  Copyright © 2020 Marco Luglio. All rights reserved.
 //
 
@@ -11,7 +11,7 @@ import Combine
 
 
 
-class DualShock4UIModel: ObservableObject {
+class XboxSeriesXUIModel: ObservableObject {
 
 	var leftTrigger:Float = 0
 	var leftTriggerButton = false
@@ -22,31 +22,28 @@ class DualShock4UIModel: ObservableObject {
 	var downButton = false
 	var leftButton = false
 
-	var shareButton = false
+	var backButton = false
 
 	var leftStickButton = false
 	var leftStickX:Float = 0
 	var leftStickY:Float = 0
-	// TODO trackpad touches
-	var trackPadButton = false
-	var psButton = false
+
+	var xboxButton = false
 
 	var rightStickX:Float = 0
 	var rightStickY:Float = 0
 	var rightStickButton = false
 
-	var optionsButton = false
+	var startButton = false
 
-	var triangleButton = false
-	var circleButton = false
-	var crossButton = false
-	var squareButton = false
+	var yButton = false
+	var bButton = false
+	var aButton = false
+	var xButton = false
 
 	var rightShoulderButton = false
 	var rightTriggerButton = false
 	var rightTrigger:Float = 0
-
-	var battery:Float = 0
 
 	let objectWillChange = ObservableObjectPublisher()
 
@@ -68,16 +65,6 @@ class DualShock4UIModel: ObservableObject {
 				object: nil
 			)
 
-		// TODO trackpad
-
-		NotificationCenter.default
-			.addObserver(
-				self,
-				selector: #selector(self.updateBattery),
-				name: GamePadBatteryChangedNotification.Name,
-				object: nil
-			)
-
 	}
 
 	@objc func updateButtons(_ notification:Notification) {
@@ -90,16 +77,15 @@ class DualShock4UIModel: ObservableObject {
 		self.rightButton = o.rightButton
 		self.downButton = o.downButton
 		self.leftButton = o.leftButton
-		self.shareButton = o.socialButton
+		self.backButton = o.socialButton
 		self.leftStickButton = o.leftStickButton
-		self.trackPadButton = o.trackPadButton
-		self.psButton = o.centralButton
+		self.xboxButton = o.centralButton
 		self.rightStickButton = o.rightStickButton
-		self.optionsButton = o.rightAuxiliaryButton
-		self.triangleButton = o.faceNorthButton
-		self.circleButton = o.faceEastButton
-		self.crossButton = o.faceSouthButton
-		self.squareButton = o.faceWestButton
+		self.startButton = o.rightAuxiliaryButton
+		self.yButton = o.faceNorthButton
+		self.bButton = o.faceEastButton
+		self.aButton = o.faceSouthButton
+		self.xButton = o.faceWestButton
 		self.rightShoulderButton = o.rightShoulderButton
 		self.rightTriggerButton = o.rightTriggerButton
 
@@ -120,16 +106,6 @@ class DualShock4UIModel: ObservableObject {
 		self.rightStickY = Float(o.rightStickY)
 
 		self.rightTrigger = Float(o.rightTrigger)
-
-		objectWillChange.send()
-
-	}
-
-	@objc func updateBattery(_ notification:Notification) {
-
-		let o = notification.object as! GamePadBatteryChangedNotification
-
-		self.battery = Float(o.battery)
 
 		objectWillChange.send()
 

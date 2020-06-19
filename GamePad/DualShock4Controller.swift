@@ -1232,54 +1232,53 @@ class DualShock4Controller {
 	/// - Parameter flashOff: Duration in a cycle which the led remains off
 	func sendReport(leftHeavySlowRumble:UInt8, rightLightFastRumble:UInt8, red:UInt8, green:UInt8, blue:UInt8, flashOn:UInt8 = 0, flashOff:UInt8 = 0) {
 
-		//let toggleMotor:UInt8 = 0xf0 // 0xf0 disable 0xf3 enable or 0b00001111 // enable unknown, flash, color, rumble
+		// let toggleMotor:UInt8 = 0xf0 // 0xf0 disable 0xf3 enable or 0b00001111 // enable unknown, flash, color, rumble
 
-		//let flashOn:UInt8 = 0x00 // flash on duration (in what units??)
-		//let flashOff:UInt8 = 0x00 // flash off duration (in what units??)
+		// let flashOn:UInt8 = 0x00 // flash on duration (in what units??)
+		// let flashOff:UInt8 = 0x00 // flash off duration (in what units??)
 
 		let bluetoothOffset = self.isBluetooth ? 2 : 0
 
-		var dualshock4ControllerInputReportUSB = [UInt8](repeating: 0, count: 11) // 31 over bluetooth
+		var dualshock4ControllerOutputReport:[UInt8]
 
-		dualshock4ControllerInputReportUSB[0] = 0x05;
+		if self.isBluetooth {
+			// TODO check this with docs and other projects
+			dualshock4ControllerOutputReport = [UInt8](repeating: 0, count: 74)
+			dualshock4ControllerOutputReport[0] = 0x15; // 0x11
+			dualshock4ControllerOutputReport[1] = 0x0 //(0xC0 | btPollRate) // (0x80 | btPollRate); // input report rate // FIXME check this
+			// enable rumble (0x01), lightbar (0x02), flash (0x04) // TODO check this too
+			dualshock4ControllerOutputReport[2] = 0xA0
+		} else {
+			dualshock4ControllerOutputReport = [UInt8](repeating: 0, count: 11)
+			dualshock4ControllerOutputReport[0] = 0x05
+		}
+
+
 		// enable rumble (0x01), lightbar (0x02), flash (0x04) 0b00000111
-		dualshock4ControllerInputReportUSB[1] = 0xf7; // 0b11110111
-		dualshock4ControllerInputReportUSB[2] = 0x04;
-		dualshock4ControllerInputReportUSB[4] = rightLightFastRumble;
-		dualshock4ControllerInputReportUSB[5] = leftHeavySlowRumble;
-		dualshock4ControllerInputReportUSB[6] = red;
-		dualshock4ControllerInputReportUSB[7] = green;
-		dualshock4ControllerInputReportUSB[8] = blue;
-		dualshock4ControllerInputReportUSB[9] = flashOn;
-		dualshock4ControllerInputReportUSB[10] = flashOff;
+		dualshock4ControllerOutputReport[1 + bluetoothOffset] = 0xf7 // 0b11110111
+		dualshock4ControllerOutputReport[2 + bluetoothOffset] = 0x04
+		dualshock4ControllerOutputReport[4 + bluetoothOffset] = rightLightFastRumble
+		dualshock4ControllerOutputReport[5 + bluetoothOffset] = leftHeavySlowRumble
+		dualshock4ControllerOutputReport[6 + bluetoothOffset] = red
+		dualshock4ControllerOutputReport[7 + bluetoothOffset] = green
+		dualshock4ControllerOutputReport[8 + bluetoothOffset] = blue
+		dualshock4ControllerOutputReport[9 + bluetoothOffset] = flashOn
+		dualshock4ControllerOutputReport[10 + bluetoothOffset] = flashOff
 
-		//var dualshock4ControllerInputReportBluetooth = [UInt8](repeating: 0, count: 74)
+		if self.isBluetooth {
+			// TODO calculate CRC32 here
+			/*let dualshock4ControllerInputReportBluetoothCRC = CRC32.checksum(bytes: dualshock4ControllerInputReportBluetooth)
+			dualshock4ControllerInputReportBluetooth.append(contentsOf: dualshock4ControllerInputReportBluetoothCRC)*/
+		}
 
-		/*dualshock4ControllerInputReportBluetooth[0] = 0x15; // 0x11
-		dualshock4ControllerInputReportBluetooth[1] = (0xC0 | btPollRate) // (0x80 | btPollRate); // input report rate
-		// enable rumble (0x01), lightbar (0x02), flash (0x04)
-		dualshock4ControllerInputReportBluetooth[2] = 0xA0;
-		dualshock4ControllerInputReportBluetooth[3] = 0xf7;
-		dualshock4ControllerInputReportBluetooth[4] = 0x04;
-		dualshock4ControllerInputReportBluetooth[4 + bluetoothOffset] = rightLightFastRumble;
-		dualshock4ControllerInputReportBluetooth[5 + bluetoothOffset] = leftHeavySlowRumble;
-		dualshock4ControllerInputReportBluetooth[6 + bluetoothOffset] = red;
-		dualshock4ControllerInputReportBluetooth[7 + bluetoothOffset] = green;
-		dualshock4ControllerInputReportBluetooth[8 + bluetoothOffset] = blue;
-		dualshock4ControllerInputReportBluetooth[9 + bluetoothOffset] = flashOn;
-		dualshock4ControllerInputReportBluetooth[10 + bluetoothOffset] = flashOff;*/
-
-		/*let dualshock4ControllerInputReportBluetoothCRC = CRC32.checksum(bytes: dualshock4ControllerInputReportBluetooth)
-		dualshock4ControllerInputReportBluetooth.append(contentsOf: dualshock4ControllerInputReportBluetoothCRC)*/
-
-		print("size of report: \(dualshock4ControllerInputReportUSB.count)")
+		print("size of report: \(dualshock4ControllerOutputReport.count)")
 
 		IOHIDDeviceSetReport(
 			device,
 			kIOHIDReportTypeOutput,
 			0x01, // report id
-			dualshock4ControllerInputReportUSB,
-			dualshock4ControllerInputReportUSB.count
+			dualshock4ControllerOutputReport,
+			dualshock4ControllerOutputReport.count
 		)
 
 	}

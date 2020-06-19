@@ -1024,11 +1024,12 @@ class DualShock4Controller {
 			self.batteryCharging = true
 		}
 
+		// on usb battery tanges from 0 to 9, but on bluetooth the range is 0 to 10
 		if !cableConnected && self.batteryLevel < 10  {
 			self.batteryLevel += 1
 		}
 
-		if self.previousBatteryLevel != self.batteryLevel { // TODO there are differences when measuring over bluetooth
+		if self.previousBatteryLevel != self.batteryLevel {
 
 			self.previousBatteryLevel = self.batteryLevel
 

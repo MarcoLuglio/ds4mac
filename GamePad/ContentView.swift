@@ -343,8 +343,33 @@ struct DualShock4Tab: View {
 				Button("Right light fast motor", action: rumbleRight(intensity: 1))
 			}
 
+			/*
+			init<V>(
+				value: Binding<V>,
+				in bounds: ClosedRange<V>,
+				step: V.Stride = 1,
+				onEditingChanged: @escaping (Bool) -> Void = { _ in },
+				minimumValueLabel: ValueLabel,
+				maximumValueLabel: ValueLabel,
+				label: () -> Label
+			) where V : BinaryFloatingPoint,
+				V.Stride : BinaryFloatingPoint
+			*/
+
 			Group {
-				Slider(value: $dualShock4.battery, in: 0...10, step: 1)
+				Slider<Text, Text>(
+					value: $dualShock4.battery,
+					in: 0...10,
+					step: 1,
+					onEditingChanged: {(someBool) in },
+					minimumValueLabel: Text("0"),
+					maximumValueLabel: Text("10"),
+					label: {() in
+						var batteryLevel = Int32(dualShock4.battery)
+						var label = Text("battery level: \(batteryLevel)")
+						return label
+					}
+				)
 			}
 
 			/*Slider(

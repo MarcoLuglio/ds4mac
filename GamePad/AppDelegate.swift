@@ -28,6 +28,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		    styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
 		    backing: .buffered, defer: false
 		)
+
+		/*
+		window size is stored in UserDefaults
+		override func awakeFromNib() {
+		  super.awakeFromNib()
+
+		  guard let data = UserDefaults.standard.data(forKey: key),
+			let frame = NSKeyedUnarchiver.unarchiveObject(with: data) as? NSRect else {
+			  return
+		  }
+
+		  window?.setFrame(frame, display: true)
+		}
+		*/
+
 		window.center()
 		window.setFrameAutosaveName("DS4Mac")
 		window.contentView = NSHostingView(rootView: contentView)

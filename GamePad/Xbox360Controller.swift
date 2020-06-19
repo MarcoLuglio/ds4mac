@@ -149,6 +149,9 @@ class Xbox360Controller {
 		// report[0] // always 0x00
 		// report[1] // always 0x14
 
+		// for xbox 360
+		// type 0, id 0, length 20 bytes
+
 		self.mainButtons = report[3]
 
 		self.yButton             = mainButtons & 0b10000000 == 0b10000000

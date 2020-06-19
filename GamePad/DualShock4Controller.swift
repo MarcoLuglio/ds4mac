@@ -189,6 +189,69 @@ class DualShock4Controller {
 			self.requestCalibrationDataReport()
 		}
 
+		/*
+		Sony "official" driver maintained by Sony employee:
+		https://github.com/torvalds/linux/blob/master/drivers/hid/hid-sony.c
+
+
+		Structure HID transaction (portion)
+
+		Input and output reports specify control data and feature reports specify configuration data.
+
+		Data Format
+
+		|----------|-----|-----|-----|-----|-----|-----|-----|-------|
+		|byte index|bit 7|bit 6|bit 5|bit 4|bit 3|bit 2|bit 1|bit 0  |
+		|----------|-----|-----|-----|-----|-----|-----|-----|-------|
+		|[0]       |transaction type:      |parameters:|report type: |
+		|          |                       |           |             |
+		|          |0x04: GET REPORT       |0x00       |0x01: input  |
+		|          |0x05: SET REPORT       |0x01       |0x02: output |
+		|          |0x0A: DATA             |0x02       |0x03: feature|
+		|----------|-----|-----|-----|-----|-----|-----|-----|-------|
+
+		to calibrate ds4
+
+		ds4windows does this, though it is a bit hard to follow
+
+		0x03
+		The transaction type is SET REPORT (0x05), and the report type is FEATURE (0x03). The protocol code is 0x03.
+		Most bytes from index 4 change between two reports.
+		Report example:
+
+		0x53, 0x03, 0x02, 0x00, 0xf1, 0xdf, 0xd3, 0x7b, 0x4f, 0x49, 0x0b, 0x0b, 0x7c, 0x79, 0xde, 0xad,
+		0x5d, 0xa3, 0x41, 0x8a, 0x9c, 0x2e, 0xaf, 0x09, 0xc4, 0xa6, 0x80, 0xb4, 0x82, 0x87, 0x2c, 0xbf,
+		0x86, 0xe0, 0x2a, 0x86, 0x60, 0xa0, 0x23, 0x33
+
+		Data Format byte index 	bit 7 	bit 6 	bit 5 	bit 4 	bit 3 	bit 2 	bit 1 	bit 0
+		[0] 	0x05 	0x00 	0x03
+		[1] 	0x03
+		[2] 	sequence counter (init = 0x02, step = 1)
+		[3] 	0x00
+		[4 - 35] 	TODO, work in progress.
+		[36 - 39] 	CRC-32 of the previous bytes.
+
+		There is a periodic report sequence that consists in 5 0xf0 SET FEATURE reports, 2 0xf2 GET FEATURE reports, and 19 0xf1 GET FEATURE REPORTS. Each sequence takes about 30 seconds, and a new sequence starts about 30 seconds after the end of the last one. There is 1 second between two reports sent by the PS4.
+		There is another periodic report sequence that consists in one 0x03 SET FEATURE report and 1 0x04 GET FEATURE report. A new sequence starts about 30 seconds after the end of the last one. The 0x03 SET FEATURE report is sent 5 seconds after the 0x04 GET FEATURE report.
+		These two periodic sequences seem to be independent as they do not have the same period, and they have two distinct sequence counters.
+
+		* The default behavior of the Dualshock 4 is to send reports using
+		* report type 1 when running over Bluetooth. However, when feature
+		* report 2 is requested during the controller initialization it starts
+		* sending input reports in report 17. Since report 17 is undefined
+		* in the default HID descriptor, the HID layer won't generate events.
+		* While it is possible (and this was done before) to fixup the HID
+		* descriptor to add this mapping, it was better to do this manually.
+		* The reason is there were various pieces software both open and closed
+		* source, relying on the descriptors to be the same across various
+		* operating systems. If the descriptors wouldn't match some
+		* applications e.g. games on Wine would not be able to function due
+		* to different descriptors, which such applications are not parsing.
+
+		Check https://patchwork.kernel.org/patch/9467479/ for functional example besides the DS4Windows
+
+		*/
+
 	}
 
 	public private(set) var gyroZ:Float32 {

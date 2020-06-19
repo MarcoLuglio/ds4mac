@@ -344,7 +344,7 @@ struct DualShock4Tab: View {
 			}
 
 			Group {
-				Slider(value: $dualShock4.battery, in: 0...8, step: 1)
+				Slider(value: $dualShock4.battery, in: 0...10, step: 1)
 			}
 
 			/*Slider(

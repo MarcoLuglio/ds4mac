@@ -126,7 +126,7 @@ class GamePadMonitor {
 			hidContext // reference to self that can be passed to c functions, essentially a pointer to void, meaning it can point to any type
 		)
 
-		//IOHIDManagerRegisterInputValueCallback(<#T##manager: IOHIDManager##IOHIDManager#>, <#T##callback: IOHIDValueCallback?##IOHIDValueCallback?##(UnsafeMutableRawPointer?, IOReturn, UnsafeMutableRawPointer?, IOHIDValue) -> Void#>, <#T##context: UnsafeMutableRawPointer?##UnsafeMutableRawPointer?#>)
+		//IOHIDManagerRegisterInputValueCallback(T##manager: IOHIDManager##IOHIDManager, T##callback: IOHIDValueCallback?##IOHIDValueCallback?##(UnsafeMutableRawPointer?, IOReturn, UnsafeMutableRawPointer?, IOHIDValue) -> Void, T##context: UnsafeMutableRawPointer?##UnsafeMutableRawPointer?)
 
 		IOHIDManagerRegisterInputReportCallback(
 			hidManager,
@@ -186,16 +186,22 @@ class GamePadMonitor {
 		let productID:Int64 = IOHIDDeviceGetProperty(device, kIOHIDProductIDKey as CFString) as! Int64;
 		let vendorName = IOHIDDeviceGetProperty(device, kIOHIDManufacturerKey as CFString);
 		let vendorID:Int64 = IOHIDDeviceGetProperty(device, kIOHIDVendorIDKey as CFString) as! Int64;
+		let transport = IOHIDDeviceGetProperty(device, kIOHIDTransportKey as CFString);
 
-		print(productName!) // Xbox 360 Wired Controller
-		print(vendorName!) // ©Microsoft Corporation
+		// not sure if I'll need this
+		//let reportInterval = IOHIDDeviceGetProperty(device, kIOHIDReportIntervalKey as CFString);
+		//print(reportInterval!) // for DS4 11250 micro seconds or 11.25ms
+
+		print(productName!)
+		print(vendorName!)
+		print(transport!)
 
 		if vendorID == Xbox360Controller.VENDOR_ID_MICROSOFT && productID == Xbox360Controller.CONTROLLER_ID_XBOX_360 {
 			self.xbox360Controller = Xbox360Controller(device)
 		} else if vendorID == DualShock4Controller.VENDOR_ID_SONY
 			&& (productID == DualShock4Controller.CONTROLLER_ID_DUALSHOCK_4_USB || productID == DualShock4Controller.CONTROLLER_ID_DUALSHOCK_4_USB_V2 || productID == DualShock4Controller.CONTROLLER_ID_DUALSHOCK_4_BLUETOOTH)
 		{
-			self.dualShock4Controller = DualShock4Controller(device)
+			self.dualShock4Controller = DualShock4Controller(device, productID: productID, transport: transport as! String, enableIMUReport: true)
 		}
 
 	}
@@ -210,7 +216,7 @@ class GamePadMonitor {
 	}
 
 	/// Data input report callback
-	func inputReportCallback(result:IOReturn, sender:Any, reportType:IOHIDReportType, reportID:UInt32, report:Data) {
+	func inputReportCallback(result:IOReturn, sender:UnsafeMutableRawPointer, reportType:IOHIDReportType, reportID:UInt32, report:Data) {
 
 		/*
 		Sony "official" driver maintained by Sony employee:
@@ -275,10 +281,6 @@ class GamePadMonitor {
 
 		Check https://patchwork.kernel.org/patch/9467479/ for functional example besides the DS4Windows
 
-		// I think report id is what the psdevwiki calls protocol code
-		// for calibrating the device, it is 0x05 and the length is 41
-		// var ioReturn = IOHIDDeviceGetReport(device, kIOHIDReportTypeFeature, reportId:CFIndex, report:UnsafePointer<UInt8>, reportLength:CFIndex)
-		// var ioReturn = IOHIDDeviceSetReport(device, , kIOHIDReportTypeFeature, reportId:CFIndex, report:UnsafePointer<UInt8>, reportLength:CFIndex)
 		*/
 
 		// for xbox 360
@@ -287,9 +289,12 @@ class GamePadMonitor {
 		// for ds4
 		// type 0, id 1, length 64 bytes
 
-		if report.count == 14 { // TODO xbox360, improve this later, maybe by checking the sender?
+		let device = unsafeBitCast(sender, to: IOHIDDevice.self)
+
+		// TODO should I pass the report id? should I check that the report type is 0 (input)? this callback won't be used for anything else
+		if device == self.xbox360Controller?.device {
 			self.xbox360Controller.parseReport(report)
-		} else if report.count == 64 { // TODO ds4, improve this later, maybe checking the sender?
+		} else if device == self.dualShock4Controller?.device {
 			self.dualShock4Controller.parseReport(report)
 		} else {
 			print("report id: \(String(reportID, radix: 16))")

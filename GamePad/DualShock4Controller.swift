@@ -158,8 +158,12 @@ class DualShock4Controller {
 		self.id = DualShock4Controller.nextId
 		DualShock4Controller.nextId = DualShock4Controller.nextId + 1
 
-		self.productID = productID
 		self.transport = transport
+		if self.transport == "Bluetooth" {
+			self.isBluetooth = true
+		}
+
+		self.productID = productID
 		self.device = device
 		self.enableIMUReport = enableIMUReport
 		
@@ -215,7 +219,9 @@ class DualShock4Controller {
 		self.time = Date()
 		self.timeInterval = self.time.timeIntervalSince(self.previousTime) * 1_000_000
 
-		self.mainButtons = report[5]
+		let bluetoothOffset = self.isBluetooth ? 2 : 0
+
+		self.mainButtons = report[5 + bluetoothOffset]
 
 		self.triangleButton = self.mainButtons & 0b10000000 == 0b10000000
 		self.circleButton   = self.mainButtons & 0b01000000 == 0b01000000
@@ -230,7 +236,7 @@ class DualShock4Controller {
 		self.leftButton: (self.directionalPad == 6 || self.directionalPad == 5 || self.directionalPad == 7),
 		*/
 
-		self.secondaryButtons = report[6]
+		self.secondaryButtons = report[6 + bluetoothOffset]
 
 		self.l1            = self.secondaryButtons & 0b00000001 == 0b00000001
 		self.r1            = self.secondaryButtons & 0b00000010 == 0b00000010
@@ -243,9 +249,9 @@ class DualShock4Controller {
 		self.shareButton   = self.secondaryButtons & 0b00010000 == 0b00010000
 		self.optionsButton = self.secondaryButtons & 0b00100000 == 0b00100000
 
-		self.psButton = report[7] & 0b00000001 == 0b00000001
+		self.psButton = report[7 + bluetoothOffset] & 0b00000001 == 0b00000001
 
-		self.reportIterator = report[7] >> 2 // [7] 	Counter (counts up by 1 per report), I guess this is only relevant to bluetooth
+		self.reportIterator = report[7 + bluetoothOffset] >> 2 // [7] 	Counter (counts up by 1 per report), I guess this is only relevant to bluetooth
 
 		if self.previousMainButtons != self.mainButtons
 			|| self.previousSecondaryButtons != self.secondaryButtons
@@ -307,12 +313,12 @@ class DualShock4Controller {
 
 		// analog buttons
 		// origin left top
-		self.leftStickX = report[1] // 0 left
-		self.leftStickY = report[2] // 0 up
-		self.rightStickX = report[3]
-		self.rightStickY = report[4]
-		self.leftTrigger = report[8] // 0 - 255
-		self.rightTrigger = report[9] // 0 - 255
+		self.leftStickX = report[1 + bluetoothOffset] // 0 left
+		self.leftStickY = report[2 + bluetoothOffset] // 0 up
+		self.rightStickX = report[3 + bluetoothOffset]
+		self.rightStickY = report[4 + bluetoothOffset]
+		self.leftTrigger = report[8 + bluetoothOffset] // 0 - 255
+		self.rightTrigger = report[9 + bluetoothOffset] // 0 - 255
 
 		if self.previousLeftStickX != self.leftStickX
 			|| self.previousLeftStickY != self.leftStickY
@@ -347,7 +353,7 @@ class DualShock4Controller {
 
 		// trackpad
 
-		self.trackpadButton = report[7] & 0b00000010 == 0b00000010
+		self.trackpadButton = report[7 + bluetoothOffset] & 0b00000010 == 0b00000010
 
 		/*
 
@@ -382,25 +388,21 @@ class DualShock4Controller {
 		*/
 
 		if report.count < 11 {
-			self.isBluetooth = true // TODO find the correct way to check if it is bluetooth or not
-
-			// TODO enable gyro
-
 			return
 		}
 
 		self.previousReportTime = self.reportTime
-		self.reportTime = (Int32(report[11]) << 8 | Int32(report[10])) // this is little endian
+		self.reportTime = (Int32(report[11 + bluetoothOffset]) << 8 | Int32(report[10 + bluetoothOffset])) // this is little endian
 		self.reportTimeInterval = self.reportTime - self.previousReportTime
 		if self.reportTimeInterval < 0 {
 			self.reportTimeInterval += UINT16_MAX
 		}
 
-		let numberOfPackets = report[34]
+		let numberOfPackets = report[34 + bluetoothOffset]
 
 		// 35 packets as well?
 
-		self.trackpadTouch0IsActive = report[35] & 0b10000000 != 0b10000000 // if not active, no need to parse the rest
+		self.trackpadTouch0IsActive = report[35 + bluetoothOffset] & 0b10000000 != 0b10000000 // if not active, no need to parse the rest
 
 		/*
 		cState.TrackPadTouch0.X = (short)(((ushort)(inputReport[37] & 0x0f) << 8) | (ushort)(inputReport[36]));
@@ -884,9 +886,9 @@ class DualShock4Controller {
 		[12] 	Unknown yet, 0x03 or 0x04
 		*/
 
-		self.gyroX =  Float32(Int16(report[14] << 8) | Int16(report[13]))
-		self.gyroY =  Float32(Int16(report[16] << 8) | Int16(report[15]))
-		self.gyroZ =  Float32(Int16(report[18] << 8) | Int16(report[17]))
+		self.gyroX =  Float32(Int16(report[14 + bluetoothOffset] << 8) | Int16(report[13 + bluetoothOffset]))
+		self.gyroY =  Float32(Int16(report[16 + bluetoothOffset] << 8) | Int16(report[15 + bluetoothOffset]))
+		self.gyroZ =  Float32(Int16(report[18 + bluetoothOffset] << 8) | Int16(report[17 + bluetoothOffset]))
 
 		/*print("gyro z: \(self._gyroZ)")
 		print("rotation z: \(self.rotationZ)")*/
@@ -899,9 +901,9 @@ class DualShock4Controller {
 			)/1024f;
 		*/
 
-		self.accelX = Float32(Int16(report[22] << 8) | Int16(report[21]))
-		self.accelY = Float32(Int16(report[20] << 8) | Int16(report[19]))
-		self.accelZ = Float32(Int16(report[24] << 8) | Int16(report[23]))
+		self.accelX = Float32(Int16(report[22 + bluetoothOffset] << 8) | Int16(report[21 + bluetoothOffset]))
+		self.accelY = Float32(Int16(report[20 + bluetoothOffset] << 8) | Int16(report[19 + bluetoothOffset]))
+		self.accelZ = Float32(Int16(report[24 + bluetoothOffset] << 8) | Int16(report[23 + bluetoothOffset]))
 
 		/*print("accel x: \(self.accelX)")
 		print("accel y: \(self.accelY)")
@@ -947,11 +949,11 @@ class DualShock4Controller {
 		}
 		*/
 
-		let timestamp = UInt32(report[10]) | UInt32(report[11]) << 8
+		let timestamp = UInt32(report[10 + bluetoothOffset]) | UInt32(report[11 + bluetoothOffset]) << 8
 		let timestampUS = (timestamp * 16) / 3
 
-		self.cableConnected = ((report[30] >> 4) & 0b00000001) == 1
-		self.batteryLevel = report[30] & 0b00001111
+		self.cableConnected = ((report[30 + bluetoothOffset] >> 4) & 0b00000001) == 1
+		self.batteryLevel = report[30 + bluetoothOffset] & 0b00001111
 
 		if !cableConnected || self.batteryLevel > 10 {
 			self.batteryCharging = false
@@ -1171,7 +1173,7 @@ class DualShock4Controller {
 		//let flashOn:UInt8 = 0x00 // flash on duration (in what units??)
 		//let flashOff:UInt8 = 0x00 // flash off duration (in what units??)
 
-		let bluetoothOffset = 2
+		let bluetoothOffset = self.isBluetooth ? 2 : 0
 
 		var dualshock4ControllerInputReportUSB = [UInt8](repeating: 0, count: 11) // 31 over bluetooth
 

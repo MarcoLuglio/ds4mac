@@ -12,6 +12,7 @@
 		A9063B182495766700B0E0ED /* Xbox360LedPattern.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9063B172495766700B0E0ED /* Xbox360LedPattern.swift */; };
 		A90DC849248C4E67003CD258 /* JoyConController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90DC848248C4E67003CD258 /* JoyConController.swift */; };
 		A917BFD824984D2C00992913 /* XboxSeriesXUIModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A917BFD724984D2C00992913 /* XboxSeriesXUIModel.swift */; };
+		A97A418D249C6F3000250DB7 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = A97A418C249C6F0700250DB7 /* libz.tbd */; };
 		A97E75C92482E78000FAA13A /* Xbox360Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97E75C82482E78000FAA13A /* Xbox360Controller.swift */; };
 		A97E75CB2482E7A200FAA13A /* DualShock4Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97E75CA2482E7A200FAA13A /* DualShock4Controller.swift */; };
 		A9879C1F248481C200AB4DE9 /* CRC32.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9879C1E248481C200AB4DE9 /* CRC32.swift */; };
@@ -58,6 +59,7 @@
 		A9063B172495766700B0E0ED /* Xbox360LedPattern.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Xbox360LedPattern.swift; sourceTree = "<group>"; };
 		A90DC848248C4E67003CD258 /* JoyConController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyConController.swift; sourceTree = "<group>"; };
 		A917BFD724984D2C00992913 /* XboxSeriesXUIModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XboxSeriesXUIModel.swift; sourceTree = "<group>"; };
+		A97A418C249C6F0700250DB7 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		A97E75C82482E78000FAA13A /* Xbox360Controller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Xbox360Controller.swift; sourceTree = "<group>"; };
 		A97E75CA2482E7A200FAA13A /* DualShock4Controller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DualShock4Controller.swift; sourceTree = "<group>"; };
 		A9879C1E248481C200AB4DE9 /* CRC32.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CRC32.swift; sourceTree = "<group>"; };
@@ -94,6 +96,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A9D72FAF248204FE0000A89F /* GameController.framework in Frameworks */,
+				A97A418D249C6F3000250DB7 /* libz.tbd in Frameworks */,
 				A9D72FAD2482046A0000A89F /* IOKit.framework in Frameworks */,
 				A9D72FB1248205070000A89F /* ForceFeedback.framework in Frameworks */,
 			);
@@ -212,6 +215,7 @@
 		A9D72FAB2482046A0000A89F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A97A418C249C6F0700250DB7 /* libz.tbd */,
 				A9D72FB0248205070000A89F /* ForceFeedback.framework */,
 				A9D72FAE248204FE0000A89F /* GameController.framework */,
 				A9D72FAC2482046A0000A89F /* IOKit.framework */,

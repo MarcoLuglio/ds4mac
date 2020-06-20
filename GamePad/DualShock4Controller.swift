@@ -44,20 +44,20 @@ class DualShock4Controller {
 	var previousMainButtons:UInt8 = 0
 
 	// top button
-	var triangleButton:Bool = false
-	var previousTriangleButton:Bool = false
+	var triangleButton = false
+	var previousTriangleButton = false
 
 	// right button
-	var circleButton:Bool = false
-	var previousCircleButton:Bool = false
+	var circleButton = false
+	var previousCircleButton = false
 
 	// bottom button
-	var crossButton:Bool = false
-	var previousCrossButton:Bool = false
+	var crossButton = false
+	var previousCrossButton = false
 
 	// left button
-	var squareButton:Bool = false
-	var previousSquareButton:Bool = false
+	var squareButton = false
+	var previousSquareButton = false
 
 	var directionalPad:UInt8 = 0
 	var previousDirectionalPad:UInt8 = 0
@@ -67,34 +67,34 @@ class DualShock4Controller {
 	var previousSecondaryButtons:UInt8 = 0
 
 	// shoulder buttons
-	var l1:Bool = false
-	var previousL1:Bool = false
-	var r1:Bool = false
-	var previousR1:Bool = false
+	var l1 = false
+	var previousL1 = false
+	var r1 = false
+	var previousR1 = false
 	/// digital reading for left trigger
 	/// for the analog reading see leftTrigger
-	var l2:Bool = false
-	var previousL2:Bool = false
+	var l2 = false
+	var previousL2 = false
 	/// digital reading for right trigger
 	/// for the analog reading see rightTrigger
-	var r2:Bool = false
-	var previousR2:Bool = false
+	var r2 = false
+	var previousR2 = false
 
 	// thumbstick buttons
-	var l3:Bool = false
-	var previousL3:Bool = false
-	var r3:Bool = false
-	var previousR3:Bool = false
+	var l3 = false
+	var previousL3 = false
+	var r3 = false
+	var previousR3 = false
 
 	// other buttons
 
-	var shareButton:Bool = false
-	var previousShareButton:Bool = false
-	var optionsButton:Bool = false
-	var previousOptionsButton:Bool = false
+	var shareButton = false
+	var previousShareButton = false
+	var optionsButton = false
+	var previousOptionsButton = false
 
-	var psButton:Bool = false
-	var previousPsButton:Bool = false
+	var psButton = false
+	var previousPsButton = false
 
 	// analog buttons
 
@@ -114,17 +114,17 @@ class DualShock4Controller {
 
 	// trackpad
 
-	var trackpadButton:Bool = false
-	var previousTrackpadButton:Bool = false
+	var trackpadButton = false
+	var previousTrackpadButton = false
 
-	var trackpadTouch0IsActive:Bool = false
-	var previousTrackpadTouch0IsActive:Bool = false
+	var trackpadTouch0IsActive = false
+	var previousTrackpadTouch0IsActive = false
 	var trackpadTouch0Id:UInt8 = 0
 	var trackpadTouch0X:UInt8 = 0
 	var trackpadTouch0Y:UInt8 = 0
 
-	var trackpadTouch1IsActive:Bool = false
-	var previousTrackpadTouch1IsActive:Bool = false
+	var trackpadTouch1IsActive = false
+	var previousTrackpadTouch1IsActive = false
 	var trackpadTouch1Id:UInt8 = 0
 	var trackpadTouch1X:UInt8 = 0
 	var trackpadTouch1Y:UInt8 = 0
@@ -143,8 +143,8 @@ class DualShock4Controller {
 
 	// battery
 
-	var cableConnected: Bool = false
-	var batteryCharging:Bool = false
+	var cableConnected = false
+	var batteryCharging = false
 	var batteryLevel:UInt8 = 0 // 0 to 9 on USB, 0 - 10 on Bluetooth
 	var previousBatteryLevel:UInt8 = 0
 

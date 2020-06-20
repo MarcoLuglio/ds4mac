@@ -14,49 +14,50 @@ class Xbox360Controller {
 
 	static let VENDOR_ID_MICROSOFT:Int64 = 0x045E // 1118
 	static let CONTROLLER_ID_XBOX_360:Int64 = 0x028E // 654
-	// 0x028F is the wireless version
-	// 0x02D1 Xbox One controller -- see lloeki driver
-	// 0x02DD Xbox One Controller (Firmware 2015)
-	// 0x02E3 Xbox One Elite Controller
-	// 0x02E6 Wireless Xbox Controller Dongle
-	// 0x02EA Xbox One S Controller
-	// 0x02FD Xbox One S Controller [Bluetooth]
+	static let CONTROLLER_ID_XBOX_360_WIRELESS:Int64 = 0x028F // ??
+	static let CONTROLLER_ID_XBOX_WIRELESS_DONGLE:Int64 = 0x0291 // v1??
+	static let CONTROLLER_ID_XBOX_WIRELESS_DONGLE_V2:Int64 = 0x02E6 // ??
 
 	static var nextId:UInt8 = 0
 
+	var id:UInt8 = 0
+
+	let productID:Int64
+	let transport:String
+
 	let device:IOHIDDevice
 
-	var id:UInt8 = 0
+	var isBluetooth = false
 
 	/// contains a, b, x, y, shoulder and xbox buttons
 	var mainButtons:UInt8 = 0
 	var previousMainButtons:UInt8 = 0
 
 	// top button
-	var yButton:Bool = false
-	var previousYButton:Bool = false
+	var yButton = false
+	var previousYButton = false
 
 	// right button
-	var bButton:Bool = false
-	var previousBButton:Bool = false
+	var bButton = false
+	var previousBButton = false
 
 	// bottom button
-	var aButton:Bool = false
-	var previousAButton:Bool = false
+	var aButton = false
+	var previousAButton = false
 
 	// left button
-	var xButton:Bool = false
-	var previousXButton:Bool = false
+	var xButton = false
+	var previousXButton = false
 
 	// shoulder buttons
-	var leftShoulderButton:Bool = false
-	var previousLeftShoulderButton:Bool = false
-	var rightShoulderButton:Bool = false
-	var previousRightShoulderButton:Bool = false
-	var leftTriggerButton:Bool = false // adding for compatibility, the report only has analog data
-	var previousLeftTriggerButton:Bool = false
-	var rightTriggerButton:Bool = false  // adding for compatibility, the report only has analog data
-	var previousRightTriggerButton:Bool = false
+	var leftShoulderButton = false
+	var previousLeftShoulderButton = false
+	var rightShoulderButton = false
+	var previousRightShoulderButton = false
+	var leftTriggerButton = false // adding for compatibility, the report only has analog data
+	var previousLeftTriggerButton = false
+	var rightTriggerButton = false  // adding for compatibility, the report only has analog data
+	var previousRightTriggerButton = false
 
 	/// contains start, back, thumbstick buttons and directionla pad
 	var secondaryButtons:UInt8 = 0
@@ -65,21 +66,30 @@ class Xbox360Controller {
 	var directionalPad:UInt8 = 0
 	var previousDirectionalPad:UInt8 = 0
 
+	var topButton = false
+	var previousTopButton = false
+	var rightButton = false
+	var previousRightButton = false
+	var downButton = false
+	var previousDownButton = false
+	var leftButton = false
+	var previousLeftButton = false
+
 	// thumbstick buttons
-	var leftStickButton:Bool = false
-	var previousLeftStickButton:Bool = false
-	var rightStickButton:Bool = false
-	var previousRightStickButton:Bool = false
+	var leftStickButton = false
+	var previousLeftStickButton = false
+	var rightStickButton = false
+	var previousRightStickButton = false
 
 	// other buttons
 
-	var backButton:Bool = false
-	var previousBackButton:Bool = false
-	var startButton:Bool = false
-	var previousStartButton:Bool = false
+	var backButton = false
+	var previousBackButton = false
+	var startButton = false
+	var previousStartButton = false
 
-	var xboxButton:Bool = false
-	var previousXboxButton:Bool = false
+	var xboxButton = false
+	var previousXboxButton = false
 
 	// analog buttons
 
@@ -99,11 +109,17 @@ class Xbox360Controller {
 
 	// battery ??
 
-	init(_ device:IOHIDDevice) {
+	init(_ device:IOHIDDevice, productID:Int64, transport:String) {
 
 		self.id = Xbox360Controller.nextId
 		Xbox360Controller.nextId = Xbox360Controller.nextId + 1
 
+		self.transport = transport
+		if self.transport == "Bluetooth" {
+			self.isBluetooth = true
+		}
+
+		self.productID = productID
 		self.device = device
 		IOHIDDeviceOpen(self.device, IOOptionBits(kIOHIDOptionsTypeNone)) // or kIOHIDManagerOptionUsePersistentProperties
 

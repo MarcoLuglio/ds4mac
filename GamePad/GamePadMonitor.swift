@@ -21,8 +21,12 @@ import IOKit.hid
 
 class GamePadMonitor {
 
-	var xbox360Controller:Xbox360Controller!
+	var joyConController:JoyConController!
+	//var dualSenseController:DualSenseController!
 	var dualShock4Controller:DualShock4Controller!
+	//var xboxSeriesXController:XboxSeriesXController!
+	var xboxOneController:XboxOneController!
+	var xbox360Controller:Xbox360Controller!
 
 	init() {
 		//
@@ -128,28 +132,56 @@ class GamePadMonitor {
 	func hidDeviceAddedCallback(_ result:IOReturn, sender:UnsafeMutableRawPointer, device:IOHIDDevice) {
 
 		// reference to self (GamePadMonitor) that can be passed to c functions, essentially a pointer to void
-		let hidContext = unsafeBitCast(self, to: UnsafeMutableRawPointer.self)
+		// let hidContext = unsafeBitCast(self, to: UnsafeMutableRawPointer.self) // not using this here
 
-		let productName = IOHIDDeviceGetProperty(device, kIOHIDProductKey as CFString);
-		let productID:Int64 = IOHIDDeviceGetProperty(device, kIOHIDProductIDKey as CFString) as! Int64;
-		let vendorName = IOHIDDeviceGetProperty(device, kIOHIDManufacturerKey as CFString);
-		let vendorID:Int64 = IOHIDDeviceGetProperty(device, kIOHIDVendorIDKey as CFString) as! Int64;
-		let transport = IOHIDDeviceGetProperty(device, kIOHIDTransportKey as CFString);
+		let locationID = IOHIDDeviceGetProperty(device, kIOHIDLocationIDKey as CFString)
+		let productName = IOHIDDeviceGetProperty(device, kIOHIDProductKey as CFString)
+		let productID:Int64 = IOHIDDeviceGetProperty(device, kIOHIDProductIDKey as CFString) as! Int64
+		let vendorName = IOHIDDeviceGetProperty(device, kIOHIDManufacturerKey as CFString)
+		let vendorID:Int64 = IOHIDDeviceGetProperty(device, kIOHIDVendorIDKey as CFString) as! Int64
+		let transport = IOHIDDeviceGetProperty(device, kIOHIDTransportKey as CFString)
 
 		// not sure if I'll need this
 		// let reportInterval = IOHIDDeviceGetProperty(device, kIOHIDReportIntervalKey as CFString);
 		// print(reportInterval!) // for DS4 11250 micro seconds or 11.25ms
 
+		print(locationID!) // TODO could be used as ID
 		print(productName!)
 		print(vendorName!)
 		print(transport!)
 
-		if vendorID == Xbox360Controller.VENDOR_ID_MICROSOFT && productID == Xbox360Controller.CONTROLLER_ID_XBOX_360 {
-			self.xbox360Controller = Xbox360Controller(device)
+		if vendorID == JoyConController.VENDOR_ID_NINTENDO
+			&& (productID == JoyConController.CONTROLLER_ID_JOY_CON_LEFT
+			|| productID == JoyConController.CONTROLLER_ID_JOY_CON_RIGHT
+			|| productID == JoyConController.CONTROLLER_ID_CHARGING_GRIP
+			|| productID == JoyConController.CONTROLLER_ID_SWITCH_PRO // not sure if it is different enough
+			) {
+
+			self.joyConController = JoyConController(device, productID: productID, transport: transport as! String/*, enableIMUReport: true*/)
+
+		} else if vendorID == XboxOneController.VENDOR_ID_MICROSOFT
+			&& (productID == XboxOneController.CONTROLLER_ID_XBOX_ONE
+			|| productID == XboxOneController.CONTROLLER_ID_XBOX_ONE_2015
+			|| productID == XboxOneController.CONTROLLER_ID_XBOX_ONE_ELITE
+			|| productID == XboxOneController.CONTROLLER_ID_XBOX_ONE_S
+			|| productID == XboxOneController.CONTROLLER_ID_XBOX_ONE_S_BLUETOOTH
+			|| productID == XboxOneController.CONTROLLER_ID_XBOX_WIRELESS_DONGLE
+			) {
+
+			self.xboxOneController = XboxOneController(device, productID: productID, transport: transport as! String)
+
+		} else if vendorID == Xbox360Controller.VENDOR_ID_MICROSOFT && productID == Xbox360Controller.CONTROLLER_ID_XBOX_360 {
+
+			self.xbox360Controller = Xbox360Controller(device, productID: productID, transport: transport as! String)
+
 		} else if vendorID == DualShock4Controller.VENDOR_ID_SONY
-			&& (productID == DualShock4Controller.CONTROLLER_ID_DUALSHOCK_4_USB || productID == DualShock4Controller.CONTROLLER_ID_DUALSHOCK_4_USB_V2 || productID == DualShock4Controller.CONTROLLER_ID_DUALSHOCK_4_BLUETOOTH)
-		{
+			&& (productID == DualShock4Controller.CONTROLLER_ID_DUALSHOCK_4_USB
+			|| productID == DualShock4Controller.CONTROLLER_ID_DUALSHOCK_4_USB_V2
+			|| productID == DualShock4Controller.CONTROLLER_ID_DUALSHOCK_4_BLUETOOTH
+			) {
+
 			self.dualShock4Controller = DualShock4Controller(device, productID: productID, transport: transport as! String, enableIMUReport: true)
+
 		}
 
 	}
@@ -171,10 +203,15 @@ class GamePadMonitor {
 		let device = unsafeBitCast(sender, to: IOHIDDevice.self)
 
 		// figure out which device send this report
-		if device == self.xbox360Controller?.device {
-			self.xbox360Controller.parseReport(report) // TODO maybe pass the report id
+
+		if device == self.joyConController?.leftDevice {
+			self.joyConController.parseReport(report) // TODO maybe pass the report id
+		//} else if device == self.joyConController?.rightDevice {
+		//	self.dualShock4Controller.parseReport(report) // TODO maybe pass the report id
 		} else if device == self.dualShock4Controller?.device {
 			self.dualShock4Controller.parseReport(report) // TODO maybe pass the report id
+		} else if device == self.xbox360Controller?.device {
+			self.xbox360Controller.parseReport(report) // TODO maybe pass the report id
 		} else {
 			print("report id: \(String(reportID, radix: 16))")
 			print ("report size: \(report.count)")

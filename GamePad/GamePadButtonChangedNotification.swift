@@ -27,7 +27,7 @@ class GamePadButtonChangedNotification {
 	var leftSideTopButton = false
 
 	/// only nintendo switch, SR on left joy-con
-	var leftSideButtonButton = false
+	var leftSideBottonButton = false
 
 	var upButton = false
 	var rightButton = false
@@ -58,7 +58,7 @@ class GamePadButtonChangedNotification {
 
 	/// options on playstation
 	/// start on xbox 360
-	/// hamburguer on xbox one and series x
+	/// hamburguer menu on xbox one and series x
 	var rightAuxiliaryButton = false
 
 	/// triangle, y on xbox, x on intendo
@@ -74,7 +74,7 @@ class GamePadButtonChangedNotification {
 	var faceWestButton = false
 
 	/// only nintendo switch, SL on the right joy-con
-	var rightSideButtonButton = false
+	var rightSideBottonButton = false
 
 	/// only nintendo switch, SR on the right joycon
 	var rightSideTopButton = false

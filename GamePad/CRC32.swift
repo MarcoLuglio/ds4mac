@@ -15,6 +15,7 @@ class CRC32 {
 
 	private static let defaultPolynomial:UInt32 = 0xedb88320
 
+	// this one is from ds4windows
 	/*static let defaultSeed:UInt32 = 0xffffffff
 
 	static let defaultTable:[UInt32] = [

@@ -328,6 +328,9 @@ class DualShock4Controller {
 					object: GamePadButtonChangedNotification(
 						leftTriggerButton: self.l2,
 						leftShoulderButton: self.l1,
+						minusButton:false,
+						leftSideTopButton:false,
+						leftSideBottomButton:false,
 						upButton: (self.directionalPad == 0 || self.directionalPad == 1 || self.directionalPad == 7),
 						rightButton: (self.directionalPad == 2 || self.directionalPad == 1 || self.directionalPad == 3),
 						downButton: (self.directionalPad == 4 || self.directionalPad == 3 || self.directionalPad == 5),
@@ -342,6 +345,9 @@ class DualShock4Controller {
 						faceEastButton: self.circleButton,
 						faceSouthButton: self.crossButton,
 						faceWestButton: self.squareButton,
+						rightSideBottomButton:false,
+						rightSideTopButton:false,
+						plusButton:false,
 						rightShoulderButton: self.r1,
 						rightTriggerButton: self.r2
 					)

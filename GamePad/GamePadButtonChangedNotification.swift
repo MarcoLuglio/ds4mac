@@ -41,7 +41,7 @@ class GamePadButtonChangedNotification {
 	var socialButton = false
 
 	/// windows button on xbox one and series x
-	var windowsButton = false
+	var windowsButton = false // FIXME this is not being sent in the notification
 
 	var leftStickButton = false
 	var leftStickX:Float = 0
@@ -91,6 +91,9 @@ class GamePadButtonChangedNotification {
 	init(
 		leftTriggerButton:Bool,
 		leftShoulderButton:Bool,
+		minusButton:Bool,
+		leftSideTopButton:Bool,
+		leftSideBottomButton:Bool,
 		upButton:Bool,
 		rightButton:Bool,
 		downButton:Bool,
@@ -105,12 +108,18 @@ class GamePadButtonChangedNotification {
 		faceEastButton:Bool,
 		faceSouthButton:Bool,
 		faceWestButton:Bool,
+		rightSideBottomButton:Bool,
+		rightSideTopButton:Bool,
+		plusButton:Bool,
 		rightShoulderButton:Bool,
 		rightTriggerButton:Bool
 	) {
 
 		self.leftTriggerButton = leftTriggerButton
 		self.leftShoulderButton = leftShoulderButton
+		self.minusButton = minusButton
+		self.leftSideTopButton = leftSideTopButton
+		self.leftSideBottomButton = leftSideBottomButton
 		self.upButton = upButton
 		self.rightButton = rightButton
 		self.downButton = downButton
@@ -125,6 +134,9 @@ class GamePadButtonChangedNotification {
 		self.faceEastButton = faceEastButton
 		self.faceSouthButton = faceSouthButton
 		self.faceWestButton = faceWestButton
+		self.rightSideBottomButton = rightSideBottomButton
+		self.rightSideTopButton = rightSideTopButton
+		self.plusButton = plusButton
 		self.rightShoulderButton = rightShoulderButton
 		self.rightTriggerButton = rightTriggerButton
 

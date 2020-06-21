@@ -385,6 +385,9 @@ class JoyConController {
 						object: GamePadButtonChangedNotification(
 							leftTriggerButton: self.leftTriggerButton,
 							leftShoulderButton: self.leftShoulderButton,
+							minusButton: self.minusButton,
+							leftSideTopButton: self.leftSideTopButton,
+							leftSideBottomButton: self.leftSideBottomButton,
 							upButton: self.upButton,
 							rightButton: self.rightButton,
 							downButton: self.downButton,
@@ -396,9 +399,12 @@ class JoyConController {
 							rightStickButton: self.rightStickButton,
 							rightAuxiliaryButton: self.homeButton,
 							faceNorthButton: self.xButton,
-							faceEastButton: self.yButton,
+							faceEastButton: self.aButton,
 							faceSouthButton: self.bButton,
-							faceWestButton: self.aButton,
+							faceWestButton: self.yButton,
+							rightSideBottomButton: self.rightSideBottomButton,
+							rightSideTopButton: self.rightSideTopButton,
+							plusButton: self.plusButton,
 							rightShoulderButton: self.rightShoulderButton,
 							rightTriggerButton: self.rightTriggerButton
 						)
@@ -489,6 +495,9 @@ class JoyConController {
 						object: GamePadButtonChangedNotification(
 							leftTriggerButton: self.leftTriggerButton,
 							leftShoulderButton: self.leftShoulderButton,
+							minusButton: self.minusButton,
+							leftSideTopButton: self.leftSideTopButton,
+							leftSideBottomButton: self.leftSideBottomButton,
 							upButton: self.upButton,
 							rightButton: self.rightButton,
 							downButton: self.downButton,
@@ -503,6 +512,9 @@ class JoyConController {
 							faceEastButton: self.aButton,
 							faceSouthButton: self.bButton,
 							faceWestButton: self.yButton,
+							rightSideBottomButton: self.rightSideBottomButton,
+							rightSideTopButton: self.rightSideTopButton,
+							plusButton: self.plusButton,
 							rightShoulderButton: self.rightShoulderButton,
 							rightTriggerButton: self.rightTriggerButton
 						)

@@ -211,12 +211,15 @@ class XboxOneController {
 					object: GamePadButtonChangedNotification(
 						leftTriggerButton: self.leftTrigger > 0, // TODO improve this with a getter
 						leftShoulderButton: self.leftShoulderButton,
+						minusButton:false,
+						leftSideTopButton:false,
+						leftSideBottomButton:false,
 						// TODO maybe save the dpad states individually?
 						upButton:    self.secondaryButtons & 0b00000001 == 0b00000001,
 						rightButton: self.secondaryButtons & 0b00001000 == 0b00001000,
 						downButton:  self.secondaryButtons & 0b00000010 == 0b00000010,
 						leftButton:  self.secondaryButtons & 0b00000100 == 0b00000100,
-						socialButton: self.windowsButton,
+						socialButton: false, // TODO map self.windowsButton somewhere
 						leftStickButton: self.leftStickButton,
 						trackPadButton: false,
 						centralButton: self.xboxButton,
@@ -226,6 +229,9 @@ class XboxOneController {
 						faceEastButton: self.bButton,
 						faceSouthButton: self.aButton,
 						faceWestButton: self.xButton,
+						rightSideBottomButton:false,
+						rightSideTopButton:false,
+						plusButton:false,
 						rightShoulderButton: self.rightShoulderButton,
 						rightTriggerButton: self.rightTrigger > 0 // TODO improve this with a getter
 					)

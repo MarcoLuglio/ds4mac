@@ -207,6 +207,9 @@ class Xbox360Controller {
 					object: GamePadButtonChangedNotification(
 						leftTriggerButton: self.leftTrigger > 0, // TODO improve this with a getter
 						leftShoulderButton: self.leftShoulderButton,
+						minusButton:false,
+						leftSideTopButton:false,
+						leftSideBottomButton:false,
 						// TODO maybe save the dpad states individually?
 						upButton:    self.secondaryButtons & 0b00000001 == 0b00000001,
 						rightButton: self.secondaryButtons & 0b00001000 == 0b00001000,
@@ -222,6 +225,9 @@ class Xbox360Controller {
 						faceEastButton: self.bButton,
 						faceSouthButton: self.aButton,
 						faceWestButton: self.xButton,
+						rightSideBottomButton:false,
+						rightSideTopButton:false,
+						plusButton:false,
 						rightShoulderButton: self.rightShoulderButton,
 						rightTriggerButton: self.rightTrigger > 0 // TODO improve this with a getter
 					)

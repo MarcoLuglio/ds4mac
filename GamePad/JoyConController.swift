@@ -15,8 +15,8 @@ class JoyConController {
 	static let VENDOR_ID_NINTENDO:Int64 = 0x057E // 1406
 	static let CONTROLLER_ID_JOY_CON_LEFT:Int64 = 0x2006 // 8198
 	static let CONTROLLER_ID_JOY_CON_RIGHT:Int64 = 0x2007 // 8199
-	static let CONTROLLER_ID_CHARGING_GRIP:Int64 = 0x0000 // TODO
 	static let CONTROLLER_ID_SWITCH_PRO:Int64 = 0x2009 // 8201
+	static let CONTROLLER_ID_CHARGING_GRIP:Int64 = 0x200e // TODO
 	// 0x0306 Wii Remote Controller RVL-003
 	// 0x0337 Wii U GameCube Controller Adapter
 
@@ -24,19 +24,18 @@ class JoyConController {
 
 	var id:UInt8 = 0
 
-	let productID:Int64
-	let transport:String
-
-	let leftDevice:IOHIDDevice
-	//let rightDevice:IOHIDDevice!
+	var productID:Int64 = 0
+	var transport:String = ""
 
 	var isBluetooth = false
 
-	// left joy-con
+	// MARK: - left joy-con
+
+	var leftDevice:IOHIDDevice? = nil
 
 	/// contains dpad and left side buttons
-	var mainButtons:UInt8 = 0
-	var previousMainButtons:UInt8 = 0
+	var leftMainButtons:UInt8 = 0
+	var previousLeftMainButtons:UInt8 = 0
 
 	var directionalPad:UInt8 = 0
 	var previousDirectionalPad:UInt8 = 0
@@ -59,8 +58,8 @@ class JoyConController {
 	var previousLeftSideBottomButton = false
 
 	/// contains left shoulder, left trigger, minus, capture and stick buttons
-	var secondaryButtons:UInt8 = 0
-	var previousSecondaryButtons:UInt8 = 0
+	var leftSecondaryButtons:UInt8 = 0
+	var previousLeftSecondaryButtons:UInt8 = 0
 
 	// shoulder buttons
 	var leftShoulderButton = false
@@ -87,79 +86,75 @@ class JoyConController {
 	var leftStickY:Int8 = 0
 	var previousLeftStickY:Int8 = 0
 
+	// battery ??
 
+	// MARK: - right joy-con
 
+	var rightDevice:IOHIDDevice? = nil
 
+	/// contains dpad and left side buttons
+	var rightMainButtons:UInt8 = 0
+	var previousRightMainButtons:UInt8 = 0
 
+	var faceButtons:UInt8 = 0
+	var previousFaceButtons:UInt8 = 0
 
-	/////////////
+	var xButton = false
+	var previousXButton = false
+	var aButton = false
+	var previousAButton = false
+	var bButton = false
+	var previousBButton = false
+	var yButton = false
+	var previousYButton = false
 
+	/// SR button on right joy-con
+	var rightSideTopButton = false
+	var previousRightideTopButton = false
+
+	/// SL on right joy-con
+	var rightSideBottomButton = false
+	var previousRightSideBottomButton = false
+
+	/// contains left shoulder, left trigger, minus, capture and stick buttons
+	var rightSecondaryButtons:UInt8 = 0
+	var previousRightSecondaryButtons:UInt8 = 0
+
+	// shoulder buttons
 	var rightShoulderButton = false
 	var previousRightShoulderButton = false
 	var rightTriggerButton = false
 	var previousRightTriggerButton = false
 
-	// thumbstick buttons
-	var rightStickButton = false
-	var previousRightStickButton = false
-
-	// top button
-	var xButton = false
-	var previousXButton = false
-
-	// right button
-	var aButton = false
-	var previousAButton = false
-
-	// bottom button
-	var bButton = false
-	var previousBButton = false
-
-	// left button
-	var yButton = false
-	var previousYButton = false
-
-
-
-
-
 	// other buttons
 
-	/*var windowsButton:Bool = false
-	var previousWindowsButton:Bool = false
-	var menuButton:Bool = false
-	var previousMenuButton:Bool = false
+	var plusButton = false
+	var previousPlusButton = false
 
-	var xboxButton:Bool = false
-	var previousXboxButton:Bool = false*/
+	var homeButton = false
+	var previousHomeButton = false
 
-
-	var rightStickX:Int16 = 0
-	var previousRightStickX:Int16 = 0
-	var rightStickY:Int16 = 0
-	var previousRightStickY:Int16 = 0
-
-	// adding for compatibility, the controller troggers are not analog
-	/*var leftTrigger:UInt8 = 0
-	var previousLeftTrigger:UInt8 = 0
-	var rightTrigger:UInt8 = 0
-	var previousRightTrigger:UInt8 = 0*/
+	// thumbstick - it is not analog, only points the 8 directions
+	// saving as Int8 for compatibility with other controllers
+	var rightStickButton = false
+	var previousRightStickButton = false
+	var rightStick:UInt8 = 0
+	var previousRightStick:UInt8 = 0
+	var rightStickX:Int8 = 0
+	var previousRightStickX:Int8 = 0
+	var rightStickY:Int8 = 0
+	var previousRightStickY:Int8 = 0
 
 	// battery ??
+
+	// MARK: - Methods
 
 	init(_ device:IOHIDDevice, productID:Int64, transport:String/*, enableIMUReport:Bool*/) {
 
 		self.id = JoyConController.nextId
 		JoyConController.nextId = JoyConController.nextId + 1
 
-		self.transport = transport
-		if self.transport == "Bluetooth" {
-			self.isBluetooth = true
-		}
-
-		self.productID = productID
-		self.leftDevice = device
-		IOHIDDeviceOpen(self.leftDevice, IOOptionBits(kIOHIDOptionsTypeNone)) // or kIOHIDManagerOptionUsePersistentProperties
+		self.setDevice(device, productID:productID, transport:transport)
 
 		NotificationCenter.default
 			.addObserver(
@@ -177,71 +172,278 @@ class JoyConController {
 				object: nil
 			)
 
-		// TODO set led here
+		/*
+
+		Subcommand 0x30: Set player lights
+
+		First argument byte is a bitfield:
+
+		aaaa bbbb
+			 3210 - keep player light on
+		3210 - flash player light
+
+		On overrides flashing. When on USB, flashing bits work like always on bits.
+		Subcommand 0x31: Get player lights
+
+		Replies with ACK xB0 x31 and one byte that uses the same bitfield with x30 subcommand
+
+		xB1 is the 4 leds trail effect. But it can't be set via x30.
+
+		*/
+
+		/*
+		uint8_t buf[0x40]; bzero(buf, 0x40);
+		buf[0] = 1; // 0x10 for rumble only
+		buf[1] = GlobalPacketNumber; // Increment by 1 for each packet sent. It loops in 0x0 - 0xF range.
+		memcpy(buf + 2, rumbleData, 8);
+		buf[10] = subcommandID;
+		memcpy(buf + 11, subcommandData, subcommandDataLen);
+		hid_write(handle, buf, 0x40);
+		*/
+
+		/*var joyConControllerLedOutputReport:[UInt8] = [0b00001000]
+		let joyConControllerLedOutputReportLength = joyConControllerLedOutputReport.count
+
+		IOHIDDeviceSetReport(
+			self.leftDevice,
+			kIOHIDReportTypeFeature, // input 0x01, output 0x02
+			0x01,
+			joyConControllerLedOutputReport,
+			joyConControllerLedOutputReportLength
+		)*/
+
+		/*let joyConControllerInputReportModeOutputReport:[UInt8] = [0x30]
+		let joyConControllerInputReportModeOutputReportLength = joyConControllerInputReportModeOutputReport.count
+
+		IOHIDDeviceSetReport(
+			self.leftDevice,
+			kIOHIDReportTypeOutput,
+			0x03,
+			joyConControllerInputReportModeOutputReport,
+			joyConControllerInputReportModeOutputReportLength
+		)*/
+
+
+		/*
+
+		Subcommand 0x03: Set input report mode
+
+		One argument:
+		Arg # 	Remarks
+		x00 	Used with cmd x11. Active polling for NFC/IR camera data. 0x31 data format must be set first.
+		x01 	Same as 00. Active polling mode for NFC/IR MCU configuration data.
+		x02 	Same as 00. Active polling mode for NFC/IR data and configuration. For specific NFC/IR modes
+		x03 	Same as 00. Active polling mode for IR camera data. For specific IR modes
+		x23 	MCU update state report?
+		x30 	Standard full mode. Pushes current state @60Hz
+		x31 	NFC/IR mode. Pushes large packets @60Hz
+		x33 	Unknown mode.
+		x35 	Unknown mode.
+		x3F 	Simple HID mode. Pushes updates with every button press
+
+		x31 input report has all zeroes for IR/NFC data if a 11 ouput report with subcmd 03 00/01/02/03 was not sent before.
+
+
+
+
+
+
+
+		Subcommand 0x22: Set NFC/IR MCU state
+
+		Takes one argument:
+		Argument # 	Remarks
+		00 	Suspend
+		01 	Resume
+		02 	Resume for update
+
+
+
+
+
+
+
+
+
+
+		Subcommand 0x48: Enable vibration
+
+		One argument of x00 Disable or x01 Enable.
+
+
+		OUTPUT 0x01
+
+		Rumble and subcommand.
+
+		The OUTPUT 1 report is how all normal subcommands are sent. It also includes rumble data.
+
+		Sample C code for sending a subcommand:
+
+		uint8_t buf[0x40]; bzero(buf, 0x40);
+		buf[0] = 1; // 0x10 for rumble only
+		buf[1] = GlobalPacketNumber; // Increment by 1 for each packet sent. It loops in 0x0 - 0xF range.
+		memcpy(buf + 2, rumbleData, 8);
+		buf[10] = subcommandID;
+		memcpy(buf + 11, subcommandData, subcommandDataLen);
+		hid_write(handle, buf, 0x40);
+
+		You can send rumble data and subcommand with x01 command, otherwise only rumble with x10 command.
+
+		See "Rumble data" below.
+		OUTPUT 0x03
+
+		NFC/IR MCU FW Update packet.
+		OUTPUT 0x10
+
+		Rumble only. See OUTPUT 0x01 and "Rumble data" below.
+		OUTPUT 0x11
+
+		Request specific data from the NFC/IR MCU. Can also send rumble.
+
+
+
+
+		Rumble data
+
+		A timing byte, then 4 bytes of rumble data for left Joy-Con, followed by 4 bytes for right Joy-Con. [00 01 40 40 00 01 40 40] (320Hz 0.0f 160Hz 0.0f) is neutral. The rumble data structure contains 2 bytes High Band data, 2 byte Low Band data. The values for HF Band frequency and LF amplitude are encoded.
+		Byte # 	Range 	Remarks
+		0, 4 	x04 - xFC (81.75Hz - 313.14Hz) 	High Band Lower Frequency. Steps +0x0004.
+		0-1, 4-5 	x00 01 - xFC 01 (320.00Hz - 1252.57Hz) 	Byte 1,5 LSB enables High Band Higher Frequency. Steps +0x0400.
+		1, 5 	x00 00 - xC8 00 (0.0f - 1.0f) 	High Band Amplitude. Steps +0x0200. Real max: FE.
+		2, 6 	x01 - x7F (40.87Hz - 626.28Hz) 	Low Band Frequency.
+		3, 7 	x40 - x72 (0.0f - 1.0f) 	Low Band Amplitude. Safe max: 00 72.
+		2-3, 6-7 	x80 40 - x80 71 (0.01f - 0.98f) 	Byte 2,6 +0x80 enables intermediate LF amplitude. Real max: 80 FF.
+
+		For a rumble values table, example and the algorithm for frequency, check rumble_data_table.md.
+
+		The byte values for frequency raise the frequency in Hz exponentially and not linearly.
+
+		Don't use real maximum values for Amplitude. Otherwise, they can damage the linear actuators. These safe amplitude ranges are defined by Switch HID library.
+
+
+
+
+		*/
+
+	}
+
+	func setDevice(_ device:IOHIDDevice, productID:Int64, transport:String/*, enableIMUReport:Bool*/) {
+
+		self.transport = transport
+		if self.transport == "Bluetooth" {
+			self.isBluetooth = true
+		}
+
+		self.productID = productID
+		if productID == JoyConController.CONTROLLER_ID_JOY_CON_RIGHT {
+			self.rightDevice = device
+			IOHIDDeviceOpen(self.rightDevice!, IOOptionBits(kIOHIDOptionsTypeNone)) // or kIOHIDManagerOptionUsePersistentProperties
+		} else {
+			self.leftDevice = device
+			IOHIDDeviceOpen(self.leftDevice!, IOOptionBits(kIOHIDOptionsTypeNone)) // or kIOHIDManagerOptionUsePersistentProperties
+		}
 
 	}
 
 	/// Gets called by GamePadMonitor
-	func parseReport(_ report:Data) {
+	func parseReport(_ report:Data, controllerType:Int64) {
 
-		// report[0] // always 63 - TODO in 0x??
+		// report[0] // is the report type
+		// 0x3F is just buttons, 0x21 is just buttons (dufferent than 3F??), 0x30 includes gyro, 0x31 includes NFC (large packet size)
 
-		self.mainButtons = report[1]
+		if controllerType == JoyConController.CONTROLLER_ID_JOY_CON_LEFT {
 
-		self.directionalPad   = mainButtons & 0b00001111
+			self.leftMainButtons = report[1]
 
-		self.topButton   = self.directionalPad & 0b00000100 == 0b00000100
-		self.rightButton = self.directionalPad & 0b00001000 == 0b00001000
-		self.downButton  = self.directionalPad & 0b00000010 == 0b00000010
-		self.leftButton  = self.directionalPad & 0b00000001 == 0b00000001
+			self.directionalPad = leftMainButtons & 0b00001111
 
-		self.leftSideTopButton = mainButtons & 0b00010000 == 0b00010000
-		self.leftSideBottomButton = mainButtons & 0b00100000 == 0b00100000
+			self.topButton   = self.directionalPad & 0b00000100 == 0b00000100
+			self.rightButton = self.directionalPad & 0b00001000 == 0b00001000
+			self.downButton  = self.directionalPad & 0b00000010 == 0b00000010
+			self.leftButton  = self.directionalPad & 0b00000001 == 0b00000001
 
-		self.secondaryButtons = report[2]
+			self.leftSideTopButton    = leftMainButtons & 0b00010000 == 0b00010000
+			self.leftSideBottomButton = leftMainButtons & 0b00100000 == 0b00100000
 
-		self.leftShoulderButton = secondaryButtons & 0b01000000 == 0b01000000
-		self.leftTriggerButton  = secondaryButtons & 0b10000000 == 0b10000000
+			self.leftSecondaryButtons = report[2]
 
-		self.minusButton        = secondaryButtons & 0b00000001 == 0b00000001
-		self.captureButton      = secondaryButtons & 0b00100000 == 0b00100000
+			self.leftShoulderButton = leftSecondaryButtons & 0b01000000 == 0b01000000
+			self.leftTriggerButton  = leftSecondaryButtons & 0b10000000 == 0b10000000
 
-		self.leftStickButton    = secondaryButtons & 0b00000100 == 0b00000100
+			self.minusButton        = leftSecondaryButtons & 0b00000001 == 0b00000001
+			self.captureButton      = leftSecondaryButtons & 0b00100000 == 0b00100000
 
-		self.leftStick = report[3]
+			self.leftStickButton    = leftSecondaryButtons & 0b00000100 == 0b00000100
 
-		// origin left top for compatibility with other controllers
+			self.leftStick = report[3]
 
-		if self.leftStick == JoyConDirection.right.rawValue || self.leftStick == JoyConDirection.rightUp.rawValue || self.leftStick == JoyConDirection.rightDown.rawValue {
-			self.leftStickX = 1
-		} else if self.leftStick == JoyConDirection.left.rawValue || self.leftStick == JoyConDirection.leftUp.rawValue || self.leftStick == JoyConDirection.leftDown.rawValue {
-			self.leftStickX = -1
-		} else {
-			self.leftStickX = 0
+			// origin left top for compatibility with other controllers
+
+			if self.leftStick == JoyConLeftDirection.right.rawValue || self.leftStick == JoyConLeftDirection.rightUp.rawValue || self.leftStick == JoyConLeftDirection.rightDown.rawValue {
+				self.leftStickX = 1
+			} else if self.leftStick == JoyConLeftDirection.left.rawValue || self.leftStick == JoyConLeftDirection.leftUp.rawValue || self.leftStick == JoyConLeftDirection.leftDown.rawValue {
+				self.leftStickX = -1
+			} else {
+				self.leftStickX = 0
+			}
+
+			if self.leftStick == 2 || self.leftStick == 3 || self.leftStick == 1 {
+				self.leftStickY = 1
+			} else if self.leftStick == JoyConLeftDirection.up.rawValue || self.leftStick == JoyConLeftDirection.leftUp.rawValue || self.leftStick == JoyConLeftDirection.rightUp.rawValue {
+				self.leftStickY = -1
+			} else {
+				self.leftStickY = 0
+			}
+
+		} else if controllerType == JoyConController.CONTROLLER_ID_JOY_CON_RIGHT {
+
+			self.rightMainButtons = report[1]
+
+			self.faceButtons = rightMainButtons & 0b00001111
+
+			self.xButton = self.faceButtons & 0b00000010 == 0b00000010
+			self.aButton = self.faceButtons & 0b00000001 == 0b00000001
+			self.bButton = self.faceButtons & 0b00000100 == 0b00000100
+			self.yButton = self.faceButtons & 0b00001000 == 0b00001000
+
+			self.rightSideTopButton    = rightMainButtons & 0b00100000 == 0b00100000
+			self.rightSideBottomButton = rightMainButtons & 0b00010000 == 0b00010000
+
+			self.rightSecondaryButtons = report[2]
+
+			self.rightShoulderButton = leftSecondaryButtons & 0b01000000 == 0b01000000
+			self.rightTriggerButton  = leftSecondaryButtons & 0b10000000 == 0b10000000
+
+			self.plusButton          = leftSecondaryButtons & 0b00000001 == 0b00000010
+			self.homeButton          = leftSecondaryButtons & 0b00100000 == 0b00010000
+
+			self.rightStickButton    = leftSecondaryButtons & 0b00000100 == 0b00001000
+
+			self.rightStick = report[3]
+
+			// origin left top for compatibility with other controllers
+
+			if self.rightStick == JoyConRightDirection.right.rawValue || self.rightStick == JoyConRightDirection.rightUp.rawValue || self.rightStick == JoyConRightDirection.rightDown.rawValue {
+				self.rightStickX = 1
+			} else if self.rightStick == JoyConRightDirection.left.rawValue || self.rightStick == JoyConRightDirection.leftUp.rawValue || self.rightStick == JoyConRightDirection.leftDown.rawValue {
+				self.rightStickX = -1
+			} else {
+				self.rightStickX = 0
+			}
+
+			if self.rightStick == 2 || self.rightStick == 3 || self.rightStick == 1 {
+				self.rightStickY = 1
+			} else if self.rightStick == JoyConRightDirection.up.rawValue || self.rightStick == JoyConRightDirection.leftUp.rawValue || self.rightStick == JoyConRightDirection.rightUp.rawValue {
+				self.rightStickY = -1
+			} else {
+				self.rightStickY = 0
+			}
+
 		}
 
-		if self.leftStick == 2 || self.leftStick == 3 || self.leftStick == 1 {
-			self.leftStickY = 1
-		} else if self.leftStick == JoyConDirection.up.rawValue || self.leftStick == JoyConDirection.leftUp.rawValue || self.leftStick == JoyConDirection.rightUp.rawValue {
-			self.leftStickY = -1
-		} else {
-			self.leftStickY = 0
-		}
-
-		print("count: \(report.count)")
-		print(" 1: \(String(report[1], radix: 2))")
-		print(" 2: \(String(report[2], radix: 2))")
-		print(" 3: \(String(report[3], radix: 2))")
-
-		// for reports without IMU
-		/*print(" 4: \(String(report[4], radix: 2))")
-		print(" 5: \(report[5])") // always 128
-		print(" 6: \(report[6])") // always 0
-		print(" 7: \(report[7])") // always 128
-		print(" 8: \(report[8])") // always 0
-		print(" 9: \(report[9])") // always 128
-		print(" 10: \(report[10])") // always 0
-		print(" 11: \(report[11])") // always 128*/
+		// 4-7 (Pro Con) 	x40 8A 4F 8A 	Left analog stick data
+		// 8-11 (Pro Con) 	xD0 7E DF 7F 	Right analog stick data
+		// for joy-cons this can be ignored
 
 	}
 
@@ -259,6 +461,7 @@ class JoyConController {
 	}
 
 	@objc func changeLed(_ notification:Notification) {
+
 		let o = notification.object as! JoyConChangeLedNotification
 
 		/*

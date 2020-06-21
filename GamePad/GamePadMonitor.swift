@@ -157,7 +157,11 @@ class GamePadMonitor {
 			|| productID == JoyConController.CONTROLLER_ID_SWITCH_PRO // not sure if it is different enough
 			) {
 
-			self.joyConController = JoyConController(device, productID: productID, transport: transport as! String/*, enableIMUReport: true*/)
+			if self.joyConController == nil {
+				self.joyConController = JoyConController(device, productID: productID, transport: transport as! String/*, enableIMUReport: true*/)
+			} else {
+				self.joyConController.setDevice(device, productID: productID, transport: transport as! String/*, enableIMUReport: true*/)
+			}
 
 		} else if vendorID == XboxOneController.VENDOR_ID_MICROSOFT
 			&& (productID == XboxOneController.CONTROLLER_ID_XBOX_ONE
@@ -202,16 +206,15 @@ class GamePadMonitor {
 
 		let device = unsafeBitCast(sender, to: IOHIDDevice.self)
 
-		// figure out which device send this report
-
+		// TODO maybe pass the report id?
 		if device == self.joyConController?.leftDevice {
-			self.joyConController.parseReport(report) // TODO maybe pass the report id
-		//} else if device == self.joyConController?.rightDevice {
-		//	self.dualShock4Controller.parseReport(report) // TODO maybe pass the report id
+			self.joyConController.parseReport(report, controllerType:JoyConController.CONTROLLER_ID_JOY_CON_LEFT)
+		} else if device == self.joyConController?.rightDevice {
+			self.joyConController.parseReport(report, controllerType:JoyConController.CONTROLLER_ID_JOY_CON_RIGHT)
 		} else if device == self.dualShock4Controller?.device {
-			self.dualShock4Controller.parseReport(report) // TODO maybe pass the report id
+			self.dualShock4Controller.parseReport(report)
 		} else if device == self.xbox360Controller?.device {
-			self.xbox360Controller.parseReport(report) // TODO maybe pass the report id
+			self.xbox360Controller.parseReport(report)
 		} else {
 			print("report id: \(String(reportID, radix: 16))")
 			print ("report size: \(report.count)")

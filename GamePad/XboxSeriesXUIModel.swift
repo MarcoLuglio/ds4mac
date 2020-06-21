@@ -17,6 +17,10 @@ class XboxSeriesXUIModel: ObservableObject {
 	var leftTriggerButton = false
 	var leftShoulderButton = false
 
+	var leftStickButton = false
+	var leftStickX:Float = 0
+	var leftStickY:Float = 0
+
 	var upButton = false
 	var rightButton = false
 	var downButton = false
@@ -24,17 +28,14 @@ class XboxSeriesXUIModel: ObservableObject {
 
 	var backButton = false
 
-	var leftStickButton = false
-	var leftStickX:Float = 0
-	var leftStickY:Float = 0
-
 	var xboxButton = false
+	var uploadButton = false
+
+	var startButton = false
 
 	var rightStickX:Float = 0
 	var rightStickY:Float = 0
 	var rightStickButton = false
-
-	var startButton = false
 
 	var yButton = false
 	var bButton = false

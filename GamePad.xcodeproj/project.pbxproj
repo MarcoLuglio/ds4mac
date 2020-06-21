@@ -134,8 +134,8 @@
 		A9888F9C24904BFF0084EA3C /* UI */ = {
 			isa = PBXGroup;
 			children = (
-				A9A27CBE249F12E000EFC9D5 /* JoyConUIModel.swift */,
 				A9D72F7C248202350000A89F /* ContentView.swift */,
+				A9A27CBE249F12E000EFC9D5 /* JoyConUIModel.swift */,
 				A9888F9A24904BDD0084EA3C /* DualShock4UIModel.swift */,
 				A917BFD724984D2C00992913 /* XboxSeriesXUIModel.swift */,
 			);

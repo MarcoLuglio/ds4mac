@@ -40,8 +40,8 @@ class JoyConController {
 	var directionalPad:UInt8 = 0
 	var previousDirectionalPad:UInt8 = 0
 
-	var topButton = false
-	var previousTopButton = false
+	var upButton = false
+	var previousUpButton = false
 	var rightButton = false
 	var previousRightButton = false
 	var downButton = false
@@ -110,7 +110,7 @@ class JoyConController {
 
 	/// SR button on right joy-con
 	var rightSideTopButton = false
-	var previousRightideTopButton = false
+	var previousRightSideTopButton = false
 
 	/// SL on right joy-con
 	var rightSideBottomButton = false
@@ -357,7 +357,7 @@ class JoyConController {
 
 			self.directionalPad = leftMainButtons & 0b00001111
 
-			self.topButton   = self.directionalPad & 0b00000100 == 0b00000100
+			self.upButton   = self.directionalPad & 0b00000100 == 0b00000100
 			self.rightButton = self.directionalPad & 0b00001000 == 0b00001000
 			self.downButton  = self.directionalPad & 0b00000010 == 0b00000010
 			self.leftButton  = self.directionalPad & 0b00000001 == 0b00000001
@@ -374,6 +374,60 @@ class JoyConController {
 			self.captureButton      = leftSecondaryButtons & 0b00100000 == 0b00100000
 
 			self.leftStickButton    = leftSecondaryButtons & 0b00000100 == 0b00000100
+
+			if leftMainButtons != self.previousLeftMainButtons
+				|| leftSecondaryButtons != self.previousLeftSecondaryButtons
+			{
+
+				DispatchQueue.main.async {
+					NotificationCenter.default.post(
+						name: GamePadButtonChangedNotification.Name,
+						object: GamePadButtonChangedNotification(
+							leftTriggerButton: self.leftTriggerButton,
+							leftShoulderButton: self.leftShoulderButton,
+							upButton: self.upButton,
+							rightButton: self.rightButton,
+							downButton: self.downButton,
+							leftButton: self.leftButton,
+							socialButton: self.captureButton,
+							leftStickButton: self.leftStickButton,
+							trackPadButton: false,
+							centralButton: false,
+							rightStickButton: self.rightStickButton,
+							rightAuxiliaryButton: self.homeButton,
+							faceNorthButton: self.xButton,
+							faceEastButton: self.yButton,
+							faceSouthButton: self.bButton,
+							faceWestButton: self.aButton,
+							rightShoulderButton: self.rightShoulderButton,
+							rightTriggerButton: self.rightTriggerButton
+						)
+					)
+				}
+
+				self.previousLeftMainButtons = self.leftMainButtons
+
+				self.previousDirectionalPad = self.directionalPad
+
+				self.previousUpButton = self.upButton
+				self.previousRightButton = self.rightButton
+				self.previousDownButton = self.downButton
+				self.previousLeftButton = self.leftButton
+
+				self.previousLeftSideTopButton = self.leftSideTopButton
+				self.previousLeftSideBottomButton = self.leftSideBottomButton
+
+				self.previousLeftSecondaryButtons = self.leftSecondaryButtons
+
+				self.previousLeftShoulderButton = self.leftShoulderButton
+				self.previousLeftTriggerButton = self.leftTriggerButton
+
+				self.previousMinusButton = self.minusButton
+				self.previousCaptureButton = self.captureButton
+
+				self.previousLeftStickButton = self.leftStickButton
+
+			}
 
 			self.leftStick = report[3]
 
@@ -395,11 +449,15 @@ class JoyConController {
 				self.leftStickY = 0
 			}
 
+			// TODO send "analog" notification
+
 		} else if controllerType == JoyConController.CONTROLLER_ID_JOY_CON_RIGHT {
 
 			self.rightMainButtons = report[1]
 
 			self.faceButtons = rightMainButtons & 0b00001111
+
+			print(String(self.faceButtons, radix:2))
 
 			self.xButton = self.faceButtons & 0b00000010 == 0b00000010
 			self.aButton = self.faceButtons & 0b00000001 == 0b00000001
@@ -411,13 +469,69 @@ class JoyConController {
 
 			self.rightSecondaryButtons = report[2]
 
-			self.rightShoulderButton = leftSecondaryButtons & 0b01000000 == 0b01000000
-			self.rightTriggerButton  = leftSecondaryButtons & 0b10000000 == 0b10000000
+			self.rightShoulderButton = rightSecondaryButtons & 0b01000000 == 0b01000000
+			self.rightTriggerButton  = rightSecondaryButtons & 0b10000000 == 0b10000000
 
-			self.plusButton          = leftSecondaryButtons & 0b00000001 == 0b00000010
-			self.homeButton          = leftSecondaryButtons & 0b00100000 == 0b00010000
+			print(String(rightSecondaryButtons, radix: 2))
 
-			self.rightStickButton    = leftSecondaryButtons & 0b00000100 == 0b00001000
+			self.plusButton          = rightSecondaryButtons & 0b00000010 == 0b00000010
+			self.homeButton          = rightSecondaryButtons & 0b00010000 == 0b00010000
+
+			self.rightStickButton    = rightSecondaryButtons & 0b00001000 == 0b00001000
+
+			if rightMainButtons != self.previousRightMainButtons
+				|| rightSecondaryButtons != self.previousRightSecondaryButtons
+			{
+
+				DispatchQueue.main.async {
+					NotificationCenter.default.post(
+						name: GamePadButtonChangedNotification.Name,
+						object: GamePadButtonChangedNotification(
+							leftTriggerButton: self.leftTriggerButton,
+							leftShoulderButton: self.leftShoulderButton,
+							upButton: self.upButton,
+							rightButton: self.rightButton,
+							downButton: self.downButton,
+							leftButton: self.leftButton,
+							socialButton: self.captureButton,
+							leftStickButton: self.leftStickButton,
+							trackPadButton: false,
+							centralButton: false,
+							rightStickButton: self.rightStickButton,
+							rightAuxiliaryButton: self.homeButton,
+							faceNorthButton: self.xButton,
+							faceEastButton: self.aButton,
+							faceSouthButton: self.bButton,
+							faceWestButton: self.yButton,
+							rightShoulderButton: self.rightShoulderButton,
+							rightTriggerButton: self.rightTriggerButton
+						)
+					)
+				}
+
+				self.previousRightMainButtons = self.rightMainButtons
+
+				self.previousFaceButtons = self.faceButtons
+
+				self.previousXButton = self.xButton
+				self.previousAButton = self.aButton
+				self.previousBButton = self.bButton
+				self.previousYButton = self.yButton
+
+				self.previousRightSideTopButton = self.rightSideTopButton
+				self.previousRightSideBottomButton = self.rightSideBottomButton
+
+				self.previousRightSecondaryButtons = self.rightSecondaryButtons
+
+				self.previousRightShoulderButton = self.rightShoulderButton
+				self.previousRightTriggerButton = self.rightTriggerButton
+
+				self.previousPlusButton = self.plusButton
+				self.previousHomeButton = self.homeButton
+
+				self.previousRightStickButton = self.rightStickButton
+
+			}
 
 			self.rightStick = report[3]
 

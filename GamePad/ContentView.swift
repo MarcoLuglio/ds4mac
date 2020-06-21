@@ -168,7 +168,7 @@ struct XboxSeriesXTab: View {
 
 		}
 
-    }
+	}
 
 }
 
@@ -363,9 +363,198 @@ struct DualShock4Tab: View {
 }
 
 struct JoyConTab: View {
-    var body: some View {
-        Text("View 2")
-    }
+
+	@ObservedObject var joyCon = JoyConUIModel()
+
+	var body: some View {
+
+		VStack {
+
+			Group {
+				//Button("Left motor", action: rumbleLeft(intensity: 1))
+				Button(action: addItem) {
+					if self.joyCon.leftTriggerButton {
+						Text("Pressed")
+					} else {
+						Text("Left trigger")
+					}
+				}
+				Button(action: addItem) {
+					if self.joyCon.leftShoulderButton {
+						Text("Pressed")
+					} else {
+						Text("Left shoulder")
+					}
+				}
+				Button(action: addItem) {
+					if self.joyCon.minusButton {
+						Text("Pressed")
+					} else {
+						Text("-")
+					}
+				}
+			}
+
+			Group {
+
+				Button(action: addItem) {
+					if self.joyCon.leftStickButton {
+						Text("Pressed")
+					} else {
+						Text("Left stick")
+					}
+				}
+				Text("Left stick analog")
+				Button(action: addItem) {
+					if self.joyCon.leftSideTopButton {
+						Text("Pressed")
+					} else {
+						Text("Left side top")
+					}
+				}
+
+			}
+
+			Group {
+				Button(action: addItem) {
+					if self.joyCon.upButton {
+						Text("Pressed")
+					} else {
+						Text("Up")
+					}
+				}
+				Button(action: addItem) {
+					if self.joyCon.rightButton {
+						Text("Pressed")
+					} else {
+						Text("Right")
+					}
+				}
+				Button(action: addItem) {
+					if self.joyCon.downButton {
+						Text("Pressed")
+					} else {
+						Text("Down")
+					}
+				}
+				Button(action: addItem) {
+					if self.joyCon.leftButton {
+						Text("Pressed")
+					} else {
+						Text("Left")
+					}
+				}
+			}
+
+			Group {
+
+				Button(action: addItem) {
+					if self.joyCon.captureButton {
+						Text("Pressed")
+					} else {
+						Text("Capture")
+					}
+				}
+
+				Button(action: addItem) {
+					if self.joyCon.leftSideBottomButton {
+						Text("Pressed")
+					} else {
+						Text("Left side bottom")
+					}
+				}
+
+				Button(action: addItem) {
+					if self.joyCon.rightSideBottomButton {
+						Text("Pressed")
+					} else {
+						Text("Right side bottom")
+					}
+				}
+
+				Button(action: addItem) {
+					if self.joyCon.homeButton {
+						Text("Pressed")
+					} else {
+						Text("Home")
+					}
+				}
+
+			}
+
+			Group {
+
+				Text("Right stick analog")
+				Button(action: addItem) {
+					if self.joyCon.rightStickButton {
+						Text("Pressed")
+					} else {
+						Text("Right stick")
+					}
+				}
+
+			}
+
+			Group {
+				Button(action: addItem) {
+					if self.joyCon.xButton {
+						Text("Pressed")
+					} else {
+						Text("X")
+					}
+				}
+				Button(action: addItem) {
+					if self.joyCon.aButton {
+						Text("Pressed")
+					} else {
+						Text("A")
+					}
+				}
+				Button(action: addItem) {
+					if self.joyCon.bButton {
+						Text("Pressed")
+					} else {
+						Text("B")
+					}
+				}
+				Button(action: addItem) {
+					if self.joyCon.yButton {
+						Text("Pressed")
+					} else {
+						Text("Y")
+					}
+				}
+			}
+
+			Group {
+				Button(action: addItem) {
+					if self.joyCon.plusButton {
+						Text("Pressed")
+					} else {
+						Text("+")
+					}
+				}
+				Button(action: addItem) {
+					if self.joyCon.rightShoulderButton {
+						Text("Pressed")
+					} else {
+						Text("Right shoulder")
+					}
+				}
+				Button(action: addItem) {
+					if self.joyCon.rightTriggerButton {
+						Text("Pressed")
+					} else {
+						Text("Right trigger")
+					}
+				}
+				//Button("Right light fast motor", action: rumbleRight(intensity: 1))
+			}
+
+		}
+
+	}
+
 }
 
 struct ContentView: View {
@@ -374,17 +563,17 @@ struct ContentView: View {
 
 		TabView {
 			// TODO do a for each here
-			XboxSeriesXTab()
+			JoyConTab()
 				.tabItem {
-					Text("Xbox")
+					Text("Joy-Con")
 				}
 			DualShock4Tab()
 				.tabItem {
 					Text("DualShock 4")
 				}
-			JoyConTab()
+			XboxSeriesXTab()
 				.tabItem {
-					Text("Joy-Con")
+					Text("Xbox")
 				}
 		}
 

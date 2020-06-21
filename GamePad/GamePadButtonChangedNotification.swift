@@ -27,7 +27,7 @@ class GamePadButtonChangedNotification {
 	var leftSideTopButton = false
 
 	/// only nintendo switch, SR on left joy-con
-	var leftSideBottonButton = false
+	var leftSideBottomButton = false
 
 	var upButton = false
 	var rightButton = false
@@ -74,7 +74,7 @@ class GamePadButtonChangedNotification {
 	var faceWestButton = false
 
 	/// only nintendo switch, SL on the right joy-con
-	var rightSideBottonButton = false
+	var rightSideBottomButton = false
 
 	/// only nintendo switch, SR on the right joycon
 	var rightSideTopButton = false

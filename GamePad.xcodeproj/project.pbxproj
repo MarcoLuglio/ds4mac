@@ -25,6 +25,7 @@
 		A993A107249EB9E50059EADA /* JoyConChangeRumbleNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A993A105249EB9E50059EADA /* JoyConChangeRumbleNotification.swift */; };
 		A993A108249EB9E50059EADA /* JoyConChangeLedNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A993A106249EB9E50059EADA /* JoyConChangeLedNotification.swift */; };
 		A993A10A249ECE3A0059EADA /* JoyConDirection.swift in Sources */ = {isa = PBXBuildFile; fileRef = A993A109249ECE3A0059EADA /* JoyConDirection.swift */; };
+		A9A27CBF249F12E000EFC9D5 /* JoyConUIModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9A27CBE249F12E000EFC9D5 /* JoyConUIModel.swift */; };
 		A9C66D34249417B900DB799F /* GamePadBatteryChangedNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9C66D33249417B900DB799F /* GamePadBatteryChangedNotification.swift */; };
 		A9C66D3624944AF000DB799F /* DualShock4ChangeLedNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9C66D3524944AF000DB799F /* DualShock4ChangeLedNotification.swift */; };
 		A9C66D382494529C00DB799F /* DualShock4ChangeRumbleNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9C66D372494529C00DB799F /* DualShock4ChangeRumbleNotification.swift */; };
@@ -77,6 +78,7 @@
 		A993A105249EB9E50059EADA /* JoyConChangeRumbleNotification.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JoyConChangeRumbleNotification.swift; sourceTree = "<group>"; };
 		A993A106249EB9E50059EADA /* JoyConChangeLedNotification.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JoyConChangeLedNotification.swift; sourceTree = "<group>"; };
 		A993A109249ECE3A0059EADA /* JoyConDirection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyConDirection.swift; sourceTree = "<group>"; };
+		A9A27CBE249F12E000EFC9D5 /* JoyConUIModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JoyConUIModel.swift; sourceTree = "<group>"; };
 		A9C66D33249417B900DB799F /* GamePadBatteryChangedNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamePadBatteryChangedNotification.swift; sourceTree = "<group>"; };
 		A9C66D3524944AF000DB799F /* DualShock4ChangeLedNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DualShock4ChangeLedNotification.swift; sourceTree = "<group>"; };
 		A9C66D372494529C00DB799F /* DualShock4ChangeRumbleNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DualShock4ChangeRumbleNotification.swift; sourceTree = "<group>"; };
@@ -132,6 +134,7 @@
 		A9888F9C24904BFF0084EA3C /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				A9A27CBE249F12E000EFC9D5 /* JoyConUIModel.swift */,
 				A9D72F7C248202350000A89F /* ContentView.swift */,
 				A9888F9A24904BDD0084EA3C /* DualShock4UIModel.swift */,
 				A917BFD724984D2C00992913 /* XboxSeriesXUIModel.swift */,
@@ -376,6 +379,7 @@
 				A9C66D382494529C00DB799F /* DualShock4ChangeRumbleNotification.swift in Sources */,
 				A993A10A249ECE3A0059EADA /* JoyConDirection.swift in Sources */,
 				A917BFD824984D2C00992913 /* XboxSeriesXUIModel.swift in Sources */,
+				A9A27CBF249F12E000EFC9D5 /* JoyConUIModel.swift in Sources */,
 				A9879C1F248481C200AB4DE9 /* CRC32.swift in Sources */,
 				A993A102249E82070059EADA /* XboxOneController.swift in Sources */,
 				A9879C23248592B600AB4DE9 /* GamePadTouchpadChangedNotification.swift in Sources */,

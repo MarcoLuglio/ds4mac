@@ -324,18 +324,18 @@ class Xbox360Controller {
 		Where xx is the byte led pattern
 		*/
 
-		let xbox360ControllerInputReport:[UInt8] = [0x01, 0x03, ledPattern.rawValue]
-		let xbox360ControllerInputReportLength = xbox360ControllerInputReport.count
+		let xbox360ControllerLedOutputReport:[UInt8] = [0x01, 0x03, ledPattern.rawValue]
+		let xbox360ControllerLedOutputReportLength = xbox360ControllerLedOutputReport.count
 
 		/*
-		let pointer = unsafeBitCast(xbox360ControllerInputReport, to: UnsafePointer<Any>.self)
+		let pointer = unsafeBitCast(xbox360ControllerLedOutputReport, to: UnsafePointer<Any>.self)
 
 		IOHIDDeviceSetReportWithCallback(
 			device,
 			kIOHIDReportTypeInput,
 			1,
-			unsafeBitCast(xbox360ControllerInputReport, to: UnsafePointer.self),
-			xbox360ControllerInputReportLength,
+			unsafeBitCast(xbox360ControllerLedOutputReport, to: UnsafePointer.self),
+			xbox360ControllerLedOutputReportLength,
 			500, // timeout in what?? ms
 			{() in
 				//
@@ -348,8 +348,8 @@ class Xbox360Controller {
 			self.device,
 			kIOHIDReportTypeOutput,
 			0x01,
-			xbox360ControllerInputReport,
-			xbox360ControllerInputReportLength
+			xbox360ControllerLedOutputReport,
+			xbox360ControllerLedOutputReportLength
 		)
 
 	}
@@ -382,18 +382,18 @@ class Xbox360Controller {
 		xinput allows values of ??
 		*/
 
-		let xbox360ControllerInputReport:[UInt8] = [0x00, 0x08, 0x00, leftHeavySlowRumble, rightLightFastRumble, 0x00, 0x00, 0x00]
-		let xbox360ControllerInputReportLength = xbox360ControllerInputReport.count
+		let xbox360ControllerRumbleOutputReport:[UInt8] = [0x00, 0x08, 0x00, leftHeavySlowRumble, rightLightFastRumble, 0x00, 0x00, 0x00]
+		let xbox360ControllerRumbleOutputReportLength = xbox360ControllerRumbleOutputReport.count
 
 		/*
-		let pointer = unsafeBitCast(xbox360ControllerInputReport, to: UnsafePointer<Any>.self)
+		let pointer = unsafeBitCast(xbox360ControllerRumbleOutputReport, to: UnsafePointer<Any>.self)
 
 		IOHIDDeviceSetReportWithCallback(
 			device,
 			kIOHIDReportTypeInput,
 			1,
-			unsafeBitCast(xbox360ControllerInputReport, to: UnsafePointer.self),
-			xbox360ControllerInputReportLength,
+			unsafeBitCast(xbox360ControllerRumbleOutputReport, to: UnsafePointer.self),
+			xbox360ControllerRumbleOutputReportLength,
 			500, // timeout in what?? ms
 			{() in
 				//
@@ -406,8 +406,8 @@ class Xbox360Controller {
 			self.device,
 			kIOHIDReportTypeOutput,
 			0x00, // report id, not sure which, 0x00, 0x01?
-			xbox360ControllerInputReport,
-			xbox360ControllerInputReportLength
+			xbox360ControllerRumbleOutputReport,
+			xbox360ControllerRumbleOutputReportLength
 		)
 
 	}

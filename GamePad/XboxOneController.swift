@@ -187,8 +187,8 @@ class XboxOneController {
 
 		self.secondaryButtons = report[2]
 
-		self.menuButton      = secondaryButtons & 0b00010000 == 0b00010000
-		self.windowsButton       = secondaryButtons & 0b00100000 == 0b00100000
+		self.menuButton       = secondaryButtons & 0b00010000 == 0b00010000
+		self.windowsButton    = secondaryButtons & 0b00100000 == 0b00100000
 		self.leftStickButton  = secondaryButtons & 0b01000000 == 0b01000000
 		self.rightStickButton = secondaryButtons & 0b10000000 == 0b10000000
 
@@ -486,6 +486,24 @@ class XboxOneController {
 
 		let xboxOneControllerOutputReport:[UInt8] = [0x05, 0x20, 0x00, 0x0f, 0x06]
 		let xboxOneControllerOutputReportLength = xboxOneControllerOutputReport.count
+
+		let ioHidService = IOHIDDeviceGetService(self.device)
+		//var parent = IORegistryEntryGetParentEntry(ioHidService, kIOUSBPlane, )
+
+		/*var parent:io_object_t = 0
+		var parents = ioHidService
+		var dict:CFMutableDictionary;
+		while (IORegistryEntryGetParentEntry(parents, kIOServicePlane, &parent) == KERN_SUCCESS)
+		{
+			var result = IORegistryEntryCreateCFProperties(parent, &dict, kCFAllocatorDefault, 0);
+			if (!result)
+				[array addObject:CFBridgingRelease(dict)];
+
+			if (parents != port)
+				IOObjectRelease(parents);
+			parents = parent;
+		}*/
+		// TODO
 
 		//var service = IOHIDDeviceGetService(self.device)
 		//service.

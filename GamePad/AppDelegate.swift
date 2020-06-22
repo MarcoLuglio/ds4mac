@@ -14,9 +14,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
 	var window: NSWindow!
 
-	var gamePadMonitor:GamePadMonitor!
+	var gamePadHIDMonitor:GamePadHIDMonitor!
 
-	var gamePadThread:Thread!
+	var gamePadHIDThread:Thread!
 
 	func applicationDidFinishLaunching(_ aNotification: Notification) {
 		// Create the SwiftUI view that provides the window contents.
@@ -48,9 +48,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		window.contentView = NSHostingView(rootView: contentView)
 		window.makeKeyAndOrderFront(nil)
 
-		self.gamePadMonitor = GamePadMonitor()
-		self.gamePadThread = Thread(target: self.gamePadMonitor, selector:#selector(self.gamePadMonitor.setupHidObservers), object: nil)
-		self.gamePadThread.start()
+		self.gamePadHIDMonitor = GamePadHIDMonitor()
+		self.gamePadHIDThread = Thread(target: self.gamePadHIDMonitor, selector:#selector(self.gamePadHIDMonitor.setupHidObservers), object: nil)
+		self.gamePadHIDThread.start()
 
 		// TODO check where I can call this
 		let cp = NSColorPanel.shared

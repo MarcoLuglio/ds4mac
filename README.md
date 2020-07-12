@@ -2,6 +2,8 @@
 Sample code and app for reading gamepad inputs and activating rumble motors and leds over wire or bluetooth using HID drivers with user space IOKit.
 Apple has released DriverKit, but it requires a paid Apple developer license.
 User space IOKit can be used with a free Apple developer license.
+Apple has also extended its game controller API to support DualShock 4 and XBox One controllers starting from mac os Catalina and iOS 13.
+If your target operating system is supported, I recommend that you use the official API for these two controllers. Other controllers still require a lower level API such as HID or USB.
 
 Currently supported controllers are Xbox 360 and Dualshock 4 over USB.
 Planned for near term support are Dualshock 4 over bluetooth, Xbox One and Nintendo Joy-Cons.

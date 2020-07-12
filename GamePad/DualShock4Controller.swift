@@ -131,13 +131,13 @@ class DualShock4Controller {
 
 	// inertial measurement unit
 
-	var gyroX:Float32 = 0
-	var gyroY:Float32 = 0
-	var gyroZ:Float32 = 0
+	var gyroPitch:Int16 = 0
+	var gyroYaw:Int16 = 0
+	var gyroRoll:Int16 = 0
 
-	var accelX:Float32 = 0
-	var accelY:Float32 = 0
-	var accelZ:Float32 = 0
+	var accelX:Int16 = 0
+	var accelY:Int16 = 0
+	var accelZ:Int16 = 0
 
 	//var rotationZ:Float32 = 0
 
@@ -707,68 +707,32 @@ class DualShock4Controller {
 		[12] 	Unknown yet, 0x03 or 0x04
 		*/
 
-		self.gyroX =  Float32(Int16(report[14 + bluetoothOffset] << 8) | Int16(report[13 + bluetoothOffset]))
-		self.gyroY =  Float32(Int16(report[16 + bluetoothOffset] << 8) | Int16(report[15 + bluetoothOffset]))
-		self.gyroZ =  Float32(Int16(report[18 + bluetoothOffset] << 8) | Int16(report[17 + bluetoothOffset]))
+		self.gyroPitch = Int16(report[14 + bluetoothOffset] << 8) | Int16(report[13 + bluetoothOffset])
+		self.gyroYaw =   Int16(report[16 + bluetoothOffset] << 8) | Int16(report[15 + bluetoothOffset])
+		self.gyroRoll =  Int16(report[18 + bluetoothOffset] << 8) | Int16(report[17 + bluetoothOffset])
 
-		/*print("gyro z: \(self._gyroZ)")
-		print("rotation z: \(self.rotationZ)")*/
+		self.accelX = Int16(report[22 + bluetoothOffset] << 8) | Int16(report[21 + bluetoothOffset])
+		self.accelY = Int16(report[20 + bluetoothOffset] << 8) | Int16(report[19 + bluetoothOffset])
+		self.accelZ = Int16(report[24 + bluetoothOffset] << 8) | Int16(report[23 + bluetoothOffset])
 
-		/*
-		gyro = new Vector3(
-			System.BitConverter.ToInt16(_inputBuffer, 13),
-			System.BitConverter.ToInt16(_inputBuffer, 15),
-			System.BitConverter.ToInt16(_inputBuffer, 17)
-			)/1024f;
-		*/
+		// System.Diagnostics.Debug.WriteLine($"gyro pitch: {self.gyroPitch}");
+		// System.Diagnostics.Debug.WriteLine($"gyro yaw:   {self.gyroYaw}");
+		// System.Diagnostics.Debug.WriteLine($"gyro roll:  {self.gyroRoll}");
 
-		self.accelX = Float32(Int16(report[22 + bluetoothOffset] << 8) | Int16(report[21 + bluetoothOffset]))
-		self.accelY = Float32(Int16(report[20 + bluetoothOffset] << 8) | Int16(report[19 + bluetoothOffset]))
-		self.accelZ = Float32(Int16(report[24 + bluetoothOffset] << 8) | Int16(report[23 + bluetoothOffset]))
+		// System.Diagnostics.Debug.WriteLine($"accel x before: {self.accelX}");
+		// System.Diagnostics.Debug.WriteLine($"accel y: {self.accelY}");
+		// System.Diagnostics.Debug.WriteLine($"accel z: {self.accelZ}");
 
-		/*print("accel x: \(self.accelX)")
-		print("accel y: \(self.accelY)")
-		print("accel z: \(self.accelZ)") // when rolling, z should be near 0*/
-
+		self.applyCalibration(
+			pitch: &self.gyroPitch,
+			yaw: &self.gyroYaw,
+			roll: &self.gyroRoll,
+			accelX: &self.accelX,
+			accelY: &self.accelY,
+			accelZ: &self.accelZ
+		)
 
 		// battery
-
-		/*
-		if ((this.featureSet & VidPidFeatureSet.NoBatteryReading) == 0)
-		{
-			tempByte = inputReport[30];
-			tempCharging = (tempByte & 0x10) != 0;
-			if (tempCharging != charging)
-			{
-				charging = tempCharging;
-				ChargingChanged?.Invoke(this, EventArgs.Empty);
-			}
-
-			maxBatteryValue = charging ? BATTERY_MAX_USB : BATTERY_MAX;
-			tempBattery = (tempByte & 0x0f) * 100 / maxBatteryValue;
-			tempBattery = Math.Min(tempBattery, 100);
-			if (tempBattery != battery)
-			{
-				battery = tempBattery;
-				BatteryChanged?.Invoke(this, EventArgs.Empty);
-			}
-
-			cState.Battery = (byte)battery;
-			//System.Diagnostics.Debug.WriteLine("CURRENT BATTERY: " + (inputReport[30] & 0x0f) + " | " + tempBattery + " | " + battery);
-			if (tempByte != priorInputReport30)
-			{
-				priorInputReport30 = tempByte;
-				//Console.WriteLine(MacAddress.ToString() + " " + System.DateTime.UtcNow.ToString("o") + "> power subsystem octet: 0x" + inputReport[30].ToString("x02"));
-			}
-		}
-		else
-		{
-			// Some gamepads don't send battery values in DS4 compatible data fields, so use dummy 99% value to avoid constant low battery warnings
-			priorInputReport30 = 0x0F;
-			battery = 99;
-			cState.Battery = 99;
-		}
-		*/
 
 		let timestamp = UInt32(report[10 + bluetoothOffset]) | UInt32(report[11 + bluetoothOffset]) << 8
 		let timestampUS = (timestamp * 16) / 3
@@ -805,7 +769,7 @@ class DualShock4Controller {
 		}
 
 		/*
-		[30] 	EXT/HeadSet/Earset: bitmask
+		[30] 	EXT/HeadSet/Earset: bitmask // 32??
 
 		01111011 is headset with mic (0x7B)
 		00111011 is headphones (0x3B)
@@ -871,7 +835,7 @@ class DualShock4Controller {
 			// TODO check this with docs and other projects
 			dualshock4ControllerOutputReport = [UInt8](repeating: 0, count: 74)
 			dualshock4ControllerOutputReport[0] = 0x15 // 0x11
-			dualshock4ControllerOutputReport[1] = 0x0 //(0xC0 | btPollRate) // (0x80 | btPollRate); // input report rate // FIXME check this
+			dualshock4ControllerOutputReport[1] = 0x0 //(0xC0 | btPollRate) // (0x80 | btPollRate) // input report rate // FIXME check this
 			// enable rumble (0x01), lightbar (0x02), flash (0x04) // TODO check this too
 			dualshock4ControllerOutputReport[2] = 0xA0
 		} else {
@@ -911,9 +875,9 @@ class DualShock4Controller {
 
 	// MARK: - Gryroscope calibration
 
-	static let ACC_RES_PER_G:Int16 = 8192; // TODO means 1G is 8192 (1 and a half byte) 0b0000_0000_0000 ??
+	static let ACC_RES_PER_G:Int16 = 8192 // TODO means 1G is 8192 (1 and a half byte) 0b0000_0000_0000 ??
 
-	static let GYRO_RES_IN_DEG_SEC:Int16 = 16; // means 1 degree/second is 16 (4 bits) 0b0000 ??
+	static let GYRO_RES_IN_DEG_SEC:Int16 = 16 // means 1 degree/second is 16 (4 bits) 0b0000 ??
 
 	func requestCalibrationDataReport() {
 
@@ -933,7 +897,7 @@ class DualShock4Controller {
 		*/
 
 		var dualshock4CalibrationDataReport = [UInt8](repeating: 0, count: 41)
-		let dualshock4CalibrationDataReportLength = dualshock4CalibrationDataReport.count
+		var dualshock4CalibrationDataReportLength = dualshock4CalibrationDataReport.count
 
 		let dualshock4CalibrationDataReportPointer = UnsafeMutablePointer(mutating: dualshock4CalibrationDataReport)
 		let dualshock4CalibrationDataReportLengthPointer = UnsafeMutablePointer<Int>.allocate(capacity: 1)
@@ -996,83 +960,79 @@ class DualShock4Controller {
 		[40] 113 crc32
 		*/
 
-		print("resultado")
-		print(dualshock4CalibrationDataReportLength)
-		print(dualshock4CalibrationDataReport)
-
 	}
 
 	func parseCalibrationFeatureReport(calibrationReport:inout [UInt8], fromUSB:Bool) {
 
 		// gyroscopes
 
-		var pitchPlus:Int16 = 0;
-		var pitchMinus:Int16 = 0;
-		var yawPlus:Int16 = 0;
-		var yawMinus:Int16 = 0;
-		var rollPlus:Int16 = 0;
-		var rollMinus:Int16 = 0;
+		var pitchPlus:Int16 = 0
+		var pitchMinus:Int16 = 0
+		var yawPlus:Int16 = 0
+		var yawMinus:Int16 = 0
+		var rollPlus:Int16 = 0
+		var rollMinus:Int16 = 0
 
 		if !fromUSB {
 
-			pitchPlus  = Int16(calibrationReport[8]  << 8) | Int16(calibrationReport[7]);
-			yawPlus    = Int16(calibrationReport[10] << 8) | Int16(calibrationReport[9]);
-			rollPlus   = Int16(calibrationReport[12] << 8) | Int16(calibrationReport[11]);
-			pitchMinus = Int16(calibrationReport[14] << 8) | Int16(calibrationReport[13]);
-			yawMinus   = Int16(calibrationReport[16] << 8) | Int16(calibrationReport[15]);
-			rollMinus  = Int16(calibrationReport[18] << 8) | Int16(calibrationReport[17]);
+			pitchPlus  = Int16(calibrationReport[8]  << 8) | Int16(calibrationReport[7])
+			yawPlus    = Int16(calibrationReport[10] << 8) | Int16(calibrationReport[9])
+			rollPlus   = Int16(calibrationReport[12] << 8) | Int16(calibrationReport[11])
+			pitchMinus = Int16(calibrationReport[14] << 8) | Int16(calibrationReport[13])
+			yawMinus   = Int16(calibrationReport[16] << 8) | Int16(calibrationReport[15])
+			rollMinus  = Int16(calibrationReport[18] << 8) | Int16(calibrationReport[17])
 
 		} else {
 
-			pitchPlus  = Int16(calibrationReport[8]  << 8) | Int16(calibrationReport[7]);
-			pitchMinus = Int16(calibrationReport[10] << 8) | Int16(calibrationReport[9]);
-			yawPlus    = Int16(calibrationReport[12] << 8) | Int16(calibrationReport[11]);
-			yawMinus   = Int16(calibrationReport[14] << 8) | Int16(calibrationReport[13]);
-			rollPlus   = Int16(calibrationReport[16] << 8) | Int16(calibrationReport[15]);
-			rollMinus  = Int16(calibrationReport[18] << 8) | Int16(calibrationReport[17]);
+			pitchPlus  = Int16(calibrationReport[8]  << 8) | Int16(calibrationReport[7])
+			pitchMinus = Int16(calibrationReport[10] << 8) | Int16(calibrationReport[9])
+			yawPlus    = Int16(calibrationReport[12] << 8) | Int16(calibrationReport[11])
+			yawMinus   = Int16(calibrationReport[14] << 8) | Int16(calibrationReport[13])
+			rollPlus   = Int16(calibrationReport[16] << 8) | Int16(calibrationReport[15])
+			rollMinus  = Int16(calibrationReport[18] << 8) | Int16(calibrationReport[17])
 
 		}
 
-		self.calibration[Calibration.GyroPitchIndex].plusValue = pitchPlus;
-		self.calibration[Calibration.GyroPitchIndex].minusValue = pitchMinus;
+		self.calibration[Calibration.GyroPitchIndex].plusValue = pitchPlus
+		self.calibration[Calibration.GyroPitchIndex].minusValue = pitchMinus
 
-		self.calibration[Calibration.GyroYawIndex].plusValue = yawPlus;
-		self.calibration[Calibration.GyroYawIndex].minusValue = yawMinus;
+		self.calibration[Calibration.GyroYawIndex].plusValue = yawPlus
+		self.calibration[Calibration.GyroYawIndex].minusValue = yawMinus
 
-		self.calibration[Calibration.GyroRollIndex].plusValue = rollPlus;
-		self.calibration[Calibration.GyroRollIndex].minusValue = rollMinus;
+		self.calibration[Calibration.GyroRollIndex].plusValue = rollPlus
+		self.calibration[Calibration.GyroRollIndex].minusValue = rollMinus
 
-		self.calibration[Calibration.GyroPitchIndex].sensorBias = Int16(calibrationReport[2] << 8) | Int16(calibrationReport[1]);
-		self.calibration[Calibration.GyroYawIndex].sensorBias   = Int16(calibrationReport[4] << 8) | Int16(calibrationReport[3]);
-		self.calibration[Calibration.GyroRollIndex].sensorBias  = Int16(calibrationReport[6] << 8) | Int16(calibrationReport[5]);
+		self.calibration[Calibration.GyroPitchIndex].sensorBias = Int16(calibrationReport[2] << 8) | Int16(calibrationReport[1])
+		self.calibration[Calibration.GyroYawIndex].sensorBias   = Int16(calibrationReport[4] << 8) | Int16(calibrationReport[3])
+		self.calibration[Calibration.GyroRollIndex].sensorBias  = Int16(calibrationReport[6] << 8) | Int16(calibrationReport[5])
 
-		self.gyroSpeedPlus  = Int16(calibrationReport[20] << 8) | Int16(calibrationReport[19]);
-		self.gyroSpeedMinus = Int16(calibrationReport[22] << 8) | Int16(calibrationReport[21]);
-		self.gyroSpeed2x = (Int16)(gyroSpeedPlus + gyroSpeedMinus);
+		self.gyroSpeedPlus  = Int16(calibrationReport[20] << 8) | Int16(calibrationReport[19])
+		self.gyroSpeedMinus = Int16(calibrationReport[22] << 8) | Int16(calibrationReport[21])
+		self.gyroSpeed2x = (Int16)(gyroSpeedPlus + gyroSpeedMinus)
 
 		// accelerometers
 
-		let accelXPlus  = Int16(calibrationReport[24] << 8) | Int16(calibrationReport[23]);
-		let accelXMinus = Int16(calibrationReport[26] << 8) | Int16(calibrationReport[25]);
+		let accelXPlus  = Int16(calibrationReport[24] << 8) | Int16(calibrationReport[23])
+		let accelXMinus = Int16(calibrationReport[26] << 8) | Int16(calibrationReport[25])
 
-		let accelYPlus  = Int16(calibrationReport[28] << 8) | Int16(calibrationReport[27]);
-		let accelYMinus = Int16(calibrationReport[30] << 8) | Int16(calibrationReport[29]);
+		let accelYPlus  = Int16(calibrationReport[28] << 8) | Int16(calibrationReport[27])
+		let accelYMinus = Int16(calibrationReport[30] << 8) | Int16(calibrationReport[29])
 
-		let accelZPlus  = Int16(calibrationReport[32] << 8) | Int16(calibrationReport[31]);
-		let accelZMinus = Int16(calibrationReport[34] << 8) | Int16(calibrationReport[33]);
+		let accelZPlus  = Int16(calibrationReport[32] << 8) | Int16(calibrationReport[31])
+		let accelZMinus = Int16(calibrationReport[34] << 8) | Int16(calibrationReport[33])
 
-		self.calibration[Calibration.AccelXIndex].plusValue   = accelXPlus;
-		self.calibration[Calibration.AccelXIndex].minusValue  = accelXMinus;
+		self.calibration[Calibration.AccelXIndex].plusValue   = accelXPlus
+		self.calibration[Calibration.AccelXIndex].minusValue  = accelXMinus
 
-		self.calibration[Calibration.AccelYIndex].plusValue   = accelYPlus;
-		self.calibration[Calibration.AccelYIndex].minusValue  = accelYMinus;
+		self.calibration[Calibration.AccelYIndex].plusValue   = accelYPlus
+		self.calibration[Calibration.AccelYIndex].minusValue  = accelYMinus
 
-		self.calibration[Calibration.AccelZIndex].plusValue   = accelZPlus;
-		self.calibration[Calibration.AccelZIndex].minusValue  = accelZMinus;
+		self.calibration[Calibration.AccelZIndex].plusValue   = accelZPlus
+		self.calibration[Calibration.AccelZIndex].minusValue  = accelZMinus
 
-		self.calibration[Calibration.AccelXIndex].sensorBias = (Int16)(accelXPlus - ((accelXPlus - accelXMinus) / 2));
-		self.calibration[Calibration.AccelYIndex].sensorBias = (Int16)(accelYPlus - ((accelYPlus - accelYMinus) / 2));
-		self.calibration[Calibration.AccelZIndex].sensorBias = (Int16)(accelZPlus - ((accelZPlus - accelZMinus) / 2));
+		self.calibration[Calibration.AccelXIndex].sensorBias = (Int16)(accelXPlus - ((accelXPlus - accelXMinus) / 2))
+		self.calibration[Calibration.AccelYIndex].sensorBias = (Int16)(accelYPlus - ((accelYPlus - accelYMinus) / 2))
+		self.calibration[Calibration.AccelZIndex].sensorBias = (Int16)(accelZPlus - ((accelZPlus - accelZMinus) / 2))
 
 	}
 
@@ -1087,7 +1047,7 @@ class DualShock4Controller {
 			self.gyroSpeed2x,
 			sensorResolution: DualShock4Controller.GYRO_RES_IN_DEG_SEC,
 			sensorRange: Int16(self.calibration[Calibration.GyroPitchIndex].plusValue! - self.calibration[Calibration.GyroPitchIndex].minusValue!)
-		);
+		)
 
 		yaw = DualShock4Controller.applyGyroCalibration(
 			yaw,
@@ -1095,7 +1055,7 @@ class DualShock4Controller {
 			self.gyroSpeed2x,
 			sensorResolution: DualShock4Controller.GYRO_RES_IN_DEG_SEC,
 			sensorRange: Int16(self.calibration[Calibration.GyroYawIndex].plusValue! - self.calibration[Calibration.GyroYawIndex].minusValue!)
-		);
+		)
 
 		roll = DualShock4Controller.applyGyroCalibration(
 			roll,
@@ -1103,60 +1063,73 @@ class DualShock4Controller {
 			self.gyroSpeed2x,
 			sensorResolution: DualShock4Controller.GYRO_RES_IN_DEG_SEC,
 			sensorRange: Int16(self.calibration[Calibration.GyroRollIndex].plusValue! - self.calibration[Calibration.GyroRollIndex].minusValue!)
-		);
+		)
 
 		accelX = DualShock4Controller.applyAccelCalibration(
 			accelX,
 			self.calibration[Calibration.AccelXIndex].sensorBias!,
 			sensorResolution: DualShock4Controller.ACC_RES_PER_G,
 			sensorRange: Int16(self.calibration[Calibration.AccelXIndex].plusValue! - self.calibration[Calibration.AccelXIndex].minusValue!)
-		);
+		)
 
 		accelY = DualShock4Controller.applyAccelCalibration(
 			accelY,
 			self.calibration[Calibration.AccelYIndex].sensorBias!,
 			sensorResolution: DualShock4Controller.ACC_RES_PER_G,
 			sensorRange: Int16(self.calibration[Calibration.AccelYIndex].plusValue! - self.calibration[Calibration.AccelYIndex].minusValue!)
-		);
+		)
 
 		accelZ = DualShock4Controller.applyAccelCalibration(
 			accelZ,
 			self.calibration[Calibration.AccelZIndex].sensorBias!,
 			sensorResolution: DualShock4Controller.ACC_RES_PER_G,
 			sensorRange: Int16(self.calibration[Calibration.AccelZIndex].plusValue! - self.calibration[Calibration.AccelZIndex].minusValue!)
-		);
+		)
 
 	}
 
 	static func applyGyroCalibration(_ sensorRawValue:Int16, _ sensorBias:Int16, _ gyroSpeed2x:Int16, sensorResolution:Int16, sensorRange:Int16) -> Int16 {
-		var calibratedValue:Int16 = 0; // TODO not sure why I would need this to be an integer
+
+		var calibratedValue:Int16 = 0 // TODO not sure why I would need this to be an integer
 
 		// plus and minus values are symmetrical, so bias is also 0
 		if sensorRange == 0 {
-			calibratedValue = (Int16)(sensorRawValue * gyroSpeed2x * sensorResolution);
-			return calibratedValue;
+			calibratedValue = (Int16)(sensorRawValue * gyroSpeed2x * sensorResolution)
+			return calibratedValue
 		}
 
-		calibratedValue = Int16(((sensorRawValue - sensorBias) * gyroSpeed2x * sensorResolution) / sensorRange);
-		return calibratedValue;
+		// breaking up expression because swift compiler complains...
+		let sensorRawOffset = Int32(sensorRawValue - sensorBias)
+		let gyroSpeed2x32 = Int32(gyroSpeed2x)
+		let sensorResolution32 = Int32(sensorResolution)
+		let sensorRange32 = Int32(sensorRange)
+		calibratedValue = Int16((sensorRawOffset * gyroSpeed2x32 * sensorResolution32) / sensorRange32)
+		return calibratedValue
+
 	}
 
 	static func applyAccelCalibration(_ sensorRawValue:Int16, _ sensorBias:Int16, sensorResolution:Int16, sensorRange:Int16) -> Int16 {
-		var calibratedValue:Int16 = 0; // TODO not sure why I would need this to be an integer
+
+		var calibratedValue:Int16 = 0 // TODO not sure why I would need this to be an integer
 
 		// plus and minus values are symmetrical, so bias is also 0
 		if sensorRange == 0 {
-			calibratedValue = Int16(sensorRawValue * 2 * sensorResolution);
-			return calibratedValue;
+			calibratedValue = Int16(sensorRawValue * 2 * sensorResolution)
+			return calibratedValue
 		}
 
-		calibratedValue = Int16(((sensorRawValue - sensorBias) * 2 * sensorResolution) / sensorRange);
-		return calibratedValue;
+		// breaking up expression because swift compiler complains...
+		let sensorRawOffset = Int32(sensorRawValue - sensorBias)
+		let sensorResolution32 = Int32(sensorResolution)
+		let sensorRange32 = Int32(sensorRange)
+		calibratedValue = Int16((sensorRawOffset * 2 * sensorResolution32) / sensorRange32)
+		return calibratedValue
+
 	}
 
-	var gyroSpeedPlus:Int16 = 0;
-	var gyroSpeedMinus:Int16 = 0;
-	var gyroSpeed2x:Int16 = 0;
+	var gyroSpeedPlus:Int16 = 0
+	var gyroSpeedMinus:Int16 = 0
+	var gyroSpeed2x:Int16 = 0
 
 	// TODO change this to a struct or object with properties, array with indexes is kind of ugly
 	var calibration = [
@@ -1166,25 +1139,25 @@ class DualShock4Controller {
 		Calibration(),
 		Calibration(),
 		Calibration()
-	];
+	]
 
 }
 
 class Calibration {
 
-	static let GyroPitchIndex:Int = 0;
-	static let GyroYawIndex:Int = 1;
-	static let GyroRollIndex:Int = 2;
-	static let AccelXIndex:Int = 3;
-	static let AccelYIndex:Int = 4;
-	static let AccelZIndex:Int = 5;
+	static let GyroPitchIndex:Int = 0
+	static let GyroYawIndex:Int = 1
+	static let GyroRollIndex:Int = 2
+	static let AccelXIndex:Int = 3
+	static let AccelYIndex:Int = 4
+	static let AccelZIndex:Int = 5
 
 	public init() {
 		//
 	}
 
-	var plusValue:Int16?;
-	var minusValue:Int16?;
-	var sensorBias:Int16?;
+	var plusValue:Int16?
+	var minusValue:Int16?
+	var sensorBias:Int16?
 
 }

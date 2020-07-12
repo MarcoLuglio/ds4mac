@@ -11,14 +11,52 @@ import zlib
 
 
 
-class CRC32 {
+class Crc32 {
 
-	private static let defaultPolynomial:UInt32 = 0xedb88320
+	// https://docs.microsoft.com/en-us/openspecs/office_protocols/ms-abs/06966aa2-70da-4bf9-8448-3355f277cd77
 
-	// this one is from ds4windows
-	/*static let defaultSeed:UInt32 = 0xffffffff
+	/// <summary>
+	/// Implementation according to wikipedia article.
+	/// TODO DS4Windows lists other implementations, I can check later.
+	/// The result of one Compute call needs to be ~ (XOR) before being passed in as the seed for the next compute call
+	/// </summary>
+	/// <param name="buffer"></param>
+	/// <param name="bufferLength">
+	/// If we don't want to CRC the enire buffer, specify a length.
+	/// For instance, if the buffer already contains a CRC at the end and we want to generate a CRC of our own to compare with the existing one.
+	/// </param>
+	/// <param name="seed"></param>
+	/// <returns></returns>
+	static func compute(buffer:inout [UInt8], bufferLength:Int = 0, seed:UInt32 = 0xFFFFFFFF) -> UInt32 {
 
-	static let defaultTable:[UInt32] = [
+		var newBufferLength = bufferLength
+
+		if newBufferLength == 0 {
+			newBufferLength = buffer.count
+		}
+
+		var crc32 = seed
+
+		var crcTableIndex:Int = 0
+		var dataByte:UInt8
+		for i in 0..<newBufferLength {
+			dataByte = buffer[i]
+			// crcTableIndex = (crc32 ^ dataByte) & 0xFF) // FIXME
+			crc32 = (crc32 >> 8) ^ Crc32.crcTable[crcTableIndex]
+		}
+
+		//crc32 = crc32 ^ seed; // TODO not sure if it is XOR seed of always 0xffffffff or ~, I'll do what the linux implementation does, which is to not flip anything.
+
+		return crc32;
+
+	}
+
+	/// <summary>
+	/// This is the table for the generator polynomial: 0xedb88320u
+	/// Has 256 values in it
+	/// DS4Windows has an implementation for custom polynomials
+	/// </summary>
+	static let crcTable:[UInt32] = [
 		0x00000000, 0x77073096, 0xEE0E612C, 0x990951BA,
 		0x076DC419, 0x706AF48F, 0xE963A535, 0x9E6495A3,
 		0x0EDB8832, 0x79DCB8A4, 0xE0D5E91E, 0x97D2D988,
@@ -84,37 +122,5 @@ class CRC32 {
 		0xB3667A2E, 0xC4614AB8, 0x5D681B02, 0x2A6F2B94,
 		0xB40BBE37, 0xC30C8EA1, 0x5A05DF1B, 0x2D02EF8D
 	]
-
-	static func Crc32Algorithm() {
-		Crc32Algorithm(polynomial:defaultPolynomial, seed:defaultSeed)
-	}
-
-	static func Crc32Algorithm(polynomial:UInt32, seed:UInt32)
-	{
-		let strData = "a"
-		let crc = crc32(uLong(polynomial), UnsafePointer<Bytef>(strData.bytes), uInt(strData!.length))
-		//_table = InitializeTable(polynomial);
-		//_seed = _hash = seed;
-	}*/
-
-	static func checksum(bytes:[UInt8]) -> [UInt8] {
-
-		let integer = crc32(uLong(defaultPolynomial), UnsafePointer<UInt8>(bytes), uInt(bytes.count))
-		print(integer)
-
-		var bigEndian = integer.bigEndian // big or little endian?
-		let count = MemoryLayout<UInt32>.size
-		let bytePtr = withUnsafePointer(to: &bigEndian) {
-			$0.withMemoryRebound(to: UInt8.self, capacity: count) {
-				UnsafeBufferPointer(start: $0, count: count)
-			}
-		}
-		let byteArray = Array(bytePtr)
-
-		print(byteArray)
-
-		return byteArray
-
-	}
 
 }

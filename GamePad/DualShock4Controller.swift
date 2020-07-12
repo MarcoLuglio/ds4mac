@@ -15,7 +15,7 @@ class DualShock4Controller {
 	static let VENDOR_ID_SONY:Int64 = 0x054C // 1356
 	static let CONTROLLER_ID_DUALSHOCK_4_USB:Int64 = 0x05C4 // 1476
 	static let CONTROLLER_ID_DUALSHOCK_4_USB_V2:Int64 = 0x09CC // 2508, this controller has an led strip above the trackpad
-	static let CONTROLLER_ID_DUALSHOCK_4_BLUETOOTH:Int64 = 0x081F // 
+	static let CONTROLLER_ID_DUALSHOCK_4_BLUETOOTH:Int64 = 0x081F //
 
 	static var nextId:UInt8 = 0
 
@@ -133,13 +133,13 @@ class DualShock4Controller {
 
 	var gyroX:Float32 = 0
 	var gyroY:Float32 = 0
-	var _gyroZ:Float32 = 0
+	var gyroZ:Float32 = 0
 
 	var accelX:Float32 = 0
 	var accelY:Float32 = 0
 	var accelZ:Float32 = 0
 
-	var rotationZ:Float32 = 0
+	//var rotationZ:Float32 = 0
 
 	// battery
 
@@ -166,7 +166,7 @@ class DualShock4Controller {
 		self.productID = productID
 		self.device = device
 		self.enableIMUReport = enableIMUReport
-		
+
 		IOHIDDeviceOpen(self.device, IOOptionBits(kIOHIDOptionsTypeNone)) // or kIOHIDManagerOptionUsePersistentProperties
 
 		NotificationCenter.default
@@ -210,51 +210,13 @@ class DualShock4Controller {
 		|          |0x0A: DATA             |0x02       |0x03: feature|
 		|----------|-----|-----|-----|-----|-----|-----|-----|-------|
 
-		to calibrate ds4
-
-		ds4windows does this, though it is a bit hard to follow
-
-		0x03
-		The transaction type is SET REPORT (0x05), and the report type is FEATURE (0x03). The protocol code is 0x03.
-		Most bytes from index 4 change between two reports.
-		Report example:
-
-		0x53, 0x03, 0x02, 0x00, 0xf1, 0xdf, 0xd3, 0x7b, 0x4f, 0x49, 0x0b, 0x0b, 0x7c, 0x79, 0xde, 0xad,
-		0x5d, 0xa3, 0x41, 0x8a, 0x9c, 0x2e, 0xaf, 0x09, 0xc4, 0xa6, 0x80, 0xb4, 0x82, 0x87, 0x2c, 0xbf,
-		0x86, 0xe0, 0x2a, 0x86, 0x60, 0xa0, 0x23, 0x33
-
-		Data Format byte index 	bit 7 	bit 6 	bit 5 	bit 4 	bit 3 	bit 2 	bit 1 	bit 0
-		[0] 	0x05 	0x00 	0x03
-		[1] 	0x03
-		[2] 	sequence counter (init = 0x02, step = 1)
-		[3] 	0x00
-		[4 - 35] 	TODO, work in progress.
-		[36 - 39] 	CRC-32 of the previous bytes.
-
-		There is a periodic report sequence that consists in 5 0xf0 SET FEATURE reports, 2 0xf2 GET FEATURE reports, and 19 0xf1 GET FEATURE REPORTS. Each sequence takes about 30 seconds, and a new sequence starts about 30 seconds after the end of the last one. There is 1 second between two reports sent by the PS4.
-		There is another periodic report sequence that consists in one 0x03 SET FEATURE report and 1 0x04 GET FEATURE report. A new sequence starts about 30 seconds after the end of the last one. The 0x03 SET FEATURE report is sent 5 seconds after the 0x04 GET FEATURE report.
-		These two periodic sequences seem to be independent as they do not have the same period, and they have two distinct sequence counters.
-
-		* The default behavior of the Dualshock 4 is to send reports using
-		* report type 1 when running over Bluetooth. However, when feature
-		* report 2 is requested during the controller initialization it starts
-		* sending input reports in report 17. Since report 17 is undefined
-		* in the default HID descriptor, the HID layer won't generate events.
-		* While it is possible (and this was done before) to fixup the HID
-		* descriptor to add this mapping, it was better to do this manually.
-		* The reason is there were various pieces software both open and closed
-		* source, relying on the descriptors to be the same across various
-		* operating systems. If the descriptors wouldn't match some
-		* applications e.g. games on Wine would not be able to function due
-		* to different descriptors, which such applications are not parsing.
-
-		Check https://patchwork.kernel.org/patch/9467479/ for functional example besides the DS4Windows
-
 		*/
 
 	}
 
-	public private(set) var gyroZ:Float32 {
+	// MARK: - Input reports
+
+	/*public private(set) var gyroZ:Float32 {
 
 		get {
 			return self._gyroZ
@@ -273,7 +235,7 @@ class DualShock4Controller {
 			self.rotationZ += self._gyroZ
 		}
 
-	}
+	}*/
 
 	/// Gets called by GamePadMonitor
 	func parseReport(_ report:Data) {
@@ -550,72 +512,6 @@ class DualShock4Controller {
 
 		static void dualshock4_parse_report(struct sony_sc *sc, u8 *rd, int size)
 		{
-			struct hid_input *hidinput = list_entry(sc->hdev->inputs.next,
-								struct hid_input, list);
-			struct input_dev *input_dev = hidinput->input;
-			unsigned long flags;
-			int n, m, offset, num_touch_data, max_touch_data;
-			u8 cable_state, battery_capacity, battery_charging;
-			u16 timestamp;
-
-			/* When using Bluetooth the header is 2 bytes longer, so skip these. */
-			int data_offset = (sc->quirks & DUALSHOCK4_CONTROLLER_BT) ? 2 : 0;
-
-			/* Second bit of third button byte is for the touchpad button. */
-			offset = data_offset + DS4_INPUT_REPORT_BUTTON_OFFSET;
-			input_report_key(sc->touchpad, BTN_LEFT, rd[offset+2] & 0x2);
-
-			/*
-			 * The default behavior of the Dualshock 4 is to send reports using
-			 * report type 1 when running over Bluetooth. However, when feature
-			 * report 2 is requested during the controller initialization it starts
-			 * sending input reports in report 17. Since report 17 is undefined
-			 * in the default HID descriptor, the HID layer won't generate events.
-			 * While it is possible (and this was done before) to fixup the HID
-			 * descriptor to add this mapping, it was better to do this manually.
-			 * The reason is there were various pieces software both open and closed
-			 * source, relying on the descriptors to be the same across various
-			 * operating systems. If the descriptors wouldn't match some
-			 * applications e.g. games on Wine would not be able to function due
-			 * to different descriptors, which such applications are not parsing.
-			 */
-			if (rd[0] == 17) {
-				int value;
-
-				offset = data_offset + DS4_INPUT_REPORT_AXIS_OFFSET;
-				input_report_abs(input_dev, ABS_X, rd[offset]);
-				input_report_abs(input_dev, ABS_Y, rd[offset+1]);
-				input_report_abs(input_dev, ABS_RX, rd[offset+2]);
-				input_report_abs(input_dev, ABS_RY, rd[offset+3]);
-
-				value = rd[offset+4] & 0xf;
-				if (value > 7)
-					value = 8; /* Center 0, 0 */
-				input_report_abs(input_dev, ABS_HAT0X, ds4_hat_mapping[value].x);
-				input_report_abs(input_dev, ABS_HAT0Y, ds4_hat_mapping[value].y);
-
-				input_report_key(input_dev, BTN_WEST, rd[offset+4] & 0x10);
-				input_report_key(input_dev, BTN_SOUTH, rd[offset+4] & 0x20);
-				input_report_key(input_dev, BTN_EAST, rd[offset+4] & 0x40);
-				input_report_key(input_dev, BTN_NORTH, rd[offset+4] & 0x80);
-
-				input_report_key(input_dev, BTN_TL, rd[offset+5] & 0x1);
-				input_report_key(input_dev, BTN_TR, rd[offset+5] & 0x2);
-				input_report_key(input_dev, BTN_TL2, rd[offset+5] & 0x4);
-				input_report_key(input_dev, BTN_TR2, rd[offset+5] & 0x8);
-				input_report_key(input_dev, BTN_SELECT, rd[offset+5] & 0x10);
-				input_report_key(input_dev, BTN_START, rd[offset+5] & 0x20);
-				input_report_key(input_dev, BTN_THUMBL, rd[offset+5] & 0x40);
-				input_report_key(input_dev, BTN_THUMBR, rd[offset+5] & 0x80);
-
-				input_report_key(input_dev, BTN_MODE, rd[offset+6] & 0x1);
-
-				input_report_abs(input_dev, ABS_Z, rd[offset+7]);
-				input_report_abs(input_dev, ABS_RZ, rd[offset+8]);
-
-				input_sync(input_dev);
-			}
-
 			/* Convert timestamp (in 5.33us unit) to timestamp_us */
 			offset = data_offset + DS4_INPUT_REPORT_TIMESTAMP_OFFSET;
 			timestamp = get_unaligned_le16(&rd[offset]);
@@ -732,150 +628,6 @@ class DualShock4Controller {
 				input_mt_sync_frame(sc->touchpad);
 				input_sync(sc->touchpad);
 			}
-		}
-
-		/*
-		 * Request DS4 calibration data for the motion sensors.
-		 * For Bluetooth this also affects the operating mode (see below).
-		 */
-		static int dualshock4_get_calibration_data(struct sony_sc *sc)
-		{
-			u8 *buf;
-			int ret;
-			short gyro_pitch_bias, gyro_pitch_plus, gyro_pitch_minus;
-			short gyro_yaw_bias, gyro_yaw_plus, gyro_yaw_minus;
-			short gyro_roll_bias, gyro_roll_plus, gyro_roll_minus;
-			short gyro_speed_plus, gyro_speed_minus;
-			short acc_x_plus, acc_x_minus;
-			short acc_y_plus, acc_y_minus;
-			short acc_z_plus, acc_z_minus;
-			int speed_2x;
-			int range_2g;
-
-			/* For Bluetooth we use a different request, which supports CRC.
-			 * Note: in Bluetooth mode feature report 0x02 also changes the state
-			 * of the controller, so that it sends input reports of type 0x11.
-			 */
-			if (sc->quirks & (DUALSHOCK4_CONTROLLER_USB | DUALSHOCK4_DONGLE)) {
-				buf = kmalloc(DS4_FEATURE_REPORT_0x02_SIZE, GFP_KERNEL);
-				if (!buf)
-					return -ENOMEM;
-
-				ret = hid_hw_raw_request(sc->hdev, 0x02, buf,
-							 DS4_FEATURE_REPORT_0x02_SIZE,
-							 HID_FEATURE_REPORT,
-							 HID_REQ_GET_REPORT);
-				if (ret < 0)
-					goto err_stop;
-			} else {
-				u8 bthdr = 0xA3;
-				u32 crc;
-				u32 report_crc;
-				int retries;
-
-				buf = kmalloc(DS4_FEATURE_REPORT_0x05_SIZE, GFP_KERNEL);
-				if (!buf)
-					return -ENOMEM;
-
-				for (retries = 0; retries < 3; retries++) {
-					ret = hid_hw_raw_request(sc->hdev, 0x05, buf,
-								 DS4_FEATURE_REPORT_0x05_SIZE,
-								 HID_FEATURE_REPORT,
-								 HID_REQ_GET_REPORT);
-					if (ret < 0)
-						goto err_stop;
-
-					/* CRC check */
-					crc = crc32_le(0xFFFFFFFF, &bthdr, 1);
-					crc = ~crc32_le(crc, buf, DS4_FEATURE_REPORT_0x05_SIZE-4);
-					report_crc = get_unaligned_le32(&buf[DS4_FEATURE_REPORT_0x05_SIZE-4]);
-					if (crc != report_crc) {
-						hid_warn(sc->hdev, "DualShock 4 calibration report's CRC check failed, received crc 0x%0x != 0x%0x\n",
-							report_crc, crc);
-						if (retries < 2) {
-							hid_warn(sc->hdev, "Retrying DualShock 4 get calibration report request\n");
-							continue;
-						} else {
-							ret = -EILSEQ;
-							goto err_stop;
-						}
-					} else {
-						break;
-					}
-				}
-			}
-
-			gyro_pitch_bias  = get_unaligned_le16(&buf[1]);
-			gyro_yaw_bias    = get_unaligned_le16(&buf[3]);
-			gyro_roll_bias   = get_unaligned_le16(&buf[5]);
-			if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
-				gyro_pitch_plus  = get_unaligned_le16(&buf[7]);
-				gyro_pitch_minus = get_unaligned_le16(&buf[9]);
-				gyro_yaw_plus    = get_unaligned_le16(&buf[11]);
-				gyro_yaw_minus   = get_unaligned_le16(&buf[13]);
-				gyro_roll_plus   = get_unaligned_le16(&buf[15]);
-				gyro_roll_minus  = get_unaligned_le16(&buf[17]);
-			} else {
-				/* BT + Dongle */
-				gyro_pitch_plus  = get_unaligned_le16(&buf[7]);
-				gyro_yaw_plus    = get_unaligned_le16(&buf[9]);
-				gyro_roll_plus   = get_unaligned_le16(&buf[11]);
-				gyro_pitch_minus = get_unaligned_le16(&buf[13]);
-				gyro_yaw_minus   = get_unaligned_le16(&buf[15]);
-				gyro_roll_minus  = get_unaligned_le16(&buf[17]);
-			}
-			gyro_speed_plus  = get_unaligned_le16(&buf[19]);
-			gyro_speed_minus = get_unaligned_le16(&buf[21]);
-			acc_x_plus       = get_unaligned_le16(&buf[23]);
-			acc_x_minus      = get_unaligned_le16(&buf[25]);
-			acc_y_plus       = get_unaligned_le16(&buf[27]);
-			acc_y_minus      = get_unaligned_le16(&buf[29]);
-			acc_z_plus       = get_unaligned_le16(&buf[31]);
-			acc_z_minus      = get_unaligned_le16(&buf[33]);
-
-			/* Set gyroscope calibration and normalization parameters.
-			 * Data values will be normalized to 1/DS4_GYRO_RES_PER_DEG_S degree/s.
-			 */
-			speed_2x = (gyro_speed_plus + gyro_speed_minus);
-			sc->ds4_calib_data[0].abs_code = ABS_RX;
-			sc->ds4_calib_data[0].bias = gyro_pitch_bias;
-			sc->ds4_calib_data[0].sens_numer = speed_2x*DS4_GYRO_RES_PER_DEG_S;
-			sc->ds4_calib_data[0].sens_denom = gyro_pitch_plus - gyro_pitch_minus;
-
-			sc->ds4_calib_data[1].abs_code = ABS_RY;
-			sc->ds4_calib_data[1].bias = gyro_yaw_bias;
-			sc->ds4_calib_data[1].sens_numer = speed_2x*DS4_GYRO_RES_PER_DEG_S;
-			sc->ds4_calib_data[1].sens_denom = gyro_yaw_plus - gyro_yaw_minus;
-
-			sc->ds4_calib_data[2].abs_code = ABS_RZ;
-			sc->ds4_calib_data[2].bias = gyro_roll_bias;
-			sc->ds4_calib_data[2].sens_numer = speed_2x*DS4_GYRO_RES_PER_DEG_S;
-			sc->ds4_calib_data[2].sens_denom = gyro_roll_plus - gyro_roll_minus;
-
-			/* Set accelerometer calibration and normalization parameters.
-			 * Data values will be normalized to 1/DS4_ACC_RES_PER_G G.
-			 */
-			range_2g = acc_x_plus - acc_x_minus;
-			sc->ds4_calib_data[3].abs_code = ABS_X;
-			sc->ds4_calib_data[3].bias = acc_x_plus - range_2g / 2;
-			sc->ds4_calib_data[3].sens_numer = 2*DS4_ACC_RES_PER_G;
-			sc->ds4_calib_data[3].sens_denom = range_2g;
-
-			range_2g = acc_y_plus - acc_y_minus;
-			sc->ds4_calib_data[4].abs_code = ABS_Y;
-			sc->ds4_calib_data[4].bias = acc_y_plus - range_2g / 2;
-			sc->ds4_calib_data[4].sens_numer = 2*DS4_ACC_RES_PER_G;
-			sc->ds4_calib_data[4].sens_denom = range_2g;
-
-			range_2g = acc_z_plus - acc_z_minus;
-			sc->ds4_calib_data[5].abs_code = ABS_Z;
-			sc->ds4_calib_data[5].bias = acc_z_plus - range_2g / 2;
-			sc->ds4_calib_data[5].sens_numer = 2*DS4_ACC_RES_PER_G;
-			sc->ds4_calib_data[5].sens_denom = range_2g;
-
-		err_stop:
-			kfree(buf);
-			return ret;
 		}
 
 		static void dualshock4_send_output_report(struct sony_sc *sc)
@@ -1024,14 +776,14 @@ class DualShock4Controller {
 		self.cableConnected = ((report[30 + bluetoothOffset] >> 4) & 0b00000001) == 1
 		self.batteryLevel = report[30 + bluetoothOffset] & 0b00001111
 
-		if !cableConnected || self.batteryLevel > 10 {
+		if !self.cableConnected || self.batteryLevel > 10 {
 			self.batteryCharging = false
 		} else {
 			self.batteryCharging = true
 		}
 
 		// on usb battery tanges from 0 to 9, but on bluetooth the range is 0 to 10
-		if !cableConnected && self.batteryLevel < 10  {
+		if !self.cableConnected && self.batteryLevel < 10  {
 			self.batteryLevel += 1
 		}
 
@@ -1066,6 +818,8 @@ class DualShock4Controller {
 
 	}
 
+	// MARK: - Output reports
+
 	@objc func changeRumble(_ notification:Notification) {
 
 		let o = notification.object as! DualShock4ChangeRumbleNotification
@@ -1094,140 +848,6 @@ class DualShock4Controller {
 
 	}
 
-	func requestCalibrationDataReport() {
-
-		/*
-		* The default behavior of the Dualshock 4 is to send reports using
-		* report type 1 when running over Bluetooth. However, when feature
-		* report 2 is requested during the controller initialization it starts
-		* sending input reports in report 17. Since report 17 is undefined
-		* in the default HID descriptor, the HID layer won't generate events.
-		* While it is possible (and this was done before) to fixup the HID
-		* descriptor to add this mapping, it was better to do this manually.
-		* The reason is there were various pieces software both open and closed
-		* source, relying on the descriptors to be the same across various
-		* operating systems. If the descriptors wouldn't match some
-		* applications e.g. games on Wine would not be able to function due
-		* to different descriptors, which such applications are not parsing.
-		*/
-
-		var dualshock4CalibrationDataReportBluetooth = [UInt8](repeating: 0, count: 41)
-		var dualshock4CalibrationDataReportBluetoothLength = dualshock4CalibrationDataReportBluetooth.count
-
-		var dualshock4CalibrationDataReportBluetoothPointer = unsafeBitCast(dualshock4CalibrationDataReportBluetooth, to: UnsafeMutablePointer<UInt8>.self)
-		var dualshock4CalibrationDataReportBluetoothLengthPointer = UnsafeMutablePointer<Int>.allocate(capacity: 1)
-		dualshock4CalibrationDataReportBluetoothLengthPointer.pointee = dualshock4CalibrationDataReportBluetoothLength
-
-		IOHIDDeviceGetReport(
-			device,
-			kIOHIDReportTypeFeature,
-			0x05, // report id / protocol code
-			dualshock4CalibrationDataReportBluetoothPointer,
-			dualshock4CalibrationDataReportBluetoothLengthPointer
-		)
-
-		print("resultado")
-		print(dualshock4CalibrationDataReportBluetoothLength)
-		//print(dualshock4CalibrationDataReportBluetooth)
-
-		// TODO validar CRC aqui
-
-		/*var dualshock4CalibrationDataReportUSB = [UInt8](repeating: 0, count: 37)
-		var dualshock4CalibrationDataReportUSBLength = dualshock4CalibrationDataReportUSB.count
-
-		var dualshock4CalibrationDataReportUSBPointer = unsafeBitCast(dualshock4CalibrationDataReportUSB, to: UnsafeMutablePointer<UInt8>.self)
-		var dualshock4CalibrationDataReportUSBLengthPointer = UnsafeMutablePointer<Int>.allocate(capacity: 1)
-		dualshock4CalibrationDataReportUSBLengthPointer.pointee = dualshock4CalibrationDataReportUSBLength
-
-		print("resultado")
-		print(dualshock4CalibrationDataReportUSB)
-
-		IOHIDDeviceGetReport(
-			device,
-			kIOHIDReportTypeFeature,
-			0x02, // report id / protocol code
-			dualshock4CalibrationDataReportUSBPointer,
-			dualshock4CalibrationDataReportUSBLengthPointer
-		)*/
-
-		/*
-		static inline u16 get_unaligned_le16(const void *p)
-		{
-			const u8 *_p = p;
-			return _p[0] | _p[1] << 8;
-		}
-
-		gyro_pitch_bias  = get_unaligned_le16(&buf[1]);
-		gyro_yaw_bias    = get_unaligned_le16(&buf[3]);
-		gyro_roll_bias   = get_unaligned_le16(&buf[5]);
-		if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
-			gyro_pitch_plus  = get_unaligned_le16(&buf[7]);
-			gyro_pitch_minus = get_unaligned_le16(&buf[9]);
-			gyro_yaw_plus    = get_unaligned_le16(&buf[11]);
-			gyro_yaw_minus   = get_unaligned_le16(&buf[13]);
-			gyro_roll_plus   = get_unaligned_le16(&buf[15]);
-			gyro_roll_minus  = get_unaligned_le16(&buf[17]);
-		} else {
-			/* BT + Dongle */
-			gyro_pitch_plus  = get_unaligned_le16(&buf[7]);
-			gyro_yaw_plus    = get_unaligned_le16(&buf[9]);
-			gyro_roll_plus   = get_unaligned_le16(&buf[11]);
-			gyro_pitch_minus = get_unaligned_le16(&buf[13]);
-			gyro_yaw_minus   = get_unaligned_le16(&buf[15]);
-			gyro_roll_minus  = get_unaligned_le16(&buf[17]);
-		}
-		gyro_speed_plus  = get_unaligned_le16(&buf[19]);
-		gyro_speed_minus = get_unaligned_le16(&buf[21]);
-		acc_x_plus       = get_unaligned_le16(&buf[23]);
-		acc_x_minus      = get_unaligned_le16(&buf[25]);
-		acc_y_plus       = get_unaligned_le16(&buf[27]);
-		acc_y_minus      = get_unaligned_le16(&buf[29]);
-		acc_z_plus       = get_unaligned_le16(&buf[31]);
-		acc_z_minus      = get_unaligned_le16(&buf[33]);
-
-		/* Set gyroscope calibration and normalization parameters.
-		 * Data values will be normalized to 1/DS4_GYRO_RES_PER_DEG_S degree/s.
-		 */
-		speed_2x = (gyro_speed_plus + gyro_speed_minus);
-		sc->ds4_calib_data[0].abs_code = ABS_RX;
-		sc->ds4_calib_data[0].bias = gyro_pitch_bias;
-		sc->ds4_calib_data[0].sens_numer = speed_2x*DS4_GYRO_RES_PER_DEG_S;
-		sc->ds4_calib_data[0].sens_denom = gyro_pitch_plus - gyro_pitch_minus;
-
-		sc->ds4_calib_data[1].abs_code = ABS_RY;
-		sc->ds4_calib_data[1].bias = gyro_yaw_bias;
-		sc->ds4_calib_data[1].sens_numer = speed_2x*DS4_GYRO_RES_PER_DEG_S;
-		sc->ds4_calib_data[1].sens_denom = gyro_yaw_plus - gyro_yaw_minus;
-
-		sc->ds4_calib_data[2].abs_code = ABS_RZ;
-		sc->ds4_calib_data[2].bias = gyro_roll_bias;
-		sc->ds4_calib_data[2].sens_numer = speed_2x*DS4_GYRO_RES_PER_DEG_S;
-		sc->ds4_calib_data[2].sens_denom = gyro_roll_plus - gyro_roll_minus;
-
-		/* Set accelerometer calibration and normalization parameters.
-		 * Data values will be normalized to 1/DS4_ACC_RES_PER_G G.
-		 */
-		range_2g = acc_x_plus - acc_x_minus;
-		sc->ds4_calib_data[3].abs_code = ABS_X;
-		sc->ds4_calib_data[3].bias = acc_x_plus - range_2g / 2;
-		sc->ds4_calib_data[3].sens_numer = 2*DS4_ACC_RES_PER_G;
-		sc->ds4_calib_data[3].sens_denom = range_2g;
-
-		range_2g = acc_y_plus - acc_y_minus;
-		sc->ds4_calib_data[4].abs_code = ABS_Y;
-		sc->ds4_calib_data[4].bias = acc_y_plus - range_2g / 2;
-		sc->ds4_calib_data[4].sens_numer = 2*DS4_ACC_RES_PER_G;
-		sc->ds4_calib_data[4].sens_denom = range_2g;
-
-		range_2g = acc_z_plus - acc_z_minus;
-		sc->ds4_calib_data[5].abs_code = ABS_Z;
-		sc->ds4_calib_data[5].bias = acc_z_plus - range_2g / 2;
-		sc->ds4_calib_data[5].sens_numer = 2*DS4_ACC_RES_PER_G;
-		sc->ds4_calib_data[5].sens_denom = range_2g;
-		*/
-
-	}
-
 	/// How to document parameters?
 	/// - Parameter leftHeavySlowRumble: Intensity of the heavy motor
 	/// - Parameter rightLightFastRumble: Intensity of the light motor
@@ -1250,7 +870,7 @@ class DualShock4Controller {
 		if self.isBluetooth {
 			// TODO check this with docs and other projects
 			dualshock4ControllerOutputReport = [UInt8](repeating: 0, count: 74)
-			dualshock4ControllerOutputReport[0] = 0x15; // 0x11
+			dualshock4ControllerOutputReport[0] = 0x15 // 0x11
 			dualshock4ControllerOutputReport[1] = 0x0 //(0xC0 | btPollRate) // (0x80 | btPollRate); // input report rate // FIXME check this
 			// enable rumble (0x01), lightbar (0x02), flash (0x04) // TODO check this too
 			dualshock4ControllerOutputReport[2] = 0xA0
@@ -1288,5 +908,283 @@ class DualShock4Controller {
 		)
 
 	}
+
+	// MARK: - Gryroscope calibration
+
+	static let ACC_RES_PER_G:Int16 = 8192; // TODO means 1G is 8192 (1 and a half byte) 0b0000_0000_0000 ??
+
+	static let GYRO_RES_IN_DEG_SEC:Int16 = 16; // means 1 degree/second is 16 (4 bits) 0b0000 ??
+
+	func requestCalibrationDataReport() {
+
+		/*
+		* The default behavior of the Dualshock 4 is to send reports using
+		* report type 1 when running over Bluetooth. However, when feature
+		* report 2 is requested during the controller initialization it starts
+		* sending input reports in report 17. Since report 17 is undefined
+		* in the default HID descriptor, the HID layer won't generate events.
+		* While it is possible (and this was done before) to fixup the HID
+		* descriptor to add this mapping, it was better to do this manually.
+		* The reason is there were various pieces software both open and closed
+		* source, relying on the descriptors to be the same across various
+		* operating systems. If the descriptors wouldn't match some
+		* applications e.g. games on Wine would not be able to function due
+		* to different descriptors, which such applications are not parsing.
+		*/
+
+		var dualshock4CalibrationDataReport = [UInt8](repeating: 0, count: 41)
+		let dualshock4CalibrationDataReportLength = dualshock4CalibrationDataReport.count
+
+		let dualshock4CalibrationDataReportPointer = UnsafeMutablePointer(mutating: dualshock4CalibrationDataReport)
+		let dualshock4CalibrationDataReportLengthPointer = UnsafeMutablePointer<Int>.allocate(capacity: 1)
+		dualshock4CalibrationDataReportLengthPointer.pointee = dualshock4CalibrationDataReportLength
+
+		IOHIDDeviceGetReport(
+			device,
+			kIOHIDReportTypeFeature,
+			self.isBluetooth ? 0x05 : 0x02, // TODO test bluetooth
+			dualshock4CalibrationDataReportPointer,
+			dualshock4CalibrationDataReportLengthPointer
+		)
+
+		// TODO validar CRC aqui
+
+		self.parseCalibrationFeatureReport(calibrationReport: &dualshock4CalibrationDataReport, fromUSB: self.isBluetooth)
+
+		/*
+		// for reference:
+		[0] 5 // report type
+		[1] 251
+		[2] 255
+		[3] 252
+		[4] 255
+		[5] 255
+		[6] 255
+		[7] 157
+		[8] 33
+		[9] 165
+		[10] 34
+		[11] 102
+		[12] 36
+		[13] 94
+		[14] 222
+		[15] 91
+		[16] 221
+		[17] 143
+		[18] 219
+		[19] 28
+		[20] 2
+		[21] 28
+		[22] 2
+		[23] 87
+		[24] 31
+		[25] 169
+		[26] 224
+		[27] 218
+		[28] 32
+		[29] 38
+		[30] 223
+		[31] 207
+		[32] 31
+		[33] 49
+		[34] 224
+		[35] 6
+		[36] 0
+		[37] 212 crc32
+		[38] 77  crc32
+		[39] 82  crc32
+		[40] 113 crc32
+		*/
+
+		print("resultado")
+		print(dualshock4CalibrationDataReportLength)
+		print(dualshock4CalibrationDataReport)
+
+	}
+
+	func parseCalibrationFeatureReport(calibrationReport:inout [UInt8], fromUSB:Bool) {
+
+		// gyroscopes
+
+		var pitchPlus:Int16 = 0;
+		var pitchMinus:Int16 = 0;
+		var yawPlus:Int16 = 0;
+		var yawMinus:Int16 = 0;
+		var rollPlus:Int16 = 0;
+		var rollMinus:Int16 = 0;
+
+		if !fromUSB {
+
+			pitchPlus  = Int16(calibrationReport[8]  << 8) | Int16(calibrationReport[7]);
+			yawPlus    = Int16(calibrationReport[10] << 8) | Int16(calibrationReport[9]);
+			rollPlus   = Int16(calibrationReport[12] << 8) | Int16(calibrationReport[11]);
+			pitchMinus = Int16(calibrationReport[14] << 8) | Int16(calibrationReport[13]);
+			yawMinus   = Int16(calibrationReport[16] << 8) | Int16(calibrationReport[15]);
+			rollMinus  = Int16(calibrationReport[18] << 8) | Int16(calibrationReport[17]);
+
+		} else {
+
+			pitchPlus  = Int16(calibrationReport[8]  << 8) | Int16(calibrationReport[7]);
+			pitchMinus = Int16(calibrationReport[10] << 8) | Int16(calibrationReport[9]);
+			yawPlus    = Int16(calibrationReport[12] << 8) | Int16(calibrationReport[11]);
+			yawMinus   = Int16(calibrationReport[14] << 8) | Int16(calibrationReport[13]);
+			rollPlus   = Int16(calibrationReport[16] << 8) | Int16(calibrationReport[15]);
+			rollMinus  = Int16(calibrationReport[18] << 8) | Int16(calibrationReport[17]);
+
+		}
+
+		self.calibration[Calibration.GyroPitchIndex].plusValue = pitchPlus;
+		self.calibration[Calibration.GyroPitchIndex].minusValue = pitchMinus;
+
+		self.calibration[Calibration.GyroYawIndex].plusValue = yawPlus;
+		self.calibration[Calibration.GyroYawIndex].minusValue = yawMinus;
+
+		self.calibration[Calibration.GyroRollIndex].plusValue = rollPlus;
+		self.calibration[Calibration.GyroRollIndex].minusValue = rollMinus;
+
+		self.calibration[Calibration.GyroPitchIndex].sensorBias = Int16(calibrationReport[2] << 8) | Int16(calibrationReport[1]);
+		self.calibration[Calibration.GyroYawIndex].sensorBias   = Int16(calibrationReport[4] << 8) | Int16(calibrationReport[3]);
+		self.calibration[Calibration.GyroRollIndex].sensorBias  = Int16(calibrationReport[6] << 8) | Int16(calibrationReport[5]);
+
+		self.gyroSpeedPlus  = Int16(calibrationReport[20] << 8) | Int16(calibrationReport[19]);
+		self.gyroSpeedMinus = Int16(calibrationReport[22] << 8) | Int16(calibrationReport[21]);
+		self.gyroSpeed2x = (Int16)(gyroSpeedPlus + gyroSpeedMinus);
+
+		// accelerometers
+
+		let accelXPlus  = Int16(calibrationReport[24] << 8) | Int16(calibrationReport[23]);
+		let accelXMinus = Int16(calibrationReport[26] << 8) | Int16(calibrationReport[25]);
+
+		let accelYPlus  = Int16(calibrationReport[28] << 8) | Int16(calibrationReport[27]);
+		let accelYMinus = Int16(calibrationReport[30] << 8) | Int16(calibrationReport[29]);
+
+		let accelZPlus  = Int16(calibrationReport[32] << 8) | Int16(calibrationReport[31]);
+		let accelZMinus = Int16(calibrationReport[34] << 8) | Int16(calibrationReport[33]);
+
+		self.calibration[Calibration.AccelXIndex].plusValue   = accelXPlus;
+		self.calibration[Calibration.AccelXIndex].minusValue  = accelXMinus;
+
+		self.calibration[Calibration.AccelYIndex].plusValue   = accelYPlus;
+		self.calibration[Calibration.AccelYIndex].minusValue  = accelYMinus;
+
+		self.calibration[Calibration.AccelZIndex].plusValue   = accelZPlus;
+		self.calibration[Calibration.AccelZIndex].minusValue  = accelZMinus;
+
+		self.calibration[Calibration.AccelXIndex].sensorBias = (Int16)(accelXPlus - ((accelXPlus - accelXMinus) / 2));
+		self.calibration[Calibration.AccelYIndex].sensorBias = (Int16)(accelYPlus - ((accelYPlus - accelYMinus) / 2));
+		self.calibration[Calibration.AccelZIndex].sensorBias = (Int16)(accelZPlus - ((accelZPlus - accelZMinus) / 2));
+
+	}
+
+	func applyCalibration(
+		pitch:inout Int16, yaw:inout Int16, roll:inout Int16,
+		accelX:inout Int16, accelY:inout Int16, accelZ:inout Int16
+	) {
+
+		pitch = DualShock4Controller.applyGyroCalibration(
+			pitch,
+			self.calibration[Calibration.GyroPitchIndex].sensorBias!,
+			self.gyroSpeed2x,
+			sensorResolution: DualShock4Controller.GYRO_RES_IN_DEG_SEC,
+			sensorRange: Int16(self.calibration[Calibration.GyroPitchIndex].plusValue! - self.calibration[Calibration.GyroPitchIndex].minusValue!)
+		);
+
+		yaw = DualShock4Controller.applyGyroCalibration(
+			yaw,
+			self.calibration[Calibration.GyroYawIndex].sensorBias!,
+			self.gyroSpeed2x,
+			sensorResolution: DualShock4Controller.GYRO_RES_IN_DEG_SEC,
+			sensorRange: Int16(self.calibration[Calibration.GyroYawIndex].plusValue! - self.calibration[Calibration.GyroYawIndex].minusValue!)
+		);
+
+		roll = DualShock4Controller.applyGyroCalibration(
+			roll,
+			self.calibration[Calibration.GyroRollIndex].sensorBias!,
+			self.gyroSpeed2x,
+			sensorResolution: DualShock4Controller.GYRO_RES_IN_DEG_SEC,
+			sensorRange: Int16(self.calibration[Calibration.GyroRollIndex].plusValue! - self.calibration[Calibration.GyroRollIndex].minusValue!)
+		);
+
+		accelX = DualShock4Controller.applyAccelCalibration(
+			accelX,
+			self.calibration[Calibration.AccelXIndex].sensorBias!,
+			sensorResolution: DualShock4Controller.ACC_RES_PER_G,
+			sensorRange: Int16(self.calibration[Calibration.AccelXIndex].plusValue! - self.calibration[Calibration.AccelXIndex].minusValue!)
+		);
+
+		accelY = DualShock4Controller.applyAccelCalibration(
+			accelY,
+			self.calibration[Calibration.AccelYIndex].sensorBias!,
+			sensorResolution: DualShock4Controller.ACC_RES_PER_G,
+			sensorRange: Int16(self.calibration[Calibration.AccelYIndex].plusValue! - self.calibration[Calibration.AccelYIndex].minusValue!)
+		);
+
+		accelZ = DualShock4Controller.applyAccelCalibration(
+			accelZ,
+			self.calibration[Calibration.AccelZIndex].sensorBias!,
+			sensorResolution: DualShock4Controller.ACC_RES_PER_G,
+			sensorRange: Int16(self.calibration[Calibration.AccelZIndex].plusValue! - self.calibration[Calibration.AccelZIndex].minusValue!)
+		);
+
+	}
+
+	static func applyGyroCalibration(_ sensorRawValue:Int16, _ sensorBias:Int16, _ gyroSpeed2x:Int16, sensorResolution:Int16, sensorRange:Int16) -> Int16 {
+		var calibratedValue:Int16 = 0; // TODO not sure why I would need this to be an integer
+
+		// plus and minus values are symmetrical, so bias is also 0
+		if sensorRange == 0 {
+			calibratedValue = (Int16)(sensorRawValue * gyroSpeed2x * sensorResolution);
+			return calibratedValue;
+		}
+
+		calibratedValue = Int16(((sensorRawValue - sensorBias) * gyroSpeed2x * sensorResolution) / sensorRange);
+		return calibratedValue;
+	}
+
+	static func applyAccelCalibration(_ sensorRawValue:Int16, _ sensorBias:Int16, sensorResolution:Int16, sensorRange:Int16) -> Int16 {
+		var calibratedValue:Int16 = 0; // TODO not sure why I would need this to be an integer
+
+		// plus and minus values are symmetrical, so bias is also 0
+		if sensorRange == 0 {
+			calibratedValue = Int16(sensorRawValue * 2 * sensorResolution);
+			return calibratedValue;
+		}
+
+		calibratedValue = Int16(((sensorRawValue - sensorBias) * 2 * sensorResolution) / sensorRange);
+		return calibratedValue;
+	}
+
+	var gyroSpeedPlus:Int16 = 0;
+	var gyroSpeedMinus:Int16 = 0;
+	var gyroSpeed2x:Int16 = 0;
+
+	// TODO change this to a struct or object with properties, array with indexes is kind of ugly
+	var calibration = [
+		Calibration(),
+		Calibration(),
+		Calibration(),
+		Calibration(),
+		Calibration(),
+		Calibration()
+	];
+
+}
+
+class Calibration {
+
+	static let GyroPitchIndex:Int = 0;
+	static let GyroYawIndex:Int = 1;
+	static let GyroRollIndex:Int = 2;
+	static let AccelXIndex:Int = 3;
+	static let AccelYIndex:Int = 4;
+	static let AccelZIndex:Int = 5;
+
+	public init() {
+		//
+	}
+
+	var plusValue:Int16?;
+	var minusValue:Int16?;
+	var sensorBias:Int16?;
 
 }

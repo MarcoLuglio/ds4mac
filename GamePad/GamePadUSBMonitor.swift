@@ -60,11 +60,12 @@ class GamePadUSBMonitor {
 		// or
 
 		var notificationPort = IONotificationPortCreate(kIOMasterPortDefault)
+		var runLoopSource = IONotificationPortGetRunLoopSource(notificationPort)
 
 		CFRunLoopAddSource(
 			CFRunLoopGetCurrent(),
-			IONotificationPortGetRunLoopSource(notificationPort),
-			kCFRunLoopDefaultMode
+			runLoopSource?.takeUnretainedValue(),
+			CFRunLoopMode.defaultMode
 		)
 
 		// reference to self (GamePadUSBMonitor) that can be passed to c functions, essentially a pointer to void
@@ -87,11 +88,16 @@ class GamePadUSBMonitor {
 			/*notification*/ iteratorPointer // TODO not sure yet how to work with this
 		)
 
-		while var d = IOIteratorNext(iterator) != 0 {
-			IOObjectRelease(d)
+		var quit = false
+
+		while !quit {
+			let d = IOIteratorNext(iterator)
+			if d != 0 {
+				IOObjectRelease(d)
+			} else {
+				quit = true
+			}
 		}
-
-
 
 		/*
 		io_object_t d;

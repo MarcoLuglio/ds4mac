@@ -180,167 +180,189 @@ struct DualShock4Tab: View {
 
 		VStack {
 
-			Group {
-				Button("Left heavy slow motor", action: rumbleLeft(intensity: 1))
-				Slider(value: $dualShock4.leftTrigger, in: 0...255, step: 1)
-				Button(action: addItem) {
-					if self.dualShock4.leftTriggerButton {
-						Text("Pressed")
-					} else {
-						Text("Left trigger")
-					}
-				}
-				Button(action: addItem) {
-					if self.dualShock4.leftShoulderButton {
-						Text("Pressed")
-					} else {
-						Text("Left shoulder")
-					}
-				}
-			}
+			Spacer()
 
-			Group {
-				Button(action: addItem) {
-					if self.dualShock4.upButton {
-						Text("Pressed")
-					} else {
-						Text("Up")
-					}
-				}
-				Button(action: addItem) {
-					if self.dualShock4.rightButton {
-						Text("Pressed")
-					} else {
-						Text("Right")
-					}
-				}
-				Button(action: addItem) {
-					if self.dualShock4.downButton {
-						Text("Pressed")
-					} else {
-						Text("Down")
-					}
-				}
-				Button(action: addItem) {
-					if self.dualShock4.leftButton {
-						Text("Pressed")
-					} else {
-						Text("Left")
-					}
-				}
-			}
+			HStack {
 
-			Group {
+				VStack {
 
-				Button(action: addItem) {
-					if self.dualShock4.shareButton {
-						Text("Pressed")
-					} else {
-						Text("Share")
+					Button("Left heavy slow motor", action: rumbleLeft(intensity: 1))
+
+					Button(action: addItem) {
+						if self.dualShock4.leftShoulderButton {
+							Text("Pressed")
+						} else {
+							Text("Left shoulder")
+						}
 					}
+
+					Button(action: addItem) {
+						if self.dualShock4.leftTriggerButton {
+							Text("Pressed")
+						} else {
+							Text("Left trigger")
+						}
+					}
+					Slider(value: $dualShock4.leftTrigger, in: 0...255, step: 1)
+
 				}
 
-				Button(action: addItem) {
-					if self.dualShock4.leftStickButton {
-						Text("Pressed")
-					} else {
-						Text("Left stick")
+				VStack {
+					Button(action: addItem) {
+						if self.dualShock4.upButton {
+							Text("Pressed")
+						} else {
+							Text("Up")
+						}
 					}
-				}
-				Text("Left stick analog")
-
-			}
-
-			Group {
-
-				Button(action: addItem) {
-					if self.dualShock4.trackPadButton {
-						Text("Pressed")
-					} else {
-						Text("TrackPad")
+					HStack {
+						Button(action: addItem) {
+							if self.dualShock4.rightButton {
+								Text("Pressed")
+							} else {
+								Text("Right")
+							}
+						}
+						Button(action: addItem) {
+							if self.dualShock4.leftButton {
+								Text("Pressed")
+							} else {
+								Text("Left")
+							}
+						}
 					}
-				}
-				Text("Trackpad analog")
-
-				Button(action: addItem) {
-					if self.dualShock4.psButton {
-						Text("Pressed")
-					} else {
-						Text("PS")
+					Button(action: addItem) {
+						if self.dualShock4.downButton {
+							Text("Pressed")
+						} else {
+							Text("Down")
+						}
 					}
 				}
 
-			}
+				VStack {
 
-			Group {
+					Button(action: addItem) {
+						if self.dualShock4.shareButton {
+							Text("Pressed")
+						} else {
+							Text("Share")
+						}
+					}
 
-				Text("Right stick analog")
-				Button(action: addItem) {
-					if self.dualShock4.rightStickButton {
-						Text("Pressed")
-					} else {
-						Text("Right stick")
+					Button(action: addItem) {
+						if self.dualShock4.leftStickButton {
+							Text("Pressed")
+						} else {
+							Text("Left stick")
+						}
+					}
+
+					Text("Left stick analog")
+					Coords2d(x:CGFloat(self.dualShock4.leftStickX), y:CGFloat(self.dualShock4.leftStickY))
+
+				}
+
+				VStack {
+
+					Button(action: addItem) {
+						if self.dualShock4.trackPadButton {
+							Text("Pressed")
+						} else {
+							Text("TrackPad")
+						}
+					}
+					Text("Trackpad analog")
+
+					Button(action: addItem) {
+						if self.dualShock4.psButton {
+							Text("Pressed")
+						} else {
+							Text("PS")
+						}
+					}
+
+				}
+
+				VStack {
+
+					Button(action: addItem) {
+						if self.dualShock4.optionsButton {
+							Text("Pressed")
+						} else {
+							Text("Options")
+						}
+					}
+
+					Button(action: addItem) {
+						if self.dualShock4.rightStickButton {
+							Text("Pressed")
+						} else {
+							Text("Right stick")
+						}
+					}
+
+					Text("Right stick analog")
+					Coords2d(x:CGFloat(self.dualShock4.rightStickX), y:CGFloat(self.dualShock4.rightStickY))
+
+				}
+
+				VStack {
+					Button(action: addItem) {
+						if self.dualShock4.triangleButton {
+							Text("Pressed")
+						} else {
+							Text("Triangle")
+						}
+					}
+					HStack {
+						Button(action: addItem) {
+							if self.dualShock4.squareButton {
+								Text("Pressed")
+							} else {
+								Text("Square")
+							}
+						}
+						Button(action: addItem) {
+							if self.dualShock4.circleButton {
+								Text("Pressed")
+							} else {
+								Text("Circle")
+							}
+						}
+					}
+					Button(action: addItem) {
+						if self.dualShock4.crossButton {
+							Text("Pressed")
+						} else {
+							Text("Cross")
+						}
 					}
 				}
 
-				Button(action: addItem) {
-					if self.dualShock4.optionsButton {
-						Text("Pressed")
-					} else {
-						Text("Options")
+				VStack {
+
+					Button("Right light fast motor", action: rumbleRight(intensity: 1))
+
+					Button(action: addItem) {
+						if self.dualShock4.rightShoulderButton {
+							Text("Pressed")
+						} else {
+							Text("Right shoulder")
+						}
 					}
+
+					Button(action: addItem) {
+						if self.dualShock4.rightTriggerButton {
+							Text("Pressed")
+						} else {
+							Text("Right trigger")
+						}
+					}
+					Slider(value: $dualShock4.rightTrigger, in: 0...255, step: 1)
+
 				}
 
-			}
-
-			Group {
-				Button(action: addItem) {
-					if self.dualShock4.triangleButton {
-						Text("Pressed")
-					} else {
-						Text("Triangle")
-					}
-				}
-				Button(action: addItem) {
-					if self.dualShock4.circleButton {
-						Text("Pressed")
-					} else {
-						Text("Circle")
-					}
-				}
-				Button(action: addItem) {
-					if self.dualShock4.crossButton {
-						Text("Pressed")
-					} else {
-						Text("Cross")
-					}
-				}
-				Button(action: addItem) {
-					if self.dualShock4.squareButton {
-						Text("Pressed")
-					} else {
-						Text("Square")
-					}
-				}
-			}
-
-			Group {
-				Button(action: addItem) {
-					if self.dualShock4.rightShoulderButton {
-						Text("Pressed")
-					} else {
-						Text("Right shoulder")
-					}
-				}
-				Button(action: addItem) {
-					if self.dualShock4.rightTriggerButton {
-						Text("Pressed")
-					} else {
-						Text("Right trigger")
-					}
-				}
-				Slider(value: $dualShock4.rightTrigger, in: 0...255, step: 1)
-				Button("Right light fast motor", action: rumbleRight(intensity: 1))
 			}
 
 			Slider<Text, Text>(
@@ -356,6 +378,9 @@ struct DualShock4Tab: View {
 					return label
 				}
 			)
+
+			Spacer()
+
 		}
 
 	}

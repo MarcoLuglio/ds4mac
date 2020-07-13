@@ -41,6 +41,7 @@
 		A9D72FAD2482046A0000A89F /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9D72FAC2482046A0000A89F /* IOKit.framework */; };
 		A9D72FAF248204FE0000A89F /* GameController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9D72FAE248204FE0000A89F /* GameController.framework */; };
 		A9D72FB1248205070000A89F /* ForceFeedback.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9D72FB0248205070000A89F /* ForceFeedback.framework */; };
+		A9FBA15224BBC39F009B7CEE /* Coords2d.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9FBA15124BBC39F009B7CEE /* Coords2d.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -102,6 +103,7 @@
 		A9D72FAC2482046A0000A89F /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
 		A9D72FAE248204FE0000A89F /* GameController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameController.framework; path = System/Library/Frameworks/GameController.framework; sourceTree = SDKROOT; };
 		A9D72FB0248205070000A89F /* ForceFeedback.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ForceFeedback.framework; path = System/Library/Frameworks/ForceFeedback.framework; sourceTree = SDKROOT; };
+		A9FBA15124BBC39F009B7CEE /* Coords2d.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coords2d.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -140,6 +142,7 @@
 				A9A27CBE249F12E000EFC9D5 /* JoyConUIModel.swift */,
 				A9888F9A24904BDD0084EA3C /* DualShock4UIModel.swift */,
 				A917BFD724984D2C00992913 /* XboxSeriesXUIModel.swift */,
+				A9FBA15124BBC39F009B7CEE /* Coords2d.swift */,
 			);
 			name = UI;
 			sourceTree = "<group>";
@@ -386,6 +389,7 @@
 				A9A27CBF249F12E000EFC9D5 /* JoyConUIModel.swift in Sources */,
 				A9879C1F248481C200AB4DE9 /* CRC32.swift in Sources */,
 				A993A102249E82070059EADA /* XboxOneController.swift in Sources */,
+				A9FBA15224BBC39F009B7CEE /* Coords2d.swift in Sources */,
 				A9879C23248592B600AB4DE9 /* GamePadTouchpadChangedNotification.swift in Sources */,
 				A9C66D34249417B900DB799F /* GamePadBatteryChangedNotification.swift in Sources */,
 				A993A108249EB9E50059EADA /* JoyConChangeLedNotification.swift in Sources */,

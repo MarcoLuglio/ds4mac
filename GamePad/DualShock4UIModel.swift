@@ -113,11 +113,15 @@ class DualShock4UIModel: ObservableObject {
 
 		self.leftTrigger = Float(o.leftTrigger)
 
-		self.leftStickX = Float(o.leftStickX)
-		self.leftStickY = Float(o.leftStickY)
+		// scales values to fit the Coords2d size
 
-		self.rightStickX = Float(o.rightStickX)
-		self.rightStickY = Float(o.rightStickY)
+		let coords2dSize:Float = 100;
+
+		self.leftStickX = Float(o.leftStickX - 128) * coords2dSize / 128
+		self.leftStickY = Float(o.leftStickY - 128) * coords2dSize / 128
+
+		self.rightStickX = Float(o.rightStickX - 128) * coords2dSize / 128
+		self.rightStickY = Float(o.rightStickY - 128) * coords2dSize / 128
 
 		self.rightTrigger = Float(o.rightTrigger)
 

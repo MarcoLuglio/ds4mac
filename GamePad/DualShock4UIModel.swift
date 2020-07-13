@@ -46,6 +46,12 @@ class DualShock4UIModel: ObservableObject {
 	var rightTriggerButton = false
 	var rightTrigger:Float = 0
 
+	var red:Double = 0
+	var green:Double = 0
+	var blue:Double = 0
+
+	var isConnected = false
+	var isCharging = false
 	var battery:Float = 0
 
 	let objectWillChange = ObservableObjectPublisher()
@@ -69,6 +75,14 @@ class DualShock4UIModel: ObservableObject {
 			)
 
 		// TODO trackpad
+
+		NotificationCenter.default
+			.addObserver(
+				self,
+				selector: #selector(self.updateLedColor),
+				name: DualShock4ChangeLedNotification.Name,
+				object: nil
+			)
 
 		NotificationCenter.default
 			.addObserver(
@@ -115,7 +129,7 @@ class DualShock4UIModel: ObservableObject {
 
 		// scales values to fit the Coords2d size
 
-		let coords2dSize:Float = 100;
+		let coords2dSize:Float = 40;
 
 		self.leftStickX = Float(o.leftStickX - 128) * coords2dSize / 128
 		self.leftStickY = Float(o.leftStickY - 128) * coords2dSize / 128
@@ -129,11 +143,35 @@ class DualShock4UIModel: ObservableObject {
 
 	}
 
+	@objc func updateTrackPad(_ notification:Notification) {
+
+		let o = notification.object as! GamePadTouchpadChangedNotification
+
+		// TODO
+
+		objectWillChange.send()
+
+	}
+
+	@objc func updateLedColor(_ notification:Notification) {
+
+		let o = notification.object as! DualShock4ChangeLedNotification
+
+		self.red = Double(o.red)
+		self.green = Double(o.green)
+		self.blue = Double(o.blue)
+
+		objectWillChange.send()
+
+	}
+
 	@objc func updateBattery(_ notification:Notification) {
 
 		let o = notification.object as! GamePadBatteryChangedNotification
 
 		self.battery = Float(o.battery)
+		self.isConnected = o.isConnected
+		self.isCharging = o.isCharging
 
 		objectWillChange.send()
 

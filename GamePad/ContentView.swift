@@ -180,34 +180,65 @@ struct DualShock4Tab: View {
 
 		VStack {
 
-			Spacer()
-
 			HStack {
 
+				// MARK: DualShock4 left
+
 				VStack {
 
-					Button("Left heavy slow motor", action: rumbleLeft(intensity: 1))
-
-					Button(action: addItem) {
-						if self.dualShock4.leftShoulderButton {
-							Text("Pressed")
-						} else {
-							Text("Left shoulder")
-						}
-					}
-
-					Button(action: addItem) {
-						if self.dualShock4.leftTriggerButton {
-							Text("Pressed")
-						} else {
-							Text("Left trigger")
-						}
-					}
 					Slider(value: $dualShock4.leftTrigger, in: 0...255, step: 1)
+						.frame(
+							minWidth: 100,
+							idealWidth: 170,
+							maxWidth: 200,
+							minHeight: 30,
+							idealHeight: 50,
+							maxHeight: 80,
+							alignment: Alignment.center
+						)
 
-				}
+					if self.dualShock4.leftShoulderButton {
+						ZStack {
+							Path(
+								roundedRect: CGRect(x: 0, y: -30, width: 70, height: 60),
+								cornerRadius: 30
+							)
+							.offsetBy(dx: 0, dy: -0.5)
+							.foregroundColor(Color.red)
+							.clipped()
+							.frame(
+								minWidth: 70,
+								idealWidth: 70,
+								maxWidth: 70,
+								minHeight: 30,
+								idealHeight: 30,
+								maxHeight: 30,
+								alignment: Alignment.center
+							)
+							Text("L1").foregroundColor(Color.black)
+						}
+					} else {
+						ZStack {
+							Path(
+								roundedRect: CGRect(x: 0, y: -30, width: 70, height: 60),
+								cornerRadius: 30
+							)
+							.offsetBy(dx: 0, dy: -0.5)
+							.foregroundColor(Color.white)
+							.clipped()
+							.frame(
+								minWidth: 70,
+								idealWidth: 70,
+								maxWidth: 70,
+								minHeight: 30,
+								idealHeight: 30,
+								maxHeight: 30,
+								alignment: Alignment.center
+							)
+							Text("L1").foregroundColor(Color.black)
+						}
+					}
 
-				VStack {
 					Button(action: addItem) {
 						if self.dualShock4.upButton {
 							Text("Pressed")
@@ -217,17 +248,17 @@ struct DualShock4Tab: View {
 					}
 					HStack {
 						Button(action: addItem) {
-							if self.dualShock4.rightButton {
-								Text("Pressed")
-							} else {
-								Text("Right")
-							}
-						}
-						Button(action: addItem) {
 							if self.dualShock4.leftButton {
 								Text("Pressed")
 							} else {
 								Text("Left")
+							}
+						}
+						Button(action: addItem) {
+							if self.dualShock4.rightButton {
+								Text("Pressed")
+							} else {
+								Text("Right")
 							}
 						}
 					}
@@ -238,83 +269,282 @@ struct DualShock4Tab: View {
 							Text("Down")
 						}
 					}
-				}
 
-				VStack {
-
-					Button(action: addItem) {
-						if self.dualShock4.shareButton {
-							Text("Pressed")
-						} else {
-							Text("Share")
-						}
-					}
-
-					Button(action: addItem) {
-						if self.dualShock4.leftStickButton {
-							Text("Pressed")
-						} else {
-							Text("Left stick")
-						}
-					}
-
-					Text("Left stick analog")
-					Coords2d(x:CGFloat(self.dualShock4.leftStickX), y:CGFloat(self.dualShock4.leftStickY))
+					Button("Left heavy slow motor", action: rumbleLeft(intensity: 255))
 
 				}
 
+
+				// MARK: DualShock4 center
+
 				VStack {
 
-					Button(action: addItem) {
-						if self.dualShock4.trackPadButton {
-							Text("Pressed")
-						} else {
-							Text("TrackPad")
-						}
-					}
-					Text("Trackpad analog")
+					HStack {
 
-					Button(action: addItem) {
+						VStack {
+							Text("SHARE").font(Font.system(size: 9))
+							if self.dualShock4.shareButton {
+								Path(
+									roundedRect: CGRect(x: 0, y: 0, width: 15, height: 30),
+									cornerRadius: 8
+								)
+								.foregroundColor(Color.init(Color.RGBColorSpace.sRGB, red: 1, green: 0, blue: 0, opacity: 1))
+								.frame(
+									minWidth: 15,
+									idealWidth: 15,
+									maxWidth: 15,
+									minHeight: 30,
+									idealHeight: 30,
+									maxHeight: 30,
+									alignment: Alignment.top
+								)
+							} else {
+								Path(
+									roundedRect: CGRect(x: 0, y: 0, width: 15, height: 30),
+									cornerRadius: 8
+								)
+								.foregroundColor(Color.init(Color.RGBColorSpace.sRGB, red: 0.5, green: 0.5, blue: 0.5, opacity: 1))
+								.frame(
+									minWidth: 15,
+									idealWidth: 15,
+									maxWidth: 15,
+									minHeight: 30,
+									idealHeight: 30,
+									maxHeight: 30,
+									alignment: Alignment.top
+								)
+							}
+						}
+
+						VStack {
+
+							Path(roundedRect: CGRect(x:0, y:0, width:160, height:30), cornerRadius: 15)
+								.foregroundColor(Color.init(
+									Color.RGBColorSpace.sRGB,
+									red: dualShock4.red,
+									green: dualShock4.green,
+									blue: dualShock4.blue,
+									opacity: 1
+								))
+								.frame(
+									minWidth: 160,
+									idealWidth: 160,
+									maxWidth: 160,
+									minHeight: 30,
+									idealHeight: 30,
+									maxHeight: 30,
+									alignment: Alignment.center
+								)
+
+							Coords2d(
+								x:CGFloat(self.dualShock4.leftStickX),
+								y:CGFloat(self.dualShock4.leftStickY),
+								foregroundColor: self.dualShock4.trackPadButton ? Color.red : Color.white
+							)
+							.frame(
+								minWidth: 260,
+								idealWidth: 260,
+								maxWidth: 300,
+								minHeight: 80,
+								idealHeight: 100,
+								maxHeight: 120,
+								alignment: Alignment(
+									horizontal: HorizontalAlignment.center,
+									vertical: VerticalAlignment.center
+								)
+							)
+
+						}
+
+						VStack {
+							Text("OPTIONS").font(Font.system(size: 9))
+							if self.dualShock4.optionsButton {
+								Path(
+									roundedRect: CGRect(x: 0, y: 0, width: 15, height: 30),
+									cornerRadius: 8
+								)
+								.foregroundColor(Color.init(Color.RGBColorSpace.sRGB, red: 1, green: 0, blue: 0, opacity: 1))
+								.frame(
+									minWidth: 15,
+									idealWidth: 15,
+									maxWidth: 15,
+									minHeight: 30,
+									idealHeight: 30,
+									maxHeight: 30,
+									alignment: Alignment.top
+								)
+							} else {
+								Path(
+									roundedRect: CGRect(x: 0, y: 0, width: 15, height: 30),
+									cornerRadius: 8
+								)
+								.foregroundColor(Color.init(Color.RGBColorSpace.sRGB, red: 0.5, green: 0.5, blue: 0.5, opacity: 1))
+								.frame(
+									minWidth: 15,
+									idealWidth: 15,
+									maxWidth: 15,
+									minHeight: 30,
+									idealHeight: 30,
+									maxHeight: 30,
+									alignment: Alignment.top
+								)
+							}
+						}
+
+					}
+
+					HStack {
+
+						VStack {
+
+							// TODO get the trackpad touches
+							Coords2d(
+								x:CGFloat(self.dualShock4.leftStickX),
+								y:CGFloat(self.dualShock4.leftStickY),
+								foregroundColor: self.dualShock4.leftStickButton ? Color.red : Color.white
+							)
+							.frame(
+								minWidth: 100,
+								idealWidth: 100,
+								maxWidth: 100,
+								minHeight: 100,
+								idealHeight: 100,
+								maxHeight: 100,
+								alignment: Alignment(
+									horizontal: HorizontalAlignment.center,
+									vertical: VerticalAlignment.center
+								)
+							)
+							.clipShape(Circle())
+							/*.overlay(
+								Circle().stroke(Color.gray, lineWidth: 4))*/
+
+						}
+
 						if self.dualShock4.psButton {
-							Text("Pressed")
+							Path(
+								roundedRect: CGRect(x: 0, y: 0, width: 22, height: 22),
+								cornerRadius: 11
+							)
+							.foregroundColor(Color.red)
+							.frame(
+								minWidth: 22,
+								idealWidth: 22,
+								maxWidth: 22,
+								minHeight: 22,
+								idealHeight: 22,
+								maxHeight: 22,
+								alignment: Alignment.center
+							)
 						} else {
-							Text("PS")
+							Path(
+								roundedRect: CGRect(x: 0, y: 0, width: 22, height: 22),
+								cornerRadius: 11
+							)
+							.foregroundColor(Color.white)
+							.frame(
+								minWidth: 22,
+								idealWidth: 22,
+								maxWidth: 22,
+								minHeight: 22,
+								idealHeight: 22,
+								maxHeight: 22,
+								alignment: Alignment.center
+							)
 						}
+
+						VStack {
+
+							Coords2d(
+								x:CGFloat(self.dualShock4.rightStickX),
+								y:CGFloat(self.dualShock4.rightStickY),
+								foregroundColor: self.dualShock4.rightStickButton ? Color.red : Color.white
+							)
+							.frame(
+								minWidth: 100,
+								idealWidth: 100,
+								maxWidth: 100,
+								minHeight: 100,
+								idealHeight: 100,
+								maxHeight: 100,
+								alignment: Alignment(
+									horizontal: HorizontalAlignment.center,
+									vertical: VerticalAlignment.center
+								)
+							)
+							.clipShape(Circle())
+							/*.overlay(
+								Circle().stroke(Color.gray, lineWidth: 4))*/
+
+						}
+
 					}
 
 				}
 
-				VStack {
-
-					Button(action: addItem) {
-						if self.dualShock4.optionsButton {
-							Text("Pressed")
-						} else {
-							Text("Options")
-						}
-					}
-
-					Button(action: addItem) {
-						if self.dualShock4.rightStickButton {
-							Text("Pressed")
-						} else {
-							Text("Right stick")
-						}
-					}
-
-					Text("Right stick analog")
-					Coords2d(x:CGFloat(self.dualShock4.rightStickX), y:CGFloat(self.dualShock4.rightStickY))
-
-				}
+				// MARK: DualShock4 right
 
 				VStack {
-					Button(action: addItem) {
-						if self.dualShock4.triangleButton {
-							Text("Pressed")
-						} else {
-							Text("Triangle")
+
+					Slider(value: $dualShock4.rightTrigger, in: 0...255, step: 1)
+						.frame(
+							minWidth: 100,
+							idealWidth: 170,
+							maxWidth: 200,
+							minHeight: 30,
+							idealHeight: 50,
+							maxHeight: 80,
+							alignment: Alignment.center
+						)
+
+					if self.dualShock4.rightShoulderButton {
+						ZStack {
+							Path(
+								roundedRect: CGRect(x: 0, y: -30, width: 70, height: 60),
+								cornerRadius: 30
+							)
+							.offsetBy(dx: 0, dy: -0.5)
+							.foregroundColor(Color.red)
+							.clipped()
+							.frame(
+								minWidth: 70,
+								idealWidth: 70,
+								maxWidth: 70,
+								minHeight: 30,
+								idealHeight: 30,
+								maxHeight: 30,
+								alignment: Alignment.center
+							)
+							Text("R1").foregroundColor(Color.black)
+						}
+					} else {
+						ZStack {
+							Path(
+								roundedRect: CGRect(x: 0, y: -30, width: 70, height: 60),
+								cornerRadius: 30
+							)
+							.offsetBy(dx: 0, dy: -0.5)
+							.foregroundColor(Color.white)
+							.clipped()
+							.frame(
+								minWidth: 70,
+								idealWidth: 70,
+								maxWidth: 70,
+								minHeight: 30,
+								idealHeight: 30,
+								maxHeight: 30,
+								alignment: Alignment.center
+							)
+							Text("R1").foregroundColor(Color.black)
 						}
 					}
+
+					if self.dualShock4.triangleButton {
+						Text("Pressed")
+					} else {
+						Text("Triangle")
+					}
+
 					HStack {
 						Button(action: addItem) {
 							if self.dualShock4.squareButton {
@@ -338,32 +568,13 @@ struct DualShock4Tab: View {
 							Text("Cross")
 						}
 					}
-				}
 
-				VStack {
-
-					Button("Right light fast motor", action: rumbleRight(intensity: 1))
-
-					Button(action: addItem) {
-						if self.dualShock4.rightShoulderButton {
-							Text("Pressed")
-						} else {
-							Text("Right shoulder")
-						}
-					}
-
-					Button(action: addItem) {
-						if self.dualShock4.rightTriggerButton {
-							Text("Pressed")
-						} else {
-							Text("Right trigger")
-						}
-					}
-					Slider(value: $dualShock4.rightTrigger, in: 0...255, step: 1)
+					Button("Right light fast motor", action: rumbleRight(intensity: 255))
 
 				}
 
 			}
+			.scaledToFit()
 
 			Slider<Text, Text>(
 				value: $dualShock4.battery,
@@ -373,15 +584,26 @@ struct DualShock4Tab: View {
 				minimumValueLabel: Text("0"),
 				maximumValueLabel: Text("10"),
 				label: {() in
-					let batteryLevel = Int32(dualShock4.battery)
-					let label = Text("battery level: \(batteryLevel)")
+					var batteryState = dualShock4.isConnected ? "🔌" :"🔋"
+					if dualShock4.isCharging {
+						batteryState += "⚡"
+					}
+					let label = Text("battery: \(batteryState)")
 					return label
 				}
 			)
-
-			Spacer()
+			.frame(
+				minWidth: 150,
+				idealWidth: 220,
+				maxWidth: 250,
+				minHeight: 30,
+				idealHeight: 50,
+				maxHeight: 80,
+				alignment: Alignment.center
+			)
 
 		}
+		.scaledToFit()
 
 	}
 
@@ -612,31 +834,54 @@ struct ContentView_Previews: PreviewProvider {
 	}
 }
 
+var previousLeftRumbleIntensity:UInt8 = 0
+
 func rumbleLeft(intensity:UInt8) -> () -> Void {
 	return {
+
+		var newIntensity = intensity
+
+		if previousLeftRumbleIntensity != 0 {
+			newIntensity = 0
+		}
+
 		DispatchQueue.main.async {
 			NotificationCenter.default.post(
 				name: DualShock4ChangeRumbleNotification.Name,
 				object: DualShock4ChangeRumbleNotification(
-					leftHeavySlowRumble: intensity,
+					leftHeavySlowRumble: newIntensity,
 					rightLightFastRumble: 0
 				)
 			)
 		}
+
+		previousLeftRumbleIntensity = newIntensity
+
 	}
 }
 
+var previousRightRumbleIntensity:UInt8 = 0
+
 func rumbleRight(intensity:UInt8) -> () -> Void {
 	return {
+
+		var newIntensity = intensity
+
+		if previousRightRumbleIntensity != 0 {
+			newIntensity = 0
+		}
+
 		DispatchQueue.main.async {
 			NotificationCenter.default.post(
 				name: DualShock4ChangeRumbleNotification.Name,
 				object: DualShock4ChangeRumbleNotification(
 					leftHeavySlowRumble: 0,
-					rightLightFastRumble: intensity
+					rightLightFastRumble: newIntensity
 				)
 			)
 		}
+
+		previousRightRumbleIntensity = newIntensity
 	}
 }
 

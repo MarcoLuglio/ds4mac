@@ -15,6 +15,7 @@ struct Coords2d: View {
 
 	var x:CGFloat
 	var y:CGFloat
+	var foregroundColor:Color = Color.white
 
 	var body: some View {
 
@@ -24,44 +25,38 @@ struct Coords2d: View {
 
 				Path { path in
 
-					let width:CGFloat = min(geometry.size.width, geometry.size.height)
-					let height = width
+					let width:CGFloat = geometry.size.width//min(geometry.size.width, geometry.size.height)
+					let height = geometry.size.height
 
-					path.addRect(CGRect(
-						x: 0,
-						y: 0,
-						width: width,
-						height: height
-					))
+					path.addRect(
+						CGRect(
+							x: geometry.frame(in: .local).midX - width / 2,
+							y: geometry.frame(in: .local).midY - height / 2,
+							width: width,
+							height: height
+						)
+					)
 
 				}
-				.fill(Color.white)
+				.fill(self.foregroundColor)
+				.cornerRadius(8)
 
 				Path { path in
 
-					let width:CGFloat = min(geometry.size.width, geometry.size.height)
-					let height = width
+					//let width:CGFloat = min(geometry.size.width, geometry.size.height)
+					let size:CGFloat = 4
 
 					path.addRect(CGRect(
-						x: self.x + (width / 2),
-						y: self.y + (height / 2),
-						width: 4,
-						height: 4
+						x: self.x + geometry.frame(in: .local).midX - size / 2,
+						y: self.y + geometry.frame(in: .local).midY - size / 2,
+						width: size,
+						height: size
 					))
 
 				}
 				.fill(Color.black)
 
 			}
-			.frame(
-				minWidth: 50,
-				idealWidth: 60,
-				maxWidth: 200,
-				minHeight: 50,
-				idealHeight: 60,
-				maxHeight: 200,
-				alignment: .center
-			)
 
 		}
 

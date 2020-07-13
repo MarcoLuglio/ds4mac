@@ -386,38 +386,6 @@ class DualShock4Controller {
 
 		self.trackpadButton = report[7 + bluetoothOffset] & 0b00000010 == 0b00000010
 
-		/*
-
-		trackpad can send multiple packets per report
-		it is sampled at a higher frequency
-
-		indexes are for bluetooth, so offset by +2
-
-		[36] 	number of trackpad packets (0x00 to 0x04)
-		[37] 	packet counter
-
-		[38] 	active low 	finger 1 id
-		[39 - 41] 	finger 1 coordinates
-		[42] 	active low 	finger 2 id
-		[43 - 45] 	finger 2 coordinates
-
-		[47] 	active low 	finger 1 id
-		[48 - 50] 	finger 1 coordinates
-		[51] 	active low 	finger 2 id
-		[52 - 54] 	finger 2 coordinates
-		[55] 	packet counter
-		[56] 	active low 	finger 1 id
-		[57 - 59] 	finger 1 coordinates
-		[60] 	active low 	finger 2 id
-		[61 - 63] 	finger 2 coordinates
-		[64] 	packet counter
-		[65] 	active low 	finger 1 id
-		[66 - 68] 	finger 1 coordinates
-		[69] 	active low 	finger 2 id
-		[70 - 72] 	finger 2 coordinates
-
-		*/
-
 		if report.count < 11 {
 			return
 		}
@@ -429,23 +397,72 @@ class DualShock4Controller {
 			self.reportTimeInterval += UINT16_MAX
 		}
 
+		/*
+
+		trackpad can send multiple packets per report
+		it is sampled at a higher frequency
+
+		indexes are for bluetooth, so offset by +2
+
+		[36] 	number of trackpad packets (0x00 to 0x04)
+
+
+		[37] 	packet counter
+
+		[38] 	active low 	finger 1 id
+		[39 - 41] 	finger 1 coordinates
+
+		[42] 	active low 	finger 2 id
+		[43 - 45] 	finger 2 coordinates
+
+
+		[46] 	packet counter
+
+		[47] 	active low 	finger 1 id
+		[48 - 50] 	finger 1 coordinates
+
+		[51] 	active low 	finger 2 id
+		[52 - 54] 	finger 2 coordinates
+
+
+		[55] 	packet counter
+
+		[56] 	active low 	finger 1 id
+		[57 - 59] 	finger 1 coordinates
+
+		[60] 	active low 	finger 2 id
+		[61 - 63] 	finger 2 coordinates
+
+
+		[64] 	packet counter
+
+		[65] 	active low 	finger 1 id
+		[66 - 68] 	finger 1 coordinates
+
+		[69] 	active low 	finger 2 id
+		[70 - 72] 	finger 2 coordinates
+
+		*/
+
+
 		let numberOfPackets = report[34 + bluetoothOffset]
 
-		// 35 packets as well?
+		self.trackpadTouch0IsActive = report[35 + bluetoothOffset] & 0b10000000 != 0b10000000
 
-		self.trackpadTouch0IsActive = report[35 + bluetoothOffset] & 0b10000000 != 0b10000000 // if not active, no need to parse the rest
+		if self.trackpadTouch0IsActive {
+			self.trackpadTouch0Id = report[35] & 0b01111111
+			self.trackpadTouch0X = ((report[37] & 0x0f) << 8) | report[36] // TODO make this more readable
+			self.trackpadTouch0Y = report[38] << 4 | ((report[37] & 0xf0) >> 4)
+		}
 
 		/*
 		cState.TrackPadTouch0.X = (short)(((ushort)(inputReport[37] & 0x0f) << 8) | (ushort)(inputReport[36]));
 		cState.TrackPadTouch0.Y = (short)(((ushort)(inputReport[38]) << 4) | ((ushort)(inputReport[37] & 0xf0) >> 4));
 		*/
 
-		/*
-		self.trackpadTouch0Id = report[35] & 0b01111111
-		self.trackpadTouch0X = ((report[37] & 0x0f) << 8) | report[36] // TODO make this more readable
-		self.trackpadTouch0Y = report[38] << 4 | ((report[37] & 0xf0) >> 4)
+		self.trackpadTouch1IsActive = report[40 + bluetoothOffset] & 0b10000000 != 0b10000000 // if not active, no need to parse the rest
 
-		self.trackpadTouch1IsActive = report[40] & 0b10000000 != 0b10000000 // if not active, no need to parse the rest
+		/*
 		self.trackpadTouch1Id = report[40] & 0b01111111
 		self.trackpadTouch1X = ((report[41] & 0x0f) << 8) | report[40] // TODO make this more readable
 		self.trackpadTouch1Y = report[42] << 4 | ((report[41] & 0xf0) >> 4)
@@ -549,37 +566,6 @@ class DualShock4Controller {
 				offset += 2;
 			}
 			input_sync(sc->sensor_dev);
-
-			/*
-			 * The lower 4 bits of byte 30 (or 32 for BT) contain the battery level
-			 * and the 5th bit contains the USB cable state.
-			 */
-			offset = data_offset + DS4_INPUT_REPORT_BATTERY_OFFSET;
-			cable_state = (rd[offset] >> 4) & 0x01;
-			battery_capacity = rd[offset] & 0x0F;
-
-			/*
-			 * When a USB power source is connected the battery level ranges from
-			 * 0 to 10, and when running on battery power it ranges from 0 to 9.
-			 * A battery level above 10 when plugged in means charge completed.
-			 */
-			if (!cable_state || battery_capacity > 10)
-				battery_charging = 0;
-			else
-				battery_charging = 1;
-
-			if (!cable_state)
-				battery_capacity++;
-			if (battery_capacity > 10)
-				battery_capacity = 10;
-
-			battery_capacity *= 10;
-
-			spin_lock_irqsave(&sc->lock, flags);
-			sc->cable_state = cable_state;
-			sc->battery_capacity = battery_capacity;
-			sc->battery_charging = battery_charging;
-			spin_unlock_irqrestore(&sc->lock, flags);
 
 			/*
 			 * The Dualshock 4 multi-touch trackpad data starts at offset 33 on USB
@@ -746,9 +732,13 @@ class DualShock4Controller {
 			self.batteryCharging = true
 		}
 
-		// on usb battery tanges from 0 to 9, but on bluetooth the range is 0 to 10
+		// on usb battery ranges from 0 to 10, but on bluetooth the range is 0 to 9
 		if !self.cableConnected && self.batteryLevel < 10  {
 			self.batteryLevel += 1
+		}
+
+		if self.cableConnected && self.batteryLevel > 10  {
+			self.batteryLevel = 10
 		}
 
 		if self.previousBatteryLevel != self.batteryLevel {
@@ -761,7 +751,9 @@ class DualShock4Controller {
 					object: GamePadBatteryChangedNotification(
 						battery: self.batteryLevel,
 						batteryMin: 0,
-						batteryMax: 8
+						batteryMax: 10,
+						isConnected: self.cableConnected,
+						isCharging: self.batteryCharging
 					)
 				)
 			}
@@ -861,7 +853,7 @@ class DualShock4Controller {
 			dualshock4ControllerInputReportBluetooth.append(contentsOf: dualshock4ControllerInputReportBluetoothCRC)*/
 		}
 
-		print("size of report: \(dualshock4ControllerOutputReport.count)")
+		// print("size of report: \(dualshock4ControllerOutputReport.count)")
 
 		IOHIDDeviceSetReport(
 			device,

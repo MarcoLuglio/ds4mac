@@ -120,24 +120,30 @@ class DualShock4Controller {
 	var trackpadTouch0IsActive = false
 	var previousTrackpadTouch0IsActive = false
 	var trackpadTouch0Id:UInt8 = 0
-	var trackpadTouch0X:UInt8 = 0
-	var trackpadTouch0Y:UInt8 = 0
+	var trackpadTouch0X:UInt16 = 0 // actually the report only sends 12 bits
+	var trackpadTouch0Y:UInt16 = 0 // actually the report only sends 12 bits
 
 	var trackpadTouch1IsActive = false
 	var previousTrackpadTouch1IsActive = false
 	var trackpadTouch1Id:UInt8 = 0
-	var trackpadTouch1X:UInt8 = 0
-	var trackpadTouch1Y:UInt8 = 0
+	var trackpadTouch1X:UInt16 = 0 // actually the report only sends 12 bits
+	var trackpadTouch1Y:UInt16 = 0 // actually the report only sends 12 bits
 
 	// inertial measurement unit
 
-	var gyroPitch:Int16 = 0
-	var gyroYaw:Int16 = 0
-	var gyroRoll:Int16 = 0
+	var gyroPitch:Int32 = 0
+	var previousGyroPitch:Int32 = 0
+	var gyroYaw:Int32 = 0
+	var previousGyroYaw:Int32 = 0
+	var gyroRoll:Int32 = 0
+	var previousGyroRoll:Int32 = 0
 
-	var accelX:Int16 = 0
-	var accelY:Int16 = 0
-	var accelZ:Int16 = 0
+	var accelX:Int32 = 0
+	var previousAccelX:Int32 = 0
+	var accelY:Int32 = 0
+	var previousAccelY:Int32 = 0
+	var accelZ:Int32 = 0
+	var previousAccelZ:Int32 = 0
 
 	//var rotationZ:Float32 = 0
 
@@ -286,8 +292,8 @@ class DualShock4Controller {
 
 			DispatchQueue.main.async {
 				NotificationCenter.default.post(
-					name: GamePadButtonChangedNotification.Name,
-					object: GamePadButtonChangedNotification(
+					name: GamepadButtonChangedNotification.Name,
+					object: GamepadButtonChangedNotification(
 						leftTriggerButton: self.l2,
 						leftShoulderButton: self.l1,
 						minusButton:false,
@@ -342,6 +348,10 @@ class DualShock4Controller {
 
 		}
 
+		if report.count < 11 {
+			return
+		}
+
 		// analog buttons
 		// origin left top
 		self.leftStickX = report[1 + bluetoothOffset] // 0 left
@@ -361,8 +371,8 @@ class DualShock4Controller {
 
 			DispatchQueue.main.async {
 				NotificationCenter.default.post(
-					name: GamePadAnalogChangedNotification.Name,
-					object: GamePadAnalogChangedNotification(
+					name: GamepadAnalogChangedNotification.Name,
+					object: GamepadAnalogChangedNotification(
 						leftStickX: Int16(self.leftStickX),
 						leftStickY: Int16(self.leftStickY),
 						rightStickX: Int16(self.rightStickX),
@@ -386,12 +396,8 @@ class DualShock4Controller {
 
 		self.trackpadButton = report[7 + bluetoothOffset] & 0b00000010 == 0b00000010
 
-		if report.count < 11 {
-			return
-		}
-
 		self.previousReportTime = self.reportTime
-		self.reportTime = (Int32(report[11 + bluetoothOffset]) << 8 | Int32(report[10 + bluetoothOffset])) // this is little endian
+		self.reportTime = Int32(report[11 + bluetoothOffset]) << 8 | Int32(report[10 + bluetoothOffset]) // this is little endian
 		self.reportTimeInterval = self.reportTime - self.previousReportTime
 		if self.reportTimeInterval < 0 {
 			self.reportTimeInterval += UINT16_MAX
@@ -442,6 +448,54 @@ class DualShock4Controller {
 		[69] 	active low 	finger 2 id
 		[70 - 72] 	finger 2 coordinates
 
+		/*
+		 * The Dualshock 4 multi-touch trackpad data starts at offset 33 on USB
+		 * and 35 on Bluetooth.
+		 * The first byte indicates the number of touch data in the report.
+		 * Trackpad data starts 2 bytes later (e.g. 35 for USB).
+		 */
+		offset = data_offset + DS4_INPUT_REPORT_TOUCHPAD_OFFSET;
+		max_touch_data = (sc->quirks & DUALSHOCK4_CONTROLLER_BT) ? 4 : 3;
+		if (rd[offset] > 0 && rd[offset] <= max_touch_data)
+			num_touch_data = rd[offset];
+		else
+			num_touch_data = 1;
+		offset += 1;
+
+		for (m = 0; m < num_touch_data; m++) {
+			/* Skip past timestamp */
+			offset += 1;
+
+			/*
+			 * The first 7 bits of the first byte is a counter and bit 8 is
+			 * a touch indicator that is 0 when pressed and 1 when not
+			 * pressed.
+			 * The next 3 bytes are two 12 bit touch coordinates, X and Y.
+			 * The data for the second touch is in the same format and
+			 * immediately follows the data for the first.
+			 */
+			for (n = 0; n < 2; n++) {
+				u16 x, y;
+				bool active;
+
+				x = rd[offset+1] | ((rd[offset+2] & 0xF) << 8);
+				y = ((rd[offset+2] & 0xF0) >> 4) | (rd[offset+3] << 4);
+
+				active = !(rd[offset] >> 7);
+				input_mt_slot(sc->touchpad, n);
+				input_mt_report_slot_state(sc->touchpad, MT_TOOL_FINGER, active);
+
+				if (active) {
+					input_report_abs(sc->touchpad, ABS_MT_POSITION_X, x);
+					input_report_abs(sc->touchpad, ABS_MT_POSITION_Y, y);
+				}
+
+				offset += 4;
+			}
+			input_mt_sync_frame(sc->touchpad);
+			input_sync(sc->touchpad);
+		}
+
 		*/
 
 
@@ -451,8 +505,8 @@ class DualShock4Controller {
 
 		if self.trackpadTouch0IsActive {
 			self.trackpadTouch0Id = report[35] & 0b01111111
-			self.trackpadTouch0X = ((report[37] & 0x0f) << 8) | report[36] // TODO make this more readable
-			self.trackpadTouch0Y = report[38] << 4 | ((report[37] & 0xf0) >> 4)
+			self.trackpadTouch0X = UInt16(report[37] & 0x0f) << 8 | UInt16(report[36])
+			self.trackpadTouch0Y = UInt16(report[38]) << 4 | UInt16(report[37] & 0xf0) >> 4
 		}
 
 		/*
@@ -485,8 +539,8 @@ class DualShock4Controller {
 
 			DispatchQueue.main.async {
 				NotificationCenter.default.post(
-					name: GamePadTouchpadChangedNotification.Name,
-					object: GamePadTouchpadChangedNotification(
+					name: DualShock4TouchpadChangedNotification.Name,
+					object: DualShock4TouchpadChangedNotification(
 						//
 					)
 				)
@@ -500,121 +554,12 @@ class DualShock4Controller {
 		// TODO IMU
 
 		/*
-		gyros and accelerometers need to be calibrated based on the feature report (we receive before the inpur reports start coming):
-		#define DS4_FEATURE_REPORT_0x02_SIZE 37
-		#define DS4_FEATURE_REPORT_0x05_SIZE 41
-		#define DS4_FEATURE_REPORT_0x81_SIZE 7
-		#define DS4_INPUT_REPORT_0x11_SIZE 78
-		#define DS4_OUTPUT_REPORT_0x05_SIZE 32
-
 		linux driver uses Default to 4ms poll interval, which is same as USB (not adjustable).
 		#define DS4_BT_DEFAULT_POLL_INTERVAL_MS 4
 		#define DS4_BT_MAX_POLL_INTERVAL_MS 62
-		#define DS4_GYRO_RES_PER_DEG_S 1024
-		#define DS4_ACC_RES_PER_G      8192
 
-		Used for calibration of DS4 accelerometer and gyro.
-		struct ds4_calibration_data {
-			int abs_code;
-			short bias;
-			* Calibration requires scaling against a sensitivity value, which is a
-			 * float. Store sensitivity as a fraction to limit floating point
-			 * calculations until final calibration.
-			 *
-			int sens_numer;
-			int sens_denom;
-		};
 
-		linux sony-hid-c
 
-		static void dualshock4_parse_report(struct sony_sc *sc, u8 *rd, int size)
-		{
-			/* Convert timestamp (in 5.33us unit) to timestamp_us */
-			offset = data_offset + DS4_INPUT_REPORT_TIMESTAMP_OFFSET;
-			timestamp = get_unaligned_le16(&rd[offset]);
-			if (!sc->timestamp_initialized) {
-				sc->timestamp_us = ((unsigned int)timestamp * 16) / 3;
-				sc->timestamp_initialized = true;
-			} else {
-				u16 delta;
-
-				if (sc->prev_timestamp > timestamp)
-					delta = (U16_MAX - sc->prev_timestamp + timestamp + 1);
-				else
-					delta = timestamp - sc->prev_timestamp;
-				sc->timestamp_us += (delta * 16) / 3;
-			}
-			sc->prev_timestamp = timestamp;
-			input_event(sc->sensor_dev, EV_MSC, MSC_TIMESTAMP, sc->timestamp_us);
-
-			offset = data_offset + DS4_INPUT_REPORT_GYRO_X_OFFSET;
-			for (n = 0; n < 6; n++) {
-				/* Store data in int for more precision during mult_frac. */
-				int raw_data = (short)((rd[offset+1] << 8) | rd[offset]);
-				struct ds4_calibration_data *calib = &sc->ds4_calib_data[n];
-
-				/* High precision is needed during calibration, but the
-				 * calibrated values are within 32-bit.
-				 * Note: we swap numerator 'x' and 'numer' in mult_frac for
-				 *       precision reasons so we don't need 64-bit.
-				 */
-				int calib_data = mult_frac(calib->sens_numer,
-							   raw_data - calib->bias,
-							   calib->sens_denom);
-
-				input_report_abs(sc->sensor_dev, calib->abs_code, calib_data);
-				offset += 2;
-			}
-			input_sync(sc->sensor_dev);
-
-			/*
-			 * The Dualshock 4 multi-touch trackpad data starts at offset 33 on USB
-			 * and 35 on Bluetooth.
-			 * The first byte indicates the number of touch data in the report.
-			 * Trackpad data starts 2 bytes later (e.g. 35 for USB).
-			 */
-			offset = data_offset + DS4_INPUT_REPORT_TOUCHPAD_OFFSET;
-			max_touch_data = (sc->quirks & DUALSHOCK4_CONTROLLER_BT) ? 4 : 3;
-			if (rd[offset] > 0 && rd[offset] <= max_touch_data)
-				num_touch_data = rd[offset];
-			else
-				num_touch_data = 1;
-			offset += 1;
-
-			for (m = 0; m < num_touch_data; m++) {
-				/* Skip past timestamp */
-				offset += 1;
-
-				/*
-				 * The first 7 bits of the first byte is a counter and bit 8 is
-				 * a touch indicator that is 0 when pressed and 1 when not
-				 * pressed.
-				 * The next 3 bytes are two 12 bit touch coordinates, X and Y.
-				 * The data for the second touch is in the same format and
-				 * immediately follows the data for the first.
-				 */
-				for (n = 0; n < 2; n++) {
-					u16 x, y;
-					bool active;
-
-					x = rd[offset+1] | ((rd[offset+2] & 0xF) << 8);
-					y = ((rd[offset+2] & 0xF0) >> 4) | (rd[offset+3] << 4);
-
-					active = !(rd[offset] >> 7);
-					input_mt_slot(sc->touchpad, n);
-					input_mt_report_slot_state(sc->touchpad, MT_TOOL_FINGER, active);
-
-					if (active) {
-						input_report_abs(sc->touchpad, ABS_MT_POSITION_X, x);
-						input_report_abs(sc->touchpad, ABS_MT_POSITION_Y, y);
-					}
-
-					offset += 4;
-				}
-				input_mt_sync_frame(sc->touchpad);
-				input_sync(sc->touchpad);
-			}
-		}
 
 		static void dualshock4_send_output_report(struct sony_sc *sc)
 		{
@@ -678,49 +623,61 @@ class DualShock4Controller {
 			}
 		}
 
-		q
-		byte index 	bit 7 	bit 6 	bit 5 	bit 4 	bit 3 	bit 2 	bit 1 	bit 0
-		[0] 	Report ID (always 0x01)
-
-		// 6 bytes for gyro, and 6 bytes for accel
-		[10] 	Unknown, seems to count downwards, non-random pattern
-		[11] 	Unknown, seems to count upwards by 3, but by 2 when [10] underflows
-
-		[10 - 11] 	Seems to be a timestamp.
-		A common increment value between two reports is 188 (at full rate the report period is 1.25ms).
-		This timestamp is used by the PS4 to process acceleration and gyroscope data.
-
-		[12] 	Unknown yet, 0x03 or 0x04
 		*/
 
-		self.gyroPitch = Int16(report[14 + bluetoothOffset] << 8) | Int16(report[13 + bluetoothOffset])
-		self.gyroYaw =   Int16(report[16 + bluetoothOffset] << 8) | Int16(report[15 + bluetoothOffset])
-		self.gyroRoll =  Int16(report[18 + bluetoothOffset] << 8) | Int16(report[17 + bluetoothOffset])
+		self.gyroPitch = Int32(report[14 + bluetoothOffset]) << 8 | Int32(report[13 + bluetoothOffset])
+		self.gyroYaw =   Int32(report[16 + bluetoothOffset]) << 8 | Int32(report[15 + bluetoothOffset])
+		self.gyroRoll =  Int32(report[18 + bluetoothOffset]) << 8 | Int32(report[17 + bluetoothOffset])
 
-		self.accelX = Int16(report[22 + bluetoothOffset] << 8) | Int16(report[21 + bluetoothOffset])
-		self.accelY = Int16(report[20 + bluetoothOffset] << 8) | Int16(report[19 + bluetoothOffset])
-		self.accelZ = Int16(report[24 + bluetoothOffset] << 8) | Int16(report[23 + bluetoothOffset])
 
-		// System.Diagnostics.Debug.WriteLine($"gyro pitch: {self.gyroPitch}");
-		// System.Diagnostics.Debug.WriteLine($"gyro yaw:   {self.gyroYaw}");
-		// System.Diagnostics.Debug.WriteLine($"gyro roll:  {self.gyroRoll}");
+		self.accelX = Int32(report[20 + bluetoothOffset]) << 8 | Int32(report[19 + bluetoothOffset]) // changes when we roll
+		self.accelY = Int32(report[22 + bluetoothOffset]) << 8 | Int32(report[21 + bluetoothOffset]) // changes when we pitch or roll
+		self.accelZ = Int32(report[24 + bluetoothOffset]) << 8 | Int32(report[23 + bluetoothOffset]) // changes when we pitch
 
-		// System.Diagnostics.Debug.WriteLine($"accel x before: {self.accelX}");
-		// System.Diagnostics.Debug.WriteLine($"accel y: {self.accelY}");
-		// System.Diagnostics.Debug.WriteLine($"accel z: {self.accelZ}");
-
-		self.applyCalibration(
+		/*self.applyCalibration(
 			pitch: &self.gyroPitch,
 			yaw: &self.gyroYaw,
 			roll: &self.gyroRoll,
 			accelX: &self.accelX,
 			accelY: &self.accelY,
 			accelZ: &self.accelZ
-		)
+		)*/
+
+		if self.previousGyroPitch != self.gyroPitch
+			|| self.previousGyroYaw != self.gyroYaw
+			|| self.previousGyroRoll != self.gyroRoll
+			|| self.previousAccelX != self.accelX
+			|| self.previousAccelY != self.accelY
+			|| self.previousAccelZ != self.accelZ
+		{
+
+			self.previousGyroPitch = self.gyroPitch
+			self.previousGyroYaw   = self.gyroYaw
+			self.previousGyroRoll  = self.gyroRoll
+
+			self.previousAccelX = self.accelX
+			self.previousAccelY = self.accelY
+			self.previousAccelZ = self.accelZ
+
+			DispatchQueue.main.async {
+				NotificationCenter.default.post(
+					name: GamepadIMUChangedNotification.Name,
+					object: GamepadIMUChangedNotification(
+						gyroPitch: self.gyroPitch,
+						gyroYaw: self.gyroYaw,
+						gyroRoll: self.gyroRoll,
+						accelX: self.accelX,
+						accelY: self.accelY,
+						accelZ: self.accelZ
+					)
+				)
+			}
+
+		}
 
 		// battery
 
-		let timestamp = UInt32(report[10 + bluetoothOffset]) | UInt32(report[11 + bluetoothOffset]) << 8
+		let timestamp = UInt32(report[11 + bluetoothOffset]) << 8 | UInt32(report[10 + bluetoothOffset])
 		let timestampUS = (timestamp * 16) / 3
 
 		self.cableConnected = ((report[30 + bluetoothOffset] >> 4) & 0b00000001) == 1
@@ -747,8 +704,8 @@ class DualShock4Controller {
 
 			DispatchQueue.main.async {
 				NotificationCenter.default.post(
-					name: GamePadBatteryChangedNotification.Name,
-					object: GamePadBatteryChangedNotification(
+					name: GamepadBatteryChangedNotification.Name,
+					object: GamepadBatteryChangedNotification(
 						battery: self.batteryLevel,
 						batteryMin: 0,
 						batteryMax: 10,
@@ -867,9 +824,108 @@ class DualShock4Controller {
 
 	// MARK: - Gryroscope calibration
 
-	static let ACC_RES_PER_G:Int16 = 8192 // TODO means 1G is 8192 (1 and a half byte) 0b0000_0000_0000 ??
+	/*
+	DualShock 4 uses Bosch bmi055 imu:
+	https://www.bosch-sensortec.com/products/motion-sensors/imus/bmi055.html
+	driver pages:
+	https://github.com/BoschSensortec/BMG160_driver
+	https://github.com/BoschSensortec/BMA2x2_driver (mentions bmi055 is a combination of bma2x2 + bmg160)
 
-	static let GYRO_RES_IN_DEG_SEC:Int16 = 16 // means 1 degree/second is 16 (4 bits) 0b0000 ??
+	Digital resolution
+	------------------
+	Accelerometer (A): 12 bit
+	Gyroscope (G): 16bit
+
+
+	Resolution
+	----------
+	(A): 0,98 mg (milli Gs) so G / 10000
+	(G): 0.004°/s
+
+
+	Measurement ranges (programmable)
+	---------------------------------
+	(A): ± 2 g, ± 4 g, ± 8 g, ± 16 g
+	(G): ± 125°/s, ± 250°/s, ± 500°/s, ± 1000°/s, ± 2000°/s
+
+
+	Sensitivity (calibrated)
+	------------------------
+
+	LSB = least significant bit
+
+	(A):
+	± 2 g 1024 LSB/g
+	± 4 g 512 LSB/g
+	± 8 g 256 LSB/g
+	± 16 g 128 LSB/g
+
+	(G):
+	± 125°/s 262.4 LSB/°/s
+	± 250°/s: 131.2 LSB/°/s
+	± 500°/s: 65.6 LSB/°/s
+	± 1000°/s: 32.8 LSB/°/s
+	± 2000°/s: 16.4 LSB/°/s
+
+
+	Zero offset (typ., over life-time)
+	----------------------------------
+	(A): ± 70mg
+	(G): ± 1°/s
+
+
+	Noise density (typ.)
+	--------------------
+	(A): 150μg/√Hz
+	(G): 0.014 °/s/√Hz
+
+
+	Bandwidths (programmable)
+	-------------------------
+	1000Hz … 8 Hz
+
+
+	Temperature range
+	-----------------
+	-40 … +85°C
+
+
+	FIFO data buffer
+	----------------
+	(A) 32 samples depth /
+	(G) 100 samples
+	(each axis)
+
+
+	Shock resistance
+	----------------
+	10,000 g x 200 μs
+
+
+
+	mg = milli Gs (just like milli liters)
+	1mG = 0.001 G's of acceleration, so 1000mG = 1G
+	LSB = Least Significant bit, which is the last bit on the right (for little endian)
+	The raw values from the accelerometer are  multiplied by the sensitive level to get the value in G
+	If the range is ±2, this would be a total of 4g. Or 4,000 milli Gs
+	The output is 12 bits. 12 bits equals 8192.
+	This means we can get 8192 different readings for the range between -2 and +2. (or -2,000 milli Gs and +2,000 milli Gs)
+	4,000 MilliGs / 8192 = 0.48828125
+	Each time the LSB changes by one, the value changes by 0.48828125
+
+	However, the spec sheet for the sensor mentions LSB is 1024 for ±2G so???
+
+
+	PSMoveService uses raw - drift * scale + offset or raw * gain + bias
+
+
+	*/
+
+	/// Max G value (±2 to ±16 G) uses 12 bits
+	static let ACC_DIGITAL_RESOLUTION:Int32 = 8192
+
+	/// Max °/s uses 16 bits
+	static let GYRO_RES_IN_DEG_SEC:Int32 = 16 // means 1 degree/second is 16 (4 bits) 0b0000 ??
 
 	func requestCalibrationDataReport() {
 
@@ -958,170 +1014,276 @@ class DualShock4Controller {
 
 		// gyroscopes
 
-		var pitchPlus:Int16 = 0
-		var pitchMinus:Int16 = 0
-		var yawPlus:Int16 = 0
-		var yawMinus:Int16 = 0
-		var rollPlus:Int16 = 0
-		var rollMinus:Int16 = 0
+		var pitchPlus:Int32 = 0
+		var pitchMinus:Int32 = 0
+		var yawPlus:Int32 = 0
+		var yawMinus:Int32 = 0
+		var rollPlus:Int32 = 0
+		var rollMinus:Int32 = 0
 
 		if !fromUSB {
 
-			pitchPlus  = Int16(calibrationReport[8]  << 8) | Int16(calibrationReport[7])
-			yawPlus    = Int16(calibrationReport[10] << 8) | Int16(calibrationReport[9])
-			rollPlus   = Int16(calibrationReport[12] << 8) | Int16(calibrationReport[11])
-			pitchMinus = Int16(calibrationReport[14] << 8) | Int16(calibrationReport[13])
-			yawMinus   = Int16(calibrationReport[16] << 8) | Int16(calibrationReport[15])
-			rollMinus  = Int16(calibrationReport[18] << 8) | Int16(calibrationReport[17])
+			pitchPlus  = Int32(calibrationReport[8]  << 8) | Int32(calibrationReport[7])
+			yawPlus    = Int32(calibrationReport[10] << 8) | Int32(calibrationReport[9])
+			rollPlus   = Int32(calibrationReport[12] << 8) | Int32(calibrationReport[11])
+			pitchMinus = Int32(calibrationReport[14] << 8) | Int32(calibrationReport[13])
+			yawMinus   = Int32(calibrationReport[16] << 8) | Int32(calibrationReport[15])
+			rollMinus  = Int32(calibrationReport[18] << 8) | Int32(calibrationReport[17])
 
 		} else {
 
-			pitchPlus  = Int16(calibrationReport[8]  << 8) | Int16(calibrationReport[7])
-			pitchMinus = Int16(calibrationReport[10] << 8) | Int16(calibrationReport[9])
-			yawPlus    = Int16(calibrationReport[12] << 8) | Int16(calibrationReport[11])
-			yawMinus   = Int16(calibrationReport[14] << 8) | Int16(calibrationReport[13])
-			rollPlus   = Int16(calibrationReport[16] << 8) | Int16(calibrationReport[15])
-			rollMinus  = Int16(calibrationReport[18] << 8) | Int16(calibrationReport[17])
+			pitchPlus  = Int32(calibrationReport[8]  << 8) | Int32(calibrationReport[7])
+			pitchMinus = Int32(calibrationReport[10] << 8) | Int32(calibrationReport[9])
+			yawPlus    = Int32(calibrationReport[12] << 8) | Int32(calibrationReport[11])
+			yawMinus   = Int32(calibrationReport[14] << 8) | Int32(calibrationReport[13])
+			rollPlus   = Int32(calibrationReport[16] << 8) | Int32(calibrationReport[15])
+			rollMinus  = Int32(calibrationReport[18] << 8) | Int32(calibrationReport[17])
 
 		}
 
-		self.calibration[Calibration.GyroPitchIndex].plusValue = pitchPlus
-		self.calibration[Calibration.GyroPitchIndex].minusValue = pitchMinus
+		self.calibration[Calibration.GyroPitchIndex].rawPositive1GValue  = pitchPlus
+		self.calibration[Calibration.GyroPitchIndex].rawNegative1GValue = pitchMinus
 
-		self.calibration[Calibration.GyroYawIndex].plusValue = yawPlus
-		self.calibration[Calibration.GyroYawIndex].minusValue = yawMinus
+		// TODO is this inverted? Or are all values inverted? This is the only where the plus values is bigger than the minus value
+		self.calibration[Calibration.GyroYawIndex].rawPositive1GValue    = yawPlus
+		self.calibration[Calibration.GyroYawIndex].rawNegative1GValue   = yawMinus
 
-		self.calibration[Calibration.GyroRollIndex].plusValue = rollPlus
-		self.calibration[Calibration.GyroRollIndex].minusValue = rollMinus
+		self.calibration[Calibration.GyroRollIndex].rawPositive1GValue   = rollPlus
+		self.calibration[Calibration.GyroRollIndex].rawNegative1GValue  = rollMinus
 
-		self.calibration[Calibration.GyroPitchIndex].sensorBias = Int16(calibrationReport[2] << 8) | Int16(calibrationReport[1])
-		self.calibration[Calibration.GyroYawIndex].sensorBias   = Int16(calibrationReport[4] << 8) | Int16(calibrationReport[3])
-		self.calibration[Calibration.GyroRollIndex].sensorBias  = Int16(calibrationReport[6] << 8) | Int16(calibrationReport[5])
+		self.calibration[Calibration.GyroPitchIndex].gyroBias = Int32(calibrationReport[2] << 8) | Int32(calibrationReport[1])
+		self.calibration[Calibration.GyroYawIndex].gyroBias   = Int32(calibrationReport[4] << 8) | Int32(calibrationReport[3])
+		self.calibration[Calibration.GyroRollIndex].gyroBias  = Int32(calibrationReport[6] << 8) | Int32(calibrationReport[5])
 
-		self.gyroSpeedPlus  = Int16(calibrationReport[20] << 8) | Int16(calibrationReport[19])
-		self.gyroSpeedMinus = Int16(calibrationReport[22] << 8) | Int16(calibrationReport[21])
-		self.gyroSpeed2x = (Int16)(gyroSpeedPlus + gyroSpeedMinus)
+		self.gyroSpeedPlus  = Int32(calibrationReport[20] << 8) | Int32(calibrationReport[19])
+		self.gyroSpeedMinus = Int32(calibrationReport[22] << 8) | Int32(calibrationReport[21])
 
 		// accelerometers
 
-		let accelXPlus  = Int16(calibrationReport[24] << 8) | Int16(calibrationReport[23])
-		let accelXMinus = Int16(calibrationReport[26] << 8) | Int16(calibrationReport[25])
+		// TODO is this inverted? plus x is smaller than minus x
+		let accelXPlus  = Int32(calibrationReport[24] << 8) | Int32(calibrationReport[23])
+		let accelXMinus = Int32(calibrationReport[26] << 8) | Int32(calibrationReport[25])
 
-		let accelYPlus  = Int16(calibrationReport[28] << 8) | Int16(calibrationReport[27])
-		let accelYMinus = Int16(calibrationReport[30] << 8) | Int16(calibrationReport[29])
+		let accelYPlus  = Int32(calibrationReport[28] << 8) | Int32(calibrationReport[27])
+		let accelYMinus = Int32(calibrationReport[30] << 8) | Int32(calibrationReport[29])
 
-		let accelZPlus  = Int16(calibrationReport[32] << 8) | Int16(calibrationReport[31])
-		let accelZMinus = Int16(calibrationReport[34] << 8) | Int16(calibrationReport[33])
+		let accelZPlus  = Int32(calibrationReport[32] << 8) | Int32(calibrationReport[31])
+		let accelZMinus = Int32(calibrationReport[34] << 8) | Int32(calibrationReport[33])
 
-		self.calibration[Calibration.AccelXIndex].plusValue   = accelXPlus
-		self.calibration[Calibration.AccelXIndex].minusValue  = accelXMinus
+		self.calibration[Calibration.AccelXIndex].rawPositive1GValue  = accelXPlus
+		self.calibration[Calibration.AccelXIndex].rawNegative1GValue = accelXMinus
 
-		self.calibration[Calibration.AccelYIndex].plusValue   = accelYPlus
-		self.calibration[Calibration.AccelYIndex].minusValue  = accelYMinus
+		self.calibration[Calibration.AccelYIndex].rawPositive1GValue  = accelYPlus
+		self.calibration[Calibration.AccelYIndex].rawNegative1GValue = accelYMinus
 
-		self.calibration[Calibration.AccelZIndex].plusValue   = accelZPlus
-		self.calibration[Calibration.AccelZIndex].minusValue  = accelZMinus
-
-		self.calibration[Calibration.AccelXIndex].sensorBias = (Int16)(accelXPlus - ((accelXPlus - accelXMinus) / 2))
-		self.calibration[Calibration.AccelYIndex].sensorBias = (Int16)(accelYPlus - ((accelYPlus - accelYMinus) / 2))
-		self.calibration[Calibration.AccelZIndex].sensorBias = (Int16)(accelZPlus - ((accelZPlus - accelZMinus) / 2))
+		self.calibration[Calibration.AccelZIndex].rawPositive1GValue  = accelZPlus
+		self.calibration[Calibration.AccelZIndex].rawNegative1GValue = accelZMinus
 
 	}
 
 	func applyCalibration(
-		pitch:inout Int16, yaw:inout Int16, roll:inout Int16,
-		accelX:inout Int16, accelY:inout Int16, accelZ:inout Int16
+		pitch:inout Int32, yaw:inout Int32, roll:inout Int32,
+		accelX:inout Int32, accelY:inout Int32, accelZ:inout Int32
 	) {
 
 		pitch = DualShock4Controller.applyGyroCalibration(
 			pitch,
-			self.calibration[Calibration.GyroPitchIndex].sensorBias!,
+			self.calibration[Calibration.GyroPitchIndex].gyroBias!,
 			self.gyroSpeed2x,
-			sensorResolution: DualShock4Controller.GYRO_RES_IN_DEG_SEC,
-			sensorRange: Int16(self.calibration[Calibration.GyroPitchIndex].plusValue! - self.calibration[Calibration.GyroPitchIndex].minusValue!)
+			// sensorResolution: DualShock4Controller.GYRO_RES_IN_DEG_SEC
+			sensorRange: self.calibration[Calibration.GyroPitchIndex].rawPositive1GValue! - self.calibration[Calibration.GyroPitchIndex].rawNegative1GValue!
 		)
 
 		yaw = DualShock4Controller.applyGyroCalibration(
 			yaw,
-			self.calibration[Calibration.GyroYawIndex].sensorBias!,
+			self.calibration[Calibration.GyroYawIndex].gyroBias!,
 			self.gyroSpeed2x,
-			sensorResolution: DualShock4Controller.GYRO_RES_IN_DEG_SEC,
-			sensorRange: Int16(self.calibration[Calibration.GyroYawIndex].plusValue! - self.calibration[Calibration.GyroYawIndex].minusValue!)
+			sensorRange: self.calibration[Calibration.GyroYawIndex].rawPositive1GValue! - self.calibration[Calibration.GyroYawIndex].rawNegative1GValue!
 		)
 
 		roll = DualShock4Controller.applyGyroCalibration(
 			roll,
-			self.calibration[Calibration.GyroRollIndex].sensorBias!,
+			self.calibration[Calibration.GyroRollIndex].gyroBias!,
 			self.gyroSpeed2x,
-			sensorResolution: DualShock4Controller.GYRO_RES_IN_DEG_SEC,
-			sensorRange: Int16(self.calibration[Calibration.GyroRollIndex].plusValue! - self.calibration[Calibration.GyroRollIndex].minusValue!)
+			sensorRange: self.calibration[Calibration.GyroRollIndex].rawPositive1GValue! - self.calibration[Calibration.GyroRollIndex].rawNegative1GValue!
 		)
 
 		accelX = DualShock4Controller.applyAccelCalibration(
 			accelX,
-			self.calibration[Calibration.AccelXIndex].sensorBias!,
-			sensorResolution: DualShock4Controller.ACC_RES_PER_G,
-			sensorRange: Int16(self.calibration[Calibration.AccelXIndex].plusValue! - self.calibration[Calibration.AccelXIndex].minusValue!)
+			sensorRawPositive1GValue: self.calibration[Calibration.AccelXIndex].rawPositive1GValue!,
+			sensorRawNegative1GValue: self.calibration[Calibration.AccelXIndex].rawNegative1GValue!
+			// sensorResolution: DualShock4Controller.ACC_DIGITAL_RESOLUTION
 		)
 
 		accelY = DualShock4Controller.applyAccelCalibration(
 			accelY,
-			self.calibration[Calibration.AccelYIndex].sensorBias!,
-			sensorResolution: DualShock4Controller.ACC_RES_PER_G,
-			sensorRange: Int16(self.calibration[Calibration.AccelYIndex].plusValue! - self.calibration[Calibration.AccelYIndex].minusValue!)
+			sensorRawPositive1GValue: self.calibration[Calibration.AccelYIndex].rawPositive1GValue!,
+			sensorRawNegative1GValue: self.calibration[Calibration.AccelYIndex].rawNegative1GValue!
 		)
 
 		accelZ = DualShock4Controller.applyAccelCalibration(
 			accelZ,
-			self.calibration[Calibration.AccelZIndex].sensorBias!,
-			sensorResolution: DualShock4Controller.ACC_RES_PER_G,
-			sensorRange: Int16(self.calibration[Calibration.AccelZIndex].plusValue! - self.calibration[Calibration.AccelZIndex].minusValue!)
+			sensorRawPositive1GValue: self.calibration[Calibration.AccelZIndex].rawPositive1GValue!,
+			sensorRawNegative1GValue: self.calibration[Calibration.AccelZIndex].rawNegative1GValue!
 		)
 
 	}
 
-	static func applyGyroCalibration(_ sensorRawValue:Int16, _ sensorBias:Int16, _ gyroSpeed2x:Int16, sensorResolution:Int16, sensorRange:Int16) -> Int16 {
+	static func applyGyroCalibration(_ sensorRawValue:Int32, _ sensorBias:Int32, _ gyroSpeed2x:Int32, sensorRange:Int32) -> Int32 {
 
-		var calibratedValue:Int16 = 0 // TODO not sure why I would need this to be an integer
+		/*
+
+		From PSMove: https://github.com/psmoveservice/psmoveapi/blob/master/src/psmove_calibration.c
+
+		Calculation of gyroscope mapping (in radians per second):
+
+		               raw
+		calibrated = -------- * 2 PI
+		              rpm60
+
+		         60 * rpm80
+		rpm60 = ------------
+		             80
+
+		with:
+		raw ..... Raw sensor reading
+		rpm80 ... Sensor reading at 80 RPM (from calibration blob)
+		rpm60 ... Sensor reading at 60 RPM (1 rotation per second)
+
+		Or combined:
+		              80 * raw * 2 PI
+		calibrated = -----------------
+		                60 * rpm80
+
+		Now define:
+		     2 * PI * 80
+		f = -------------
+		      60 * rpm80
+
+		then we get:
+		calibrated = f * raw
+
+
+
+		// The calibration stores 6 gyroscope readings when the controller is spun at 90RPM
+		// on the +X, +Y, +Z, -X, -Y, and -Z axis (bluetooth).
+
+		// There is also one vector containing drift compensation values.
+		// When the controller is sitting still each axis will report a small constant non-zero value.
+		// Subtracting these drift values per-frame will give more accurate gyro readings.
+
+		const float k_rpm_to_rad_per_sec = (2.0f * k_real_pi) / 60.0f;
+		const float k_calibration_rpm= 90.f;
+		const float y_hi= k_calibration_rpm * k_rpm_to_rad_per_sec;
+		const float y_low= -k_calibration_rpm * k_rpm_to_rad_per_sec;
+		std::vector< std::vector<int> > gyro_dim_lohi = { {3, 0}, {4, 1}, {5, 2} };
+        for (int dim_ix = 0; dim_ix < 3; dim_ix++)
+        {
+			// Read the low and high values for each axis
+			std::vector<short> res_lohi(2, 0);
+            for (int lohi_ix = 0; lohi_ix < 2; lohi_ix++)
+            {
+                res_lohi[lohi_ix] = decode16bitSigned(usb_calibration, 0x30 + 6*gyro_dim_lohi[dim_ix][lohi_ix] + 2*dim_ix);
+            }
+			short raw_gyro_drift= decode16bitSigned(usb_calibration, 0x26 + 2*dim_ix);
+
+			// Compute the gain value (the slope of the gyro reading/angular speed line)
+			const float x_low = res_lohi[0];
+			const float x_hi = res_lohi[1];
+			const float m = (y_hi - y_low) / (x_hi - x_low);
+            cfg.cal_ag_xyz_kbd[1][dim_ix][0] = m;
+
+            // Use zero bias value.
+			// Given the slightly asymmetrical min and max 90RPM readings you might think
+			// that there is a bias in the gyros that you should compute by finding
+			// the y-intercept value (the y-intercept of the gyro reading/angular speed line)
+			// using the formula b= y_hi - m * x_hi, but this results in pretty bad
+			// controller drift. We get much better results ignoring the y-intercept
+			// and instead use the presumed "drift" values stored at 0x26
+			cfg.cal_ag_xyz_kbd[1][dim_ix][1] = 0.f;
+
+			// Store off the drift value
+			cfg.cal_ag_xyz_kbd[1][dim_ix][2] = raw_gyro_drift;
+
+			// The final result:
+			// rad/s = (raw_gyro_value-drift) * gain + bias
+
+		*/
+
+		var calibratedValue:Int32 = 0 // TODO not sure why I would need this to be an integer
 
 		// plus and minus values are symmetrical, so bias is also 0
 		if sensorRange == 0 {
-			calibratedValue = (Int16)(sensorRawValue * gyroSpeed2x * sensorResolution)
+			calibratedValue = Int32(sensorRawValue * gyroSpeed2x)
 			return calibratedValue
 		}
 
 		// breaking up expression because swift compiler complains...
 		let sensorRawOffset = Int32(sensorRawValue - sensorBias)
 		let gyroSpeed2x32 = Int32(gyroSpeed2x)
-		let sensorResolution32 = Int32(sensorResolution)
+		//let sensorResolution32 = Int32(sensorResolution)
 		let sensorRange32 = Int32(sensorRange)
-		calibratedValue = Int16((sensorRawOffset * gyroSpeed2x32 * sensorResolution32) / sensorRange32)
+		calibratedValue = Int32((sensorRawOffset * gyroSpeed2x32) / sensorRange32)
 		return calibratedValue
 
 	}
 
-	static func applyAccelCalibration(_ sensorRawValue:Int16, _ sensorBias:Int16, sensorResolution:Int16, sensorRange:Int16) -> Int16 {
+	static func applyAccelCalibration(_ sensorRawValue:Int32, sensorRawPositive1GValue:Int32, sensorRawNegative1GValue:Int32) -> Int32 {
 
-		var calibratedValue:Int16 = 0 // TODO not sure why I would need this to be an integer
+		/*
 
-		// plus and minus values are symmetrical, so bias is also 0
-		if sensorRange == 0 {
-			calibratedValue = Int16(sensorRawValue * 2 * sensorResolution)
-			return calibratedValue
-		}
+		From PSMove:
+		https://github.com/psmoveservice/psmoveapi/blob/master/src/psmove_calibration.c
+		https://github.com/psmoveservice/PSMoveService/blob/master/src/psmoveservice/PSMoveController/PSMoveController.cpp
+		https://github.com/psmoveservice/PSMoveService/blob/master/src/psmoveservice/PSDualShock4/PSDualShock4Controller.cpp
+
+		Calculation of accelerometer mapping (as factor of gravity, 1g):
+
+		              2 * (raw - low)
+		calibrated = -----------------  - 1
+		               (high - low)
+		with:
+		raw .... Raw sensor reading
+		high ... Raw reading at +1g
+		low .... Raw reading at -1g
+
+		Now define:
+
+		             2
+		gain = --------------
+		        (high - low)
+
+		And combine constants:
+		bias as the amount the min reading differs from -1.0g
+		bias = - (gain * low) - 1
+
+		Then we get:
+		calibrated = raw * gain + bias
+
+		*/
+
+		var calibratedValue:Int32 = 0 // TODO I don't need this to be an integer
+		calibratedValue = (2 * (sensorRawValue - sensorRawNegative1GValue) / (sensorRawPositive1GValue - sensorRawNegative1GValue)) - 1 // using the non precomputed constant version (at least for now)
+
+		return calibratedValue
+
+		/*
+		sensorBias (accelXPlus - ((accelXPlus - accelXMinus) / 2))
+		sensorRange: self.calibration[Calibration.AccelYIndex].rawPositive1GValue! - self.calibration[Calibration.AccelYIndex].rawNegative1GValue!
 
 		// breaking up expression because swift compiler complains...
 		let sensorRawOffset = Int32(sensorRawValue - sensorBias)
 		let sensorResolution32 = Int32(sensorResolution)
 		let sensorRange32 = Int32(sensorRange)
-		calibratedValue = Int16((sensorRawOffset * 2 * sensorResolution32) / sensorRange32)
+		calibratedValue = Int32((sensorRawOffset * 2 * sensorResolution32) / sensorRange32)
 		return calibratedValue
+		*/
 
 	}
 
-	var gyroSpeedPlus:Int16 = 0
-	var gyroSpeedMinus:Int16 = 0
-	var gyroSpeed2x:Int16 = 0
+	var gyroSpeedPlus:Int32 = 0
+	var gyroSpeedMinus:Int32 = 0
+	var gyroSpeed2x:Int32 = 0
 
 	// TODO change this to a struct or object with properties, array with indexes is kind of ugly
 	var calibration = [
@@ -1148,8 +1310,12 @@ class Calibration {
 		//
 	}
 
-	var plusValue:Int16?
-	var minusValue:Int16?
-	var sensorBias:Int16?
+	/// raw reading at +1G
+	var rawPositive1GValue:Int32?
+
+	/// raw reading at -1G
+	var rawNegative1GValue:Int32?
+
+	var gyroBias:Int32?
 
 }

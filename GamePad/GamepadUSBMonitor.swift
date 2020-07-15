@@ -10,7 +10,7 @@ import Foundation
 
 
 
-class GamePadUSBMonitor {
+class GamepadUSBMonitor {
 
 	func a() {
 
@@ -78,7 +78,7 @@ class GamePadUSBMonitor {
 			{(context, iteratorPointer) in
 
 				// restoring the swift type of the pointer to void
-				let caller = unsafeBitCast(context, to: GamePadUSBMonitor.self)
+				let caller = unsafeBitCast(context, to: GamepadUSBMonitor.self)
 
 				// must call another function to avoid creating a closure, which is not supported for c functions
 				return caller.serviceAddedCallback()

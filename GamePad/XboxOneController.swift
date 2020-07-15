@@ -207,8 +207,8 @@ class XboxOneController {
 
 			DispatchQueue.main.async {
 				NotificationCenter.default.post(
-					name: GamePadButtonChangedNotification.Name,
-					object: GamePadButtonChangedNotification(
+					name: GamepadButtonChangedNotification.Name,
+					object: GamepadButtonChangedNotification(
 						leftTriggerButton: self.leftTrigger > 0, // TODO improve this with a getter
 						leftShoulderButton: self.leftShoulderButton,
 						minusButton:false,
@@ -282,8 +282,8 @@ class XboxOneController {
 
 			DispatchQueue.main.async {
 				NotificationCenter.default.post(
-					name: GamePadAnalogChangedNotification.Name,
-					object: GamePadAnalogChangedNotification(
+					name: GamepadAnalogChangedNotification.Name,
+					object: GamepadAnalogChangedNotification(
 						leftStickX: self.leftStickX,
 						leftStickY: self.leftStickY,
 						rightStickX: self.rightStickX,

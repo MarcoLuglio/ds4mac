@@ -19,7 +19,7 @@ import IOKit.hid
 //import ForceFeedback
 
 
-class GamePadHIDMonitor {
+class GamepadHIDMonitor {
 
 	var joyConController:JoyConController!
 	//var dualSenseController:DualSenseController!
@@ -81,7 +81,7 @@ class GamePadHIDMonitor {
 			{(context, result, sender, device) in
 
 				// restoring the swift type of the pointer to void
-				let caller = unsafeBitCast(context, to: GamePadHIDMonitor.self)
+				let caller = unsafeBitCast(context, to: GamepadHIDMonitor.self)
 
 				// must call another function to avoid creating a closure, which is not supported for c functions
 				return caller.hidDeviceAddedCallback(result, sender:sender!, device:device)
@@ -96,7 +96,7 @@ class GamePadHIDMonitor {
 			{(context, result, sender, device) in
 
 				// restoring the swift type of the pointer to void
-				let caller = unsafeBitCast(context, to: GamePadHIDMonitor.self)
+				let caller = unsafeBitCast(context, to: GamepadHIDMonitor.self)
 
 				// must call another function to avoid creating a closure, which is not supported for c functions
 				return caller.hidDeviceRemovedCallback(result, sender:sender!, device:device)
@@ -111,7 +111,7 @@ class GamePadHIDMonitor {
 			{(context, result, sender, reportType, reportID, reportPointer, reportLength) in
 
 				// restoring the swift type of the pointer to void
-				let caller = unsafeBitCast(context, to: GamePadHIDMonitor.self)
+				let caller = unsafeBitCast(context, to: GamepadHIDMonitor.self)
 
 				// Put report bytes in a Swift friendly object
 				let report = Data(bytes:reportPointer, count:reportLength)

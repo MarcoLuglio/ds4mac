@@ -46,6 +46,14 @@ class DualShock4UIModel: ObservableObject {
 	var rightTriggerButton = false
 	var rightTrigger:Float = 0
 
+	var gyroPitch:Int32 = 0
+	var gyroYaw:Int32 = 0
+	var gyroRoll:Int32 = 0
+
+	var accelX:Int32 = 0
+	var accelY:Int32 = 0
+	var accelZ:Int32 = 0
+
 	var red:Double = 0
 	var green:Double = 0
 	var blue:Double = 0
@@ -62,7 +70,7 @@ class DualShock4UIModel: ObservableObject {
 			.addObserver(
 				self,
 				selector: #selector(self.updateButtons),
-				name: GamePadButtonChangedNotification.Name,
+				name: GamepadButtonChangedNotification.Name,
 				object: nil
 			)
 
@@ -70,11 +78,26 @@ class DualShock4UIModel: ObservableObject {
 			.addObserver(
 				self,
 				selector: #selector(self.updateAnalog),
-				name: GamePadAnalogChangedNotification.Name,
+				name: GamepadAnalogChangedNotification.Name,
+				object: nil
+			)
+
+		NotificationCenter.default
+			.addObserver(
+				self,
+				selector: #selector(self.updateIMU),
+				name: GamepadIMUChangedNotification.Name,
 				object: nil
 			)
 
 		// TODO trackpad
+		NotificationCenter.default
+			.addObserver(
+				self,
+				selector: #selector(self.updateTrackpad),
+				name: DualShock4TouchpadChangedNotification.Name,
+				object: nil
+			)
 
 		NotificationCenter.default
 			.addObserver(
@@ -88,7 +111,7 @@ class DualShock4UIModel: ObservableObject {
 			.addObserver(
 				self,
 				selector: #selector(self.updateBattery),
-				name: GamePadBatteryChangedNotification.Name,
+				name: GamepadBatteryChangedNotification.Name,
 				object: nil
 			)
 
@@ -96,7 +119,7 @@ class DualShock4UIModel: ObservableObject {
 
 	@objc func updateButtons(_ notification:Notification) {
 
-		let o = notification.object as! GamePadButtonChangedNotification
+		let o = notification.object as! GamepadButtonChangedNotification
 
 		self.leftTriggerButton = o.leftTriggerButton
 		self.leftShoulderButton = o.leftShoulderButton
@@ -123,7 +146,7 @@ class DualShock4UIModel: ObservableObject {
 
 	@objc func updateAnalog(_ notification:Notification) {
 
-		let o = notification.object as! GamePadAnalogChangedNotification
+		let o = notification.object as! GamepadAnalogChangedNotification
 
 		self.leftTrigger = Float(o.leftTrigger)
 
@@ -143,9 +166,25 @@ class DualShock4UIModel: ObservableObject {
 
 	}
 
-	@objc func updateTrackPad(_ notification:Notification) {
+	@objc func updateIMU(_ notification:Notification) {
 
-		let o = notification.object as! GamePadTouchpadChangedNotification
+		let o = notification.object as! GamepadIMUChangedNotification
+
+		self.gyroPitch = o.gyroPitch
+		self.gyroYaw = o.gyroYaw
+		self.gyroRoll = o.gyroRoll
+
+		self.accelX = o.accelX
+		self.accelY = o.accelY
+		self.accelZ = o.accelZ
+
+		objectWillChange.send()
+
+	}
+
+	@objc func updateTrackpad(_ notification:Notification) {
+
+		let o = notification.object as! DualShock4TouchpadChangedNotification
 
 		// TODO
 
@@ -167,7 +206,7 @@ class DualShock4UIModel: ObservableObject {
 
 	@objc func updateBattery(_ notification:Notification) {
 
-		let o = notification.object as! GamePadBatteryChangedNotification
+		let o = notification.object as! GamepadBatteryChangedNotification
 
 		self.battery = Float(o.battery)
 		self.isConnected = o.isConnected

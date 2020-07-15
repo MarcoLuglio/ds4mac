@@ -62,7 +62,7 @@ class JoyConUIModel: ObservableObject {
 			.addObserver(
 				self,
 				selector: #selector(self.updateButtons),
-				name: GamePadButtonChangedNotification.Name,
+				name: GamepadButtonChangedNotification.Name,
 				object: nil
 			)
 
@@ -70,7 +70,7 @@ class JoyConUIModel: ObservableObject {
 			.addObserver(
 				self,
 				selector: #selector(self.updateAnalog),
-				name: GamePadAnalogChangedNotification.Name,
+				name: GamepadAnalogChangedNotification.Name,
 				object: nil
 			)
 
@@ -78,7 +78,7 @@ class JoyConUIModel: ObservableObject {
 
 	@objc func updateButtons(_ notification:Notification) {
 
-		let o = notification.object as! GamePadButtonChangedNotification
+		let o = notification.object as! GamepadButtonChangedNotification
 
 		self.leftTriggerButton = o.leftTriggerButton
 		self.leftShoulderButton = o.leftShoulderButton
@@ -109,7 +109,7 @@ class JoyConUIModel: ObservableObject {
 
 	@objc func updateAnalog(_ notification:Notification) {
 
-		let o = notification.object as! GamePadAnalogChangedNotification
+		let o = notification.object as! GamepadAnalogChangedNotification
 
 		self.leftTrigger = Float(o.leftTrigger)
 

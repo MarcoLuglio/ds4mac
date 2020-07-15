@@ -180,6 +180,32 @@ struct DualShock4Tab: View {
 
 		VStack {
 
+			Slider<Text, Text>(
+				value: $dualShock4.battery,
+				in: 0...10,
+				step: 1,
+				onEditingChanged: {(someBool) in },
+				minimumValueLabel: Text("0"),
+				maximumValueLabel: Text("10"),
+				label: {() in
+					var batteryState = dualShock4.isConnected ? "🔌" :"🔋"
+					if dualShock4.isCharging {
+						batteryState += "⚡"
+					}
+					let label = Text("battery: \(batteryState)")
+					return label
+				}
+			)
+			.frame(
+				minWidth: 150,
+				idealWidth: 220,
+				maxWidth: 250,
+				minHeight: 30,
+				idealHeight: 50,
+				maxHeight: 80,
+				alignment: Alignment.center
+			)
+
 			HStack {
 
 				// MARK: DualShock4 left
@@ -576,31 +602,21 @@ struct DualShock4Tab: View {
 			}
 			.scaledToFit()
 
-			Slider<Text, Text>(
-				value: $dualShock4.battery,
-				in: 0...10,
-				step: 1,
-				onEditingChanged: {(someBool) in },
-				minimumValueLabel: Text("0"),
-				maximumValueLabel: Text("10"),
-				label: {() in
-					var batteryState = dualShock4.isConnected ? "🔌" :"🔋"
-					if dualShock4.isCharging {
-						batteryState += "⚡"
-					}
-					let label = Text("battery: \(batteryState)")
-					return label
+			HStack {
+
+				VStack {
+					Text("Gyro pitch: \(self.dualShock4.gyroPitch)").frame(width: 150, height: 30, alignment: Alignment.leading)
+					Text("Gyro yaw:  \(self.dualShock4.gyroYaw)").frame(width: 150, height: 30, alignment: Alignment.leading)
+					Text("Gyro roll:  \(self.dualShock4.gyroRoll)").frame(width: 150, height: 30, alignment: Alignment.leading)
 				}
-			)
-			.frame(
-				minWidth: 150,
-				idealWidth: 220,
-				maxWidth: 250,
-				minHeight: 30,
-				idealHeight: 50,
-				maxHeight: 80,
-				alignment: Alignment.center
-			)
+
+				VStack {
+					Text("Accel x:  \(self.dualShock4.accelX)").frame(width: 150, height: 30, alignment: Alignment.leading)
+					Text("Accel y:  \(self.dualShock4.accelY)").frame(width: 150, height: 30, alignment: Alignment.leading)
+					Text("Accel z:  \(self.dualShock4.accelZ)").frame(width: 150, height: 30, alignment: Alignment.leading)
+				}
+
+			}
 
 		}
 		.scaledToFit()

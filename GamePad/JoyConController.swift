@@ -381,8 +381,8 @@ class JoyConController {
 
 				DispatchQueue.main.async {
 					NotificationCenter.default.post(
-						name: GamePadButtonChangedNotification.Name,
-						object: GamePadButtonChangedNotification(
+						name: GamepadButtonChangedNotification.Name,
+						object: GamepadButtonChangedNotification(
 							leftTriggerButton: self.leftTriggerButton,
 							leftShoulderButton: self.leftShoulderButton,
 							minusButton: self.minusButton,
@@ -491,8 +491,8 @@ class JoyConController {
 
 				DispatchQueue.main.async {
 					NotificationCenter.default.post(
-						name: GamePadButtonChangedNotification.Name,
-						object: GamePadButtonChangedNotification(
+						name: GamepadButtonChangedNotification.Name,
+						object: GamepadButtonChangedNotification(
 							leftTriggerButton: self.leftTriggerButton,
 							leftShoulderButton: self.leftShoulderButton,
 							minusButton: self.minusButton,

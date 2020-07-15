@@ -10,7 +10,7 @@ import Foundation
 
 
 
-class GamePadBatteryChangedNotification {
+class GamepadBatteryChangedNotification {
 
 	static let Name = Notification.Name("GamePadBatteryChangedNotification")
 

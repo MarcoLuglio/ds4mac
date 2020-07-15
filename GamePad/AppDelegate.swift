@@ -14,7 +14,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
 	var window: NSWindow!
 
-	var gamePadHIDMonitor:GamePadHIDMonitor!
+	var gamePadHIDMonitor:GamepadHIDMonitor!
 
 	var gamePadHIDThread:Thread!
 
@@ -48,7 +48,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		window.contentView = NSHostingView(rootView: contentView)
 		window.makeKeyAndOrderFront(nil)
 
-		self.gamePadHIDMonitor = GamePadHIDMonitor()
+		self.gamePadHIDMonitor = GamepadHIDMonitor()
 		self.gamePadHIDThread = Thread(target: self.gamePadHIDMonitor, selector:#selector(self.gamePadHIDMonitor.setupHidObservers), object: nil)
 		self.gamePadHIDThread.start()
 

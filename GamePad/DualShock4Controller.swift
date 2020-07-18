@@ -112,22 +112,30 @@ class DualShock4Controller {
 	var rightTrigger:UInt8 = 0
 	var previousRightTrigger:UInt8 = 0
 
-	// trackpad
+	// touchpad
 
-	var trackpadButton = false
-	var previousTrackpadButton = false
+	var touchpadButton = false
+	var previousTouchpadButton = false
 
-	var trackpadTouch0IsActive = false
-	var previousTrackpadTouch0IsActive = false
-	var trackpadTouch0Id:UInt8 = 0
-	var trackpadTouch0X:UInt16 = 0 // actually the report only sends 12 bits
-	var trackpadTouch0Y:UInt16 = 0 // actually the report only sends 12 bits
+	var touchpadTouch0IsActive = false
+	var previousTouchpadTouch0IsActive = false
+	var touchpadTouch0Id:UInt8 = 0
+	var previousTouchpadTouch0Id:UInt8 = 0
+	var touchpadTouch0X:Int16 = 0 // actually the report only sends 12 bits, so 4096 max
+	var previousTouchpadTouch0X:Int16 = 0
+	var touchpadTouch0Y:Int16 = 0 // actually the report only sends 12 bits
+	var previousTouchpadTouch0Y:Int16 = 0
 
-	var trackpadTouch1IsActive = false
-	var previousTrackpadTouch1IsActive = false
-	var trackpadTouch1Id:UInt8 = 0
-	var trackpadTouch1X:UInt16 = 0 // actually the report only sends 12 bits
-	var trackpadTouch1Y:UInt16 = 0 // actually the report only sends 12 bits
+	var touchpadTouch1IsActive = false
+	var previousTouchpadTouch1IsActive = false
+	var touchpadTouch1Id:UInt8 = 0
+	var previousTouchpadTouch1Id:UInt8 = 0
+	var touchpadTouch1X:Int16 = 0 // actually the report only sends 12 bits
+	var previousTouchpadTouch1X:Int16 = 0
+	var touchpadTouch1Y:Int16 = 0 // actually the report only sends 12 bits
+	var previousTouchpadTouch1Y:Int16 = 0
+
+	// TODO create the other 3
 
 	// inertial measurement unit
 
@@ -287,7 +295,7 @@ class DualShock4Controller {
 		if self.previousMainButtons != self.mainButtons
 			|| self.previousSecondaryButtons != self.secondaryButtons
 			|| self.previousPsButton != self.psButton
-			|| self.previousTrackpadButton != self.trackpadButton
+			|| self.previousTouchpadButton != self.touchpadButton
 		{
 
 			DispatchQueue.main.async {
@@ -305,7 +313,7 @@ class DualShock4Controller {
 						leftButton: (self.directionalPad == 6 || self.directionalPad == 5 || self.directionalPad == 7),
 						socialButton: self.shareButton,
 						leftStickButton: self.l3,
-						trackPadButton: self.trackpadButton,
+						trackPadButton: self.touchpadButton,
 						centralButton: self.psButton,
 						rightStickButton: self.r3,
 						rightAuxiliaryButton: self.optionsButton,
@@ -344,7 +352,7 @@ class DualShock4Controller {
 			self.previousOptionsButton = self.optionsButton
 
 			self.previousPsButton = self.psButton
-			self.previousTrackpadButton = self.trackpadButton
+			self.previousTouchpadButton = self.touchpadButton
 
 		}
 
@@ -394,7 +402,7 @@ class DualShock4Controller {
 
 		// trackpad
 
-		self.trackpadButton = report[7 + bluetoothOffset] & 0b00000010 == 0b00000010
+		self.touchpadButton = report[7 + bluetoothOffset] & 0b00000010 == 0b00000010
 
 		self.previousReportTime = self.reportTime
 		self.reportTime = Int32(report[11 + bluetoothOffset]) << 8 | Int32(report[10 + bluetoothOffset]) // this is little endian
@@ -405,122 +413,37 @@ class DualShock4Controller {
 
 		/*
 
-		trackpad can send multiple packets per report
+		trackpad can send up to 4 packets per report
 		it is sampled at a higher frequency
 
-		indexes are for bluetooth, so offset by +2
+		The Dualshock 4 multi-touch trackpad data starts at offset 33 on USB
+		and 35 on Bluetooth.
+		The first byte indicates the number of touch data in the report.
+		Trackpad data starts 2 bytes later (e.g. 35 for USB).
 
-		[36] 	number of trackpad packets (0x00 to 0x04)
+		*/
 
+		let numberOfPackets = report[33 + bluetoothOffset] // 1 to 4
 
-		[37] 	packet counter
+		// report[34 + bluetoothOffset] // packet counter??
 
-		[38] 	active low 	finger 1 id
-		[39 - 41] 	finger 1 coordinates
+		self.touchpadTouch0IsActive = report[35 + bluetoothOffset] & 0b10000000 != 0b10000000
 
-		[42] 	active low 	finger 2 id
-		[43 - 45] 	finger 2 coordinates
-
-
-		[46] 	packet counter
-
-		[47] 	active low 	finger 1 id
-		[48 - 50] 	finger 1 coordinates
-
-		[51] 	active low 	finger 2 id
-		[52 - 54] 	finger 2 coordinates
-
-
-		[55] 	packet counter
-
-		[56] 	active low 	finger 1 id
-		[57 - 59] 	finger 1 coordinates
-
-		[60] 	active low 	finger 2 id
-		[61 - 63] 	finger 2 coordinates
-
-
-		[64] 	packet counter
-
-		[65] 	active low 	finger 1 id
-		[66 - 68] 	finger 1 coordinates
-
-		[69] 	active low 	finger 2 id
-		[70 - 72] 	finger 2 coordinates
-
-		/*
-		 * The Dualshock 4 multi-touch trackpad data starts at offset 33 on USB
-		 * and 35 on Bluetooth.
-		 * The first byte indicates the number of touch data in the report.
-		 * Trackpad data starts 2 bytes later (e.g. 35 for USB).
-		 */
-		offset = data_offset + DS4_INPUT_REPORT_TOUCHPAD_OFFSET;
-		max_touch_data = (sc->quirks & DUALSHOCK4_CONTROLLER_BT) ? 4 : 3;
-		if (rd[offset] > 0 && rd[offset] <= max_touch_data)
-			num_touch_data = rd[offset];
-		else
-			num_touch_data = 1;
-		offset += 1;
-
-		for (m = 0; m < num_touch_data; m++) {
-			/* Skip past timestamp */
-			offset += 1;
-
-			/*
-			 * The first 7 bits of the first byte is a counter and bit 8 is
-			 * a touch indicator that is 0 when pressed and 1 when not
-			 * pressed.
-			 * The next 3 bytes are two 12 bit touch coordinates, X and Y.
-			 * The data for the second touch is in the same format and
-			 * immediately follows the data for the first.
-			 */
-			for (n = 0; n < 2; n++) {
-				u16 x, y;
-				bool active;
-
-				x = rd[offset+1] | ((rd[offset+2] & 0xF) << 8);
-				y = ((rd[offset+2] & 0xF0) >> 4) | (rd[offset+3] << 4);
-
-				active = !(rd[offset] >> 7);
-				input_mt_slot(sc->touchpad, n);
-				input_mt_report_slot_state(sc->touchpad, MT_TOOL_FINGER, active);
-
-				if (active) {
-					input_report_abs(sc->touchpad, ABS_MT_POSITION_X, x);
-					input_report_abs(sc->touchpad, ABS_MT_POSITION_Y, y);
-				}
-
-				offset += 4;
-			}
-			input_mt_sync_frame(sc->touchpad);
-			input_sync(sc->touchpad);
+		if self.touchpadTouch0IsActive {
+			self.touchpadTouch0Id = report[35 + bluetoothOffset] & 0b01111111
+			 // 12 bits only
+			self.touchpadTouch0X = Int16((UInt16(report[37 + bluetoothOffset]) << 8 | UInt16(report[36 + bluetoothOffset]))      & 0b0000_1111_1111_1111)
+			self.touchpadTouch0Y = Int16((UInt16(report[38 + bluetoothOffset]) << 4 | UInt16(report[37 + bluetoothOffset]) >> 4) & 0b0000_1111_1111_1111)
 		}
 
-		*/
+		self.touchpadTouch1IsActive = report[39 + bluetoothOffset] & 0b10000000 != 0b10000000 // if not active, no need to parse the rest
 
-
-		let numberOfPackets = report[34 + bluetoothOffset]
-
-		self.trackpadTouch0IsActive = report[35 + bluetoothOffset] & 0b10000000 != 0b10000000
-
-		if self.trackpadTouch0IsActive {
-			self.trackpadTouch0Id = report[35] & 0b01111111
-			self.trackpadTouch0X = UInt16(report[37] & 0x0f) << 8 | UInt16(report[36])
-			self.trackpadTouch0Y = UInt16(report[38]) << 4 | UInt16(report[37] & 0xf0) >> 4
+		if self.touchpadTouch1IsActive {
+			self.touchpadTouch1Id = report[39 + bluetoothOffset] & 0b01111111
+			// 12 bits only
+			self.touchpadTouch1X = Int16((UInt16(report[41 + bluetoothOffset]) << 8 | UInt16(report[40 + bluetoothOffset]))      & 0b0000_1111_1111_1111)
+			self.touchpadTouch1Y = Int16((UInt16(report[42 + bluetoothOffset]) << 4 | UInt16(report[41 + bluetoothOffset]) >> 4) & 0b0000_1111_1111_1111)
 		}
-
-		/*
-		cState.TrackPadTouch0.X = (short)(((ushort)(inputReport[37] & 0x0f) << 8) | (ushort)(inputReport[36]));
-		cState.TrackPadTouch0.Y = (short)(((ushort)(inputReport[38]) << 4) | ((ushort)(inputReport[37] & 0xf0) >> 4));
-		*/
-
-		self.trackpadTouch1IsActive = report[40 + bluetoothOffset] & 0b10000000 != 0b10000000 // if not active, no need to parse the rest
-
-		/*
-		self.trackpadTouch1Id = report[40] & 0b01111111
-		self.trackpadTouch1X = ((report[41] & 0x0f) << 8) | report[40] // TODO make this more readable
-		self.trackpadTouch1Y = report[42] << 4 | ((report[41] & 0xf0) >> 4)
-		*/
 
 		/*
 		to move mouse
@@ -533,21 +456,40 @@ class DualShock4Controller {
 		for multiple monitors, check finding displays https://developer.apple.com/documentation/coregraphics/quartz_display_services#1655882
 		*/
 
-		if previousTrackpadTouch0IsActive != trackpadTouch0IsActive
-			|| previousTrackpadTouch1IsActive != trackpadTouch1IsActive
+		if self.previousTouchpadTouch0IsActive != self.touchpadTouch0IsActive
+			|| self.previousTouchpadTouch0Id != self.touchpadTouch0Id
+			|| self.previousTouchpadTouch0X != self.touchpadTouch0X
+			|| self.previousTouchpadTouch0Y != self.touchpadTouch0Y
+			|| self.previousTouchpadTouch1IsActive != self.touchpadTouch1IsActive
+			|| self.previousTouchpadTouch1Id != self.touchpadTouch1Id
+			|| self.previousTouchpadTouch1X != self.touchpadTouch1X
+			|| self.previousTouchpadTouch1Y != self.touchpadTouch1Y
 		{
 
 			DispatchQueue.main.async {
 				NotificationCenter.default.post(
 					name: DualShock4TouchpadChangedNotification.Name,
 					object: DualShock4TouchpadChangedNotification(
-						//
+						touchpadTouch0IsActive: self.touchpadTouch0IsActive,
+						touchpadTouch0Id: self.touchpadTouch0Id,
+						touchpadTouch0X: self.touchpadTouch0X,
+						touchpadTouch0Y: self.touchpadTouch0Y,
+						touchpadTouch1IsActive: self.touchpadTouch1IsActive,
+						touchpadTouch1Id: self.touchpadTouch1Id,
+						touchpadTouch1X: self.touchpadTouch1X,
+						touchpadTouch1Y: self.touchpadTouch1Y
 					)
 				)
 			}
 
-			previousTrackpadTouch0IsActive = trackpadTouch0IsActive
-			previousTrackpadTouch1IsActive = trackpadTouch1IsActive
+			self.previousTouchpadTouch0IsActive = self.touchpadTouch0IsActive
+			self.previousTouchpadTouch0Id = self.touchpadTouch0Id
+			self.previousTouchpadTouch0X = self.touchpadTouch0X
+			self.previousTouchpadTouch0Y = self.touchpadTouch0Y
+			self.previousTouchpadTouch1IsActive = self.touchpadTouch1IsActive
+			self.previousTouchpadTouch1Id = self.touchpadTouch1Id
+			self.previousTouchpadTouch1X = self.touchpadTouch1X
+			self.previousTouchpadTouch1Y = self.touchpadTouch1Y
 
 		}
 

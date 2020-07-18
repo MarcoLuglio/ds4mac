@@ -362,23 +362,43 @@ struct DualShock4Tab: View {
 									alignment: Alignment.center
 								)
 
-							Coords2d(
-								x:CGFloat(self.dualShock4.leftStickX),
-								y:CGFloat(self.dualShock4.leftStickY),
-								foregroundColor: self.dualShock4.trackPadButton ? Color.red : Color.white
-							)
-							.frame(
-								minWidth: 260,
-								idealWidth: 260,
-								maxWidth: 300,
-								minHeight: 80,
-								idealHeight: 100,
-								maxHeight: 120,
-								alignment: Alignment(
-									horizontal: HorizontalAlignment.center,
-									vertical: VerticalAlignment.center
+							ZStack {
+								Coords2d(
+									x:CGFloat(self.dualShock4.touchpadTouch0X),
+									y:CGFloat(self.dualShock4.touchpadTouch0Y),
+									foregroundColor: self.dualShock4.trackPadButton ? Color.red : Color.white
 								)
-							)
+								.frame(
+									minWidth: 260,
+									idealWidth: 260,
+									maxWidth: 300,
+									minHeight: 80,
+									idealHeight: 100,
+									maxHeight: 120,
+									alignment: Alignment(
+										horizontal: HorizontalAlignment.center,
+										vertical: VerticalAlignment.center
+									)
+								)
+
+								Coords2d(
+									x:CGFloat(self.dualShock4.touchpadTouch1X),
+									y:CGFloat(self.dualShock4.touchpadTouch1Y),
+									foregroundColor: Color.init(Color.RGBColorSpace.sRGB, red: 1, green: 1, blue: 1, opacity: 0) // transparent
+								)
+								.frame(
+									minWidth: 260,
+									idealWidth: 260,
+									maxWidth: 300,
+									minHeight: 80,
+									idealHeight: 100,
+									maxHeight: 120,
+									alignment: Alignment(
+										horizontal: HorizontalAlignment.center,
+										vertical: VerticalAlignment.center
+									)
+								)
+							}
 
 						}
 

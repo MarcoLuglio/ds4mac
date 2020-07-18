@@ -46,6 +46,15 @@ class DualShock4UIModel: ObservableObject {
 	var rightTriggerButton = false
 	var rightTrigger:Float = 0
 
+	var touchpadTouch0IsActive = false
+	//var touchpadTouch0Id:UInt8
+	var touchpadTouch0X:Int16 = 0 // 12 bits only
+	var touchpadTouch0Y:Int16 = 0
+	var touchpadTouch1IsActive = false
+	//var touchpadTouch1Id:UInt8
+	var touchpadTouch1X:Int16 = 0 // 12 bits only
+	var touchpadTouch1Y:Int16 = 0
+
 	var gyroPitch:Int32 = 0
 	var gyroYaw:Int32 = 0
 	var gyroRoll:Int32 = 0
@@ -94,7 +103,7 @@ class DualShock4UIModel: ObservableObject {
 		NotificationCenter.default
 			.addObserver(
 				self,
-				selector: #selector(self.updateTrackpad),
+				selector: #selector(self.updateTouchpad),
 				name: DualShock4TouchpadChangedNotification.Name,
 				object: nil
 			)
@@ -182,11 +191,18 @@ class DualShock4UIModel: ObservableObject {
 
 	}
 
-	@objc func updateTrackpad(_ notification:Notification) {
+	@objc func updateTouchpad(_ notification:Notification) {
 
 		let o = notification.object as! DualShock4TouchpadChangedNotification
 
-		// TODO
+		self.touchpadTouch0IsActive = o.touchpadTouch0IsActive
+		//self.touchpadTouch0Id = o.touchpadTouch0Id
+		self.touchpadTouch0X = (o.touchpadTouch0X - 960) / 7 // - (1920 / 2)
+		self.touchpadTouch0Y = (o.touchpadTouch0Y - 420) / 8 // - (940 / 2)
+		self.touchpadTouch1IsActive = o.touchpadTouch1IsActive
+		//self.touchpadTouch1Id = o.touchpadTouch1Id
+		self.touchpadTouch1X = (o.touchpadTouch1X - 960) / 7 // - (1920 / 2)
+		self.touchpadTouch1Y = (o.touchpadTouch1Y - 420) / 8 // - (940 / 2)
 
 		objectWillChange.send()
 

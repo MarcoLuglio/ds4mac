@@ -117,25 +117,38 @@ class DualShock4Controller {
 	var touchpadButton = false
 	var previousTouchpadButton = false
 
+	/*
+	Touchpad resolution:
+
+	The touch coordinates are stored in Int16, but are actually 12 bits only, which would give us a max possible value of 4096
+	However, the actual resolution of the hardware is smaller than those values
+
+	From https://www.psdevwiki.com/ps4/DualShock_4
+	52mmx23mm (external approximately) with resolution: 
+	CUH-ZCT1x series (Retail) 1920x943 (44.86 dots/mm)
+	CAP-ZCT1x series (NonRetail) 1920x943
+	JDX-1000x series (NonRetail) 1920x754
+	*/
+
 	var touchpadTouch0IsActive = false
 	var previousTouchpadTouch0IsActive = false
 	var touchpadTouch0Id:UInt8 = 0
 	var previousTouchpadTouch0Id:UInt8 = 0
-	var touchpadTouch0X:Int16 = 0 // actually the report only sends 12 bits, so 4096 max
+	var touchpadTouch0X:Int16 = 0
 	var previousTouchpadTouch0X:Int16 = 0
-	var touchpadTouch0Y:Int16 = 0 // actually the report only sends 12 bits
+	var touchpadTouch0Y:Int16 = 0
 	var previousTouchpadTouch0Y:Int16 = 0
 
 	var touchpadTouch1IsActive = false
 	var previousTouchpadTouch1IsActive = false
 	var touchpadTouch1Id:UInt8 = 0
 	var previousTouchpadTouch1Id:UInt8 = 0
-	var touchpadTouch1X:Int16 = 0 // actually the report only sends 12 bits
+	var touchpadTouch1X:Int16 = 0
 	var previousTouchpadTouch1X:Int16 = 0
-	var touchpadTouch1Y:Int16 = 0 // actually the report only sends 12 bits
+	var touchpadTouch1Y:Int16 = 0
 	var previousTouchpadTouch1Y:Int16 = 0
 
-	// TODO create the other 3
+	// TODO create the other 3 touch samples
 
 	// inertial measurement unit
 

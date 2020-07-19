@@ -195,14 +195,16 @@ class DualShock4UIModel: ObservableObject {
 
 		let o = notification.object as! DualShock4TouchpadChangedNotification
 
+		// for details on the numbers, check the DualShock4Controller class
+
 		self.touchpadTouch0IsActive = o.touchpadTouch0IsActive
 		//self.touchpadTouch0Id = o.touchpadTouch0Id
-		self.touchpadTouch0X = (o.touchpadTouch0X - 960) / 7 // - (1920 / 2)
-		self.touchpadTouch0Y = (o.touchpadTouch0Y - 420) / 8 // - (940 / 2)
+		self.touchpadTouch0X = (o.touchpadTouch0X - 960) / 7 // (value - (1920 / 2)) / scale of the ui
+		self.touchpadTouch0Y = (o.touchpadTouch0Y - 422) / 8 // (value - (943 / 2)) / scale of the ui
 		self.touchpadTouch1IsActive = o.touchpadTouch1IsActive
 		//self.touchpadTouch1Id = o.touchpadTouch1Id
-		self.touchpadTouch1X = (o.touchpadTouch1X - 960) / 7 // - (1920 / 2)
-		self.touchpadTouch1Y = (o.touchpadTouch1Y - 420) / 8 // - (940 / 2)
+		self.touchpadTouch1X = (o.touchpadTouch1X - 960) / 7 // (value - (1920 / 2)) / scale of the ui
+		self.touchpadTouch1Y = (o.touchpadTouch1Y - 422) / 8 // (value - (943 / 2)) / scale of the ui
 
 		objectWillChange.send()
 

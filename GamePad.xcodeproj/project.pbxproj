@@ -42,6 +42,7 @@
 		A9D72FAD2482046A0000A89F /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9D72FAC2482046A0000A89F /* IOKit.framework */; };
 		A9D72FAF248204FE0000A89F /* GameController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9D72FAE248204FE0000A89F /* GameController.framework */; };
 		A9D72FB1248205070000A89F /* ForceFeedback.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9D72FB0248205070000A89F /* ForceFeedback.framework */; };
+		A9E414F224C4006000FE6420 /* DualShock4Direction.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9E414F124C4006000FE6420 /* DualShock4Direction.swift */; };
 		A9FBA15224BBC39F009B7CEE /* Coords2d.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9FBA15124BBC39F009B7CEE /* Coords2d.swift */; };
 /* End PBXBuildFile section */
 
@@ -105,6 +106,7 @@
 		A9D72FAC2482046A0000A89F /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
 		A9D72FAE248204FE0000A89F /* GameController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameController.framework; path = System/Library/Frameworks/GameController.framework; sourceTree = SDKROOT; };
 		A9D72FB0248205070000A89F /* ForceFeedback.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ForceFeedback.framework; path = System/Library/Frameworks/ForceFeedback.framework; sourceTree = SDKROOT; };
+		A9E414F124C4006000FE6420 /* DualShock4Direction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DualShock4Direction.swift; sourceTree = "<group>"; };
 		A9FBA15124BBC39F009B7CEE /* Coords2d.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coords2d.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -206,6 +208,7 @@
 				A90DC848248C4E67003CD258 /* JoyConController.swift */,
 				A993A109249ECE3A0059EADA /* JoyConDirection.swift */,
 				A97E75CA2482E7A200FAA13A /* DualShock4Controller.swift */,
+				A9E414F124C4006000FE6420 /* DualShock4Direction.swift */,
 				A97E75C82482E78000FAA13A /* Xbox360Controller.swift */,
 				A9063B172495766700B0E0ED /* Xbox360LedPattern.swift */,
 				A993A101249E82060059EADA /* XboxOneController.swift */,
@@ -329,7 +332,7 @@
 					};
 				};
 			};
-			buildConfigurationList = A9D72F72248202350000A89F /* Build configuration list for PBXProject "GamePad" */;
+			buildConfigurationList = A9D72F72248202350000A89F /* Build configuration list for PBXProject "Gamepad" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -384,6 +387,7 @@
 				A97E75C92482E78000FAA13A /* Xbox360Controller.swift in Sources */,
 				A9888F9B24904BDD0084EA3C /* DualShock4UIModel.swift in Sources */,
 				A9C5ECD024A0556300E6F519 /* GamepadUSBMonitor.swift in Sources */,
+				A9E414F224C4006000FE6420 /* DualShock4Direction.swift in Sources */,
 				A9879C212485833000AB4DE9 /* GamepadButtonChangedNotification.swift in Sources */,
 				A993A107249EB9E50059EADA /* JoyConChangeRumbleNotification.swift in Sources */,
 				A9C66D382494529C00DB799F /* DualShock4ChangeRumbleNotification.swift in Sources */,
@@ -704,7 +708,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A9D72F72248202350000A89F /* Build configuration list for PBXProject "GamePad" */ = {
+		A9D72F72248202350000A89F /* Build configuration list for PBXProject "Gamepad" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A9D72F9E248202360000A89F /* Debug */,

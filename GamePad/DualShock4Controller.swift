@@ -124,10 +124,8 @@ class DualShock4Controller {
 	However, the actual resolution of the hardware is smaller than those values
 
 	From https://www.psdevwiki.com/ps4/DualShock_4
-	52mmx23mm (external approximately) with resolution: 
+	52mmx23mm (external approximately) with resolution:
 	CUH-ZCT1x series (Retail) 1920x943 (44.86 dots/mm)
-	CAP-ZCT1x series (NonRetail) 1920x943
-	JDX-1000x series (NonRetail) 1920x754
 	*/
 
 	var touchpadTouch0IsActive = false
@@ -150,7 +148,7 @@ class DualShock4Controller {
 
 	// TODO create the other 3 touch samples
 
-	// inertial measurement unit
+	// inertial measurement unit (imu)
 
 	var gyroPitch:Int32 = 0
 	var previousGyroPitch:Int32 = 0
@@ -172,7 +170,7 @@ class DualShock4Controller {
 
 	var cableConnected = false
 	var batteryCharging = false
-	var batteryLevel:UInt8 = 0 // 0 to 9 on USB, 0 - 10 on Bluetooth
+	var batteryLevel:UInt8 = 0 // 0 to 10 on USB, 0 - 9 on Bluetooth
 	var previousBatteryLevel:UInt8 = 0
 
 	// misc
@@ -281,12 +279,6 @@ class DualShock4Controller {
 		self.crossButton    = self.mainButtons & 0b00100000 == 0b00100000
 
 		self.directionalPad = self.mainButtons & 0b00001111
-		/*
-		self.upButton: (self.directionalPad == 0 || self.directionalPad == 1 || self.directionalPad == 7),
-		self.rightButton: (self.directionalPad == 2 || self.directionalPad == 1 || self.directionalPad == 3),
-		self.downButton: (self.directionalPad == 4 || self.directionalPad == 3 || self.directionalPad == 5),
-		self.leftButton: (self.directionalPad == 6 || self.directionalPad == 5 || self.directionalPad == 7),
-		*/
 
 		self.secondaryButtons = report[6 + bluetoothOffset]
 

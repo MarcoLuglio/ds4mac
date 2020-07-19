@@ -49,6 +49,8 @@ class JoyConController {
 	var leftButton = false
 	var previousLeftButton = false
 
+	// TODO The S* buttons canb e the equivalent of the Xbox Elite back paddles
+
 	/// SL button on left joy-con
 	var leftSideTopButton = false
 	var previousLeftSideTopButton = false

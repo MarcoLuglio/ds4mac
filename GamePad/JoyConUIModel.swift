@@ -82,16 +82,16 @@ class JoyConUIModel: ObservableObject {
 
 		self.leftTriggerButton = o.leftTriggerButton
 		self.leftShoulderButton = o.leftShoulderButton
-		//self.minusButton = o.minusButton
+		self.minusButton = o.minusButton
 		self.leftStickButton = o.leftStickButton
-		//self.leftSideTopButton = o.leftSideTopButton
+		self.leftSideTopButton = o.leftSideTopButton
 		self.upButton = o.upButton
 		self.rightButton = o.rightButton
 		self.downButton = o.downButton
 		self.leftButton = o.leftButton
 		self.captureButton = o.socialButton
-		//self.leftSideBottomButton = o.leftSideBottomButton
-		//self.rightSideBottomButton = o.rightSideBottomButton
+		self.leftSideBottomButton = o.leftSideBottomButton
+		self.rightSideBottomButton = o.rightSideBottomButton
 		self.homeButton = o.rightAuxiliaryButton
 		self.rightStickButton = o.rightStickButton
 		self.rightSideTopButton = o.rightSideTopButton
@@ -99,7 +99,7 @@ class JoyConUIModel: ObservableObject {
 		self.aButton = o.faceEastButton
 		self.bButton = o.faceSouthButton
 		self.yButton = o.faceWestButton
-		//self.plusButton = o.plusButton
+		self.plusButton = o.plusButton
 		self.rightShoulderButton = o.rightShoulderButton
 		self.rightTriggerButton = o.rightTriggerButton
 

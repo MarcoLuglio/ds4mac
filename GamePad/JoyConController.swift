@@ -343,6 +343,57 @@ class JoyConController {
 		} else {
 			self.leftDevice = device
 			IOHIDDeviceOpen(self.leftDevice!, IOOptionBits(kIOHIDOptionsTypeNone)) // or kIOHIDManagerOptionUsePersistentProperties
+
+
+			var timming_byte:UInt8 = 0;
+			var buffer = [UInt8](repeating: 0, count: 49)
+
+			buffer[0] = 0x01 // cmd or report id, when this is 0, SetReport needs a change
+			buffer[1] = timming_byte & 0xF; // timer!?
+
+			// buffer[2] rumble
+			// buffer[3] rumble
+			// buffer[4] rumble
+			// buffer[5] rumble
+
+			// buffer[6] rumble_r[4]
+			// buffer[7] rumble_r[4]
+			// buffer[8] rumble_r[4]
+			// buffer[9] rumble_r[4]
+
+			buffer[10] = 0x30 // sub command, set player LEDs
+			buffer[11] = 0b0000_0001 // sub command parameter 1, bitfield for LEDS
+			/*
+			aaaa bbbb
+				 3210 - keep player light on
+			3210      - flash player light
+
+			"on" bits override "flash" bits. When on USB, "flash" bits work like "on" bits.
+
+			Subcommand 0x31: Get player lights
+			Replies with ACK xB0 x31 and one byte that uses the same bitfield with x30 subcommand
+			The initial LED trail effects is xB1, but it cannot be set via x30. subcommand
+			*/
+
+			// NO CRC??
+
+			// buffer[6] sub command parameter 2
+
+			// let bytesWrittenCount = hid_write(self.leftDevice, buffer, buffer.count); // -1 means error
+			// res = hid_read_timeout(handle, buf, 0, 64); // reads right after, but doesn't do anything about it
+
+			let success = IOHIDDeviceSetReport(
+				self.leftDevice!,
+				kIOHIDReportTypeOutput,
+				0x01, //Int(buffer[0]), // Report ID
+				buffer,
+				buffer.count
+			);
+
+			if (success != kIOReturnSuccess) {
+				print("Error setting LED")
+			}
+
 		}
 
 	}

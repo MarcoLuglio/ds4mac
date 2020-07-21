@@ -14,20 +14,20 @@ class GamepadAnalogChangedNotification {
 
 	static let Name = Notification.Name("GamePadAnalogChangedNotification")
 
-	let leftStickX:Int16
-	let leftStickY:Int16
-	let rightStickX:Int16
-	let rightStickY:Int16
-	let leftTrigger:UInt8
-	let rightTrigger:UInt8
+	let leftStickX:UInt16
+	let leftStickY:UInt16
+	let rightStickX:UInt16
+	let rightStickY:UInt16
+	let leftTrigger:UInt16
+	let rightTrigger:UInt16
 
 	init(
-		leftStickX:Int16,
-		leftStickY:Int16,
-		rightStickX:Int16,
-		rightStickY:Int16,
-		leftTrigger:UInt8,
-		rightTrigger:UInt8
+		leftStickX:UInt16,
+		leftStickY:UInt16,
+		rightStickX:UInt16,
+		rightStickY:UInt16,
+		leftTrigger:UInt16,
+		rightTrigger:UInt16
 	) {
 
 		self.leftStickX = leftStickX

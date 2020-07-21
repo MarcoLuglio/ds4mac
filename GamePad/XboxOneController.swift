@@ -13,11 +13,16 @@ import Foundation
 class XboxOneController {
 
 	static let VENDOR_ID_MICROSOFT:Int64 = 0x045E // 1118
+
 	static let CONTROLLER_ID_XBOX_ONE:Int64 = 0x02D1 // ?
 	static let CONTROLLER_ID_XBOX_ONE_2015:Int64 = 0x02DD // ?
+	static let CONTROLLER_ID_XBOX_ONE_BLUETOOTH:Int64 = 0x02E0 // ?
+
 	static let CONTROLLER_ID_XBOX_ONE_ELITE:Int64 = 0x02E3 // ?
+
 	static let CONTROLLER_ID_XBOX_ONE_S:Int64 = 0x02EA // ?
 	static let CONTROLLER_ID_XBOX_ONE_S_BLUETOOTH:Int64 = 0x02FD // ?
+
 	static let CONTROLLER_ID_XBOX_WIRELESS_DONGLE:Int64 = 0x02E6 // v2?
 
 	static var nextId:UInt8 = 0
@@ -31,7 +36,7 @@ class XboxOneController {
 
 	var isBluetooth = false
 
-	/// contains a, b, x, y, shoulder and xbox buttons
+	/// contains a, b, x, y and shoulder buttons
 	var mainButtons:UInt8 = 0
 	var previousMainButtons:UInt8 = 0
 
@@ -51,19 +56,16 @@ class XboxOneController {
 	var xButton = false
 	var previousXButton = false
 
-	// shoulder buttons
+	// shoulder buttons ("bumper" buttons officially)
 	var leftShoulderButton = false
 	var previousLeftShoulderButton = false
 	var rightShoulderButton = false
 	var previousRightShoulderButton = false
+	
 	var leftTriggerButton = false // adding for compatibility, the report only has analog data
 	var previousLeftTriggerButton = false
 	var rightTriggerButton = false  // adding for compatibility, the report only has analog data
 	var previousRightTriggerButton = false
-
-	/// contains start, back, thumbstick buttons and directionla pad
-	var secondaryButtons:UInt8 = 0
-	var previousSecondaryButtons:UInt8 = 0
 
 	var directionalPad:UInt8 = 0
 	var previousDirectionalPad:UInt8 = 0
@@ -77,6 +79,10 @@ class XboxOneController {
 	var leftButton = false
 	var previousLeftButton = false
 
+	/// contains xbox, menu and thumbstick buttons
+	var secondaryButtons:UInt8 = 0
+	var previousSecondaryButtons:UInt8 = 0
+
 	// thumbstick buttons
 	var leftStickButton = false
 	var previousLeftStickButton = false
@@ -85,8 +91,9 @@ class XboxOneController {
 
 	// other buttons
 
-	var windowsButton = false
-	var previousWindowsButton = false
+	var viewButton = false
+	var previousViewButton = false
+
 	var menuButton = false
 	var previousMenuButton = false
 
@@ -95,21 +102,32 @@ class XboxOneController {
 
 	// analog buttons
 
-	var leftStickX:Int16 = 0
-	var previousLeftStickX:Int16 = 0
-	var leftStickY:Int16 = 0
-	var previousLeftStickY:Int16 = 0
-	var rightStickX:Int16 = 0
-	var previousRightStickX:Int16 = 0
-	var rightStickY:Int16 = 0
-	var previousRightStickY:Int16 = 0
+	var leftStickX:UInt16 = 0
+	var previousLeftStickX:UInt16 = 0
+	var leftStickY:UInt16 = 0
+	var previousLeftStickY:UInt16 = 0
+	var rightStickX:UInt16 = 0
+	var previousRightStickX:UInt16 = 0
+	var rightStickY:UInt16 = 0
+	var previousRightStickY:UInt16 = 0
 	
-	var leftTrigger:UInt8 = 0
-	var previousLeftTrigger:UInt8 = 0
-	var rightTrigger:UInt8 = 0
-	var previousRightTrigger:UInt8 = 0
+	var leftTrigger:UInt16 = 0
+	var previousLeftTrigger:UInt16 = 0
+	var rightTrigger:UInt16 = 0
+	var previousRightTrigger:UInt16 = 0
 
 	// battery ??
+
+	/*
+	var cableConnected = false
+	var batteryCharging = false
+	var batteryLevel:UInt8 = 0 // 0 to 10 on USB, 0 - 9 on Bluetooth
+	var previousBatteryLevel:UInt8 = 0
+	*/
+
+	// misc
+
+	//
 
 	init(_ device:IOHIDDevice, productID:Int64, transport:String) {
 
@@ -166,37 +184,43 @@ class XboxOneController {
 	/// Gets called by GamePadMonitor
 	func parseReport(_ report:Data) {
 
-		// report[0] // always 0x00
-		// report[1] // always 0x14
+		// for xbox one
+		// type ?, id ?, length 17 bytes
 
-		// for xbox 360
-		// type 0, id 0, length 20 bytes
+		// report[0] // always 0x01
 
-		self.mainButtons = report[3]
+		if report.count < 17 {
+			return
+		}
 
-		self.yButton             = mainButtons & 0b10000000 == 0b10000000
-		self.xButton             = mainButtons & 0b01000000 == 0b01000000
-		self.bButton             = mainButtons & 0b00100000 == 0b00100000
-		self.aButton             = mainButtons & 0b00010000 == 0b00010000
+		self.directionalPad = report[13]
 
-		// no 0b00001000, reserved for the new upload button maybe??
+		self.mainButtons = report[14]
 
-		self.xboxButton          = mainButtons & 0b00000100 == 0b00000100
-		self.rightShoulderButton = mainButtons & 0b00000010 == 0b00000010
-		self.leftShoulderButton  = mainButtons & 0b00000001 == 0b00000001
+		self.yButton             = mainButtons & 0b0001_0000 == 0b0001_0000
+		self.xButton             = mainButtons & 0b0000_1000 == 0b0000_1000
+		self.bButton             = mainButtons & 0b0000_0010 == 0b0000_0010
+		self.aButton             = mainButtons & 0b0000_0001 == 0b0000_0001
 
-		self.secondaryButtons = report[2]
+		self.rightShoulderButton = mainButtons & 0b1000_0000 == 0b1000_0000
+		self.leftShoulderButton  = mainButtons & 0b0100_0000 == 0b0100_0000
 
-		self.menuButton       = secondaryButtons & 0b00010000 == 0b00010000
-		self.windowsButton    = secondaryButtons & 0b00100000 == 0b00100000
-		self.leftStickButton  = secondaryButtons & 0b01000000 == 0b01000000
-		self.rightStickButton = secondaryButtons & 0b10000000 == 0b10000000
+		self.secondaryButtons = report[15]
 
-		self.directionalPad   = secondaryButtons & 0b00001111
+		self.xboxButton       = secondaryButtons & 0b0001_0000 == 0b0001_0000
+		self.menuButton       = secondaryButtons & 0b0000_1000 == 0b0000_1000
+
+		self.leftStickButton  = secondaryButtons & 0b0010_0000 == 0b0010_0000
+		self.rightStickButton = secondaryButtons & 0b0100_0000 == 0b0100_0000
+
+		self.viewButton = report[16] & 0b0000_0001 == 0b0000_0001
 
 		// triggers put here to enable digital reading of them
-		self.leftTrigger = report[4]
-		self.rightTrigger = report[5]
+		self.leftTrigger  = UInt16(report[10] << 8) | UInt16(report[9])
+		self.rightTrigger = UInt16(report[12] << 8) | UInt16(report[11])
+
+		self.leftTriggerButton = self.leftTrigger > 0 // TODO improve this with a getter and or deadzone
+		self.rightTriggerButton = self.rightTrigger > 0 // TODO improve this with a getter and or deadzone
 
 		if self.previousMainButtons != self.mainButtons
 			|| self.previousSecondaryButtons != self.secondaryButtons
@@ -209,17 +233,17 @@ class XboxOneController {
 				NotificationCenter.default.post(
 					name: GamepadButtonChangedNotification.Name,
 					object: GamepadButtonChangedNotification(
-						leftTriggerButton: self.leftTrigger > 0, // TODO improve this with a getter
+						leftTriggerButton: self.leftTriggerButton,
 						leftShoulderButton: self.leftShoulderButton,
 						minusButton:false,
 						leftSideTopButton:false,
 						leftSideBottomButton:false,
 						// TODO maybe save the dpad states individually?
-						upButton:    self.secondaryButtons & 0b00000001 == 0b00000001,
-						rightButton: self.secondaryButtons & 0b00001000 == 0b00001000,
-						downButton:  self.secondaryButtons & 0b00000010 == 0b00000010,
-						leftButton:  self.secondaryButtons & 0b00000100 == 0b00000100,
-						socialButton: false, // TODO map self.windowsButton somewhere
+						upButton: (self.directionalPad == XboxOneDirection.up.rawValue || self.directionalPad == XboxOneDirection.rightUp.rawValue || self.directionalPad == XboxOneDirection.leftUp.rawValue),
+						rightButton: (self.directionalPad == XboxOneDirection.right.rawValue || self.directionalPad == XboxOneDirection.rightUp.rawValue || self.directionalPad == XboxOneDirection.rightDown.rawValue),
+						downButton: (self.directionalPad == XboxOneDirection.down.rawValue || self.directionalPad == XboxOneDirection.rightDown.rawValue || self.directionalPad == XboxOneDirection.leftDown.rawValue),
+						leftButton: (self.directionalPad == XboxOneDirection.left.rawValue || self.directionalPad == XboxOneDirection.leftUp.rawValue || self.directionalPad == XboxOneDirection.leftDown.rawValue),
+						socialButton: self.viewButton,
 						leftStickButton: self.leftStickButton,
 						trackPadButton: false,
 						centralButton: self.xboxButton,
@@ -233,7 +257,7 @@ class XboxOneController {
 						rightSideTopButton:false,
 						plusButton:false,
 						rightShoulderButton: self.rightShoulderButton,
-						rightTriggerButton: self.rightTrigger > 0 // TODO improve this with a getter
+						rightTriggerButton: self.rightTriggerButton
 					)
 				)
 			}
@@ -251,15 +275,13 @@ class XboxOneController {
 
 			self.previousLeftShoulderButton = self.leftShoulderButton
 			self.previousRightShoulderButton = self.rightShoulderButton
-			// TODO save and notify the triggers as digital readings for compatibility
-			//self.previousLeftTriggerButton = self.leftTriggerButton
-			//self.previousRightTriggerButton = self.rightTriggerButton
+			self.previousLeftTriggerButton = self.leftTriggerButton
+			self.previousRightTriggerButton = self.rightTriggerButton
 			self.previousLeftStickButton = self.leftStickButton
 			self.previousRightStickButton = self.rightStickButton
 
-			self.previousWindowsButton = self.windowsButton
+			self.previousViewButton = self.viewButton
 			self.previousMenuButton = self.menuButton
-
 			self.previousXboxButton = self.xboxButton
 
 		}
@@ -267,10 +289,15 @@ class XboxOneController {
 		// analog buttons
 		// origin left top
 
-		self.leftStickX = Int16(report[7]) << 8 | Int16(report[6]) // 0 left
-		self.leftStickY = Int16(report[9]) << 8 | Int16(report[8]) // 0 up
-		self.rightStickX = Int16(report[11]) << 8 | Int16(report[10])
-		self.rightStickY = Int16(report[13]) << 8 | Int16(report[12])
+		self.leftStickX  = UInt16(report[2]) << 8 | UInt16(report[1]) // 0 left
+		self.leftStickY  = UInt16(report[4]) << 8 | UInt16(report[3]) // 0 up
+		self.rightStickX = UInt16(report[6]) << 8 | UInt16(report[5])
+		self.rightStickY = UInt16(report[8]) << 8 | UInt16(report[7])
+
+		print("left stick x \(self.leftStickX)")
+		print("left stick y \(self.leftStickY)")
+		print("right stick x \(self.rightStickX)")
+		print("right stick y \(self.rightStickY)")
 
 		if self.previousLeftStickX != self.leftStickX
 			|| self.previousLeftStickY != self.leftStickY
@@ -318,7 +345,8 @@ class XboxOneController {
 
 	}
 
-	/*@objc func changeLed(_ notification:Notification) {
+	/*
+	@objc func changeLed(_ notification:Notification) {
 		let o = notification.object as! XboxOneChangeLedNotification
 		sendLedReport(ledPattern:o.ledPattern)
 	}
@@ -364,7 +392,8 @@ class XboxOneController {
 			xbox360ControllerOutputReportLength
 		)
 
-	}*/
+	}
+	*/
 
 	private func sendRumbleReport(leftHeavySlowRumble:UInt8, rightLightFastRumble:UInt8, leftTriggerRumble:UInt8, rightTriggerRumble:UInt8) {
 
@@ -485,9 +514,13 @@ class XboxOneController {
 		*/
 
 		let xboxOneControllerOutputReport:[UInt8] = [0x05, 0x20, 0x00, 0x0f, 0x06]
+		//let xboxOneControllerOutputReport:[UInt8] = [0x05, 0x20, 0x00, 0x01, 0x00]
 		let xboxOneControllerOutputReportLength = xboxOneControllerOutputReport.count
 
 		let ioHidService = IOHIDDeviceGetService(self.device)
+
+		// TODO send report like joy con
+
 		//var parent = IORegistryEntryGetParentEntry(ioHidService, kIOUSBPlane, )
 
 		/*var parent:io_object_t = 0

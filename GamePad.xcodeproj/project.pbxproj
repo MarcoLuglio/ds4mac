@@ -27,6 +27,7 @@
 		A993A108249EB9E50059EADA /* JoyConChangeLedNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A993A106249EB9E50059EADA /* JoyConChangeLedNotification.swift */; };
 		A993A10A249ECE3A0059EADA /* JoyConDirection.swift in Sources */ = {isa = PBXBuildFile; fileRef = A993A109249ECE3A0059EADA /* JoyConDirection.swift */; };
 		A9A27CBF249F12E000EFC9D5 /* JoyConUIModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9A27CBE249F12E000EFC9D5 /* JoyConUIModel.swift */; };
+		A9C3193724C7660400666C56 /* XboxOneDirection.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9C3193624C7660400666C56 /* XboxOneDirection.swift */; };
 		A9C5ECD024A0556300E6F519 /* GamepadUSBMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9C5ECCF24A0556300E6F519 /* GamepadUSBMonitor.swift */; };
 		A9C66D34249417B900DB799F /* GamepadBatteryChangedNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9C66D33249417B900DB799F /* GamepadBatteryChangedNotification.swift */; };
 		A9C66D3624944AF000DB799F /* DualShock4ChangeLedNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9C66D3524944AF000DB799F /* DualShock4ChangeLedNotification.swift */; };
@@ -43,6 +44,7 @@
 		A9D72FAF248204FE0000A89F /* GameController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9D72FAE248204FE0000A89F /* GameController.framework */; };
 		A9D72FB1248205070000A89F /* ForceFeedback.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9D72FB0248205070000A89F /* ForceFeedback.framework */; };
 		A9E414F224C4006000FE6420 /* DualShock4Direction.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9E414F124C4006000FE6420 /* DualShock4Direction.swift */; };
+		A9EC025324C5F76C00A1A763 /* hid.c in Sources */ = {isa = PBXBuildFile; fileRef = A9EC025124C5F76C00A1A763 /* hid.c */; };
 		A9FBA15224BBC39F009B7CEE /* Coords2d.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9FBA15124BBC39F009B7CEE /* Coords2d.swift */; };
 /* End PBXBuildFile section */
 
@@ -84,6 +86,7 @@
 		A993A106249EB9E50059EADA /* JoyConChangeLedNotification.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JoyConChangeLedNotification.swift; sourceTree = "<group>"; };
 		A993A109249ECE3A0059EADA /* JoyConDirection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyConDirection.swift; sourceTree = "<group>"; };
 		A9A27CBE249F12E000EFC9D5 /* JoyConUIModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JoyConUIModel.swift; sourceTree = "<group>"; };
+		A9C3193624C7660400666C56 /* XboxOneDirection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XboxOneDirection.swift; sourceTree = "<group>"; };
 		A9C5ECCF24A0556300E6F519 /* GamepadUSBMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamepadUSBMonitor.swift; sourceTree = "<group>"; };
 		A9C66D33249417B900DB799F /* GamepadBatteryChangedNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamepadBatteryChangedNotification.swift; sourceTree = "<group>"; };
 		A9C66D3524944AF000DB799F /* DualShock4ChangeLedNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DualShock4ChangeLedNotification.swift; sourceTree = "<group>"; };
@@ -107,6 +110,9 @@
 		A9D72FAE248204FE0000A89F /* GameController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameController.framework; path = System/Library/Frameworks/GameController.framework; sourceTree = SDKROOT; };
 		A9D72FB0248205070000A89F /* ForceFeedback.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ForceFeedback.framework; path = System/Library/Frameworks/ForceFeedback.framework; sourceTree = SDKROOT; };
 		A9E414F124C4006000FE6420 /* DualShock4Direction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DualShock4Direction.swift; sourceTree = "<group>"; };
+		A9EC025024C5F76C00A1A763 /* GamePad-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "GamePad-Bridging-Header.h"; sourceTree = "<group>"; };
+		A9EC025124C5F76C00A1A763 /* hid.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = hid.c; sourceTree = "<group>"; };
+		A9EC025224C5F76C00A1A763 /* hidapi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hidapi.h; sourceTree = "<group>"; };
 		A9FBA15124BBC39F009B7CEE /* Coords2d.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coords2d.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -194,6 +200,7 @@
 		A9D72F79248202350000A89F /* GamePad */ = {
 			isa = PBXGroup;
 			children = (
+				A9EC024F24C5F57B00A1A763 /* hidapi */,
 				A9888F9C24904BFF0084EA3C /* UI */,
 				A9D72F7A248202350000A89F /* AppDelegate.swift */,
 				A9D72F7E248202360000A89F /* Assets.xcassets */,
@@ -209,9 +216,10 @@
 				A993A109249ECE3A0059EADA /* JoyConDirection.swift */,
 				A97E75CA2482E7A200FAA13A /* DualShock4Controller.swift */,
 				A9E414F124C4006000FE6420 /* DualShock4Direction.swift */,
+				A993A101249E82060059EADA /* XboxOneController.swift */,
+				A9C3193624C7660400666C56 /* XboxOneDirection.swift */,
 				A97E75C82482E78000FAA13A /* Xbox360Controller.swift */,
 				A9063B172495766700B0E0ED /* Xbox360LedPattern.swift */,
-				A993A101249E82060059EADA /* XboxOneController.swift */,
 			);
 			path = GamePad;
 			sourceTree = "<group>";
@@ -251,6 +259,16 @@
 				A9D72FAC2482046A0000A89F /* IOKit.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		A9EC024F24C5F57B00A1A763 /* hidapi */ = {
+			isa = PBXGroup;
+			children = (
+				A9EC025124C5F76C00A1A763 /* hid.c */,
+				A9EC025224C5F76C00A1A763 /* hidapi.h */,
+				A9EC025024C5F76C00A1A763 /* GamePad-Bridging-Header.h */,
+			);
+			name = hidapi;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -321,6 +339,7 @@
 				TargetAttributes = {
 					A9D72F76248202350000A89F = {
 						CreatedOnToolsVersion = 11.5;
+						LastSwiftMigration = 1160;
 					};
 					A9D72F8B248202360000A89F = {
 						CreatedOnToolsVersion = 11.5;
@@ -392,6 +411,7 @@
 				A993A107249EB9E50059EADA /* JoyConChangeRumbleNotification.swift in Sources */,
 				A9C66D382494529C00DB799F /* DualShock4ChangeRumbleNotification.swift in Sources */,
 				A993A10A249ECE3A0059EADA /* JoyConDirection.swift in Sources */,
+				A9EC025324C5F76C00A1A763 /* hid.c in Sources */,
 				A917BFD824984D2C00992913 /* XboxSeriesXUIModel.swift in Sources */,
 				A9A27CBF249F12E000EFC9D5 /* JoyConUIModel.swift in Sources */,
 				A9879C1F248481C200AB4DE9 /* CRC32.swift in Sources */,
@@ -402,6 +422,7 @@
 				A993A108249EB9E50059EADA /* JoyConChangeLedNotification.swift in Sources */,
 				A90EBFAA24BEB6C000C8DEAE /* GamepadIMUChangedNotification.swift in Sources */,
 				A9D72FAA248204080000A89F /* GamepadHIDMonitor.swift in Sources */,
+				A9C3193724C7660400666C56 /* XboxOneDirection.swift in Sources */,
 				A9063B182495766700B0E0ED /* Xbox360LedPattern.swift in Sources */,
 				A97E75CB2482E7A200FAA13A /* DualShock4Controller.swift in Sources */,
 				A9D72F7D248202350000A89F /* ContentView.swift in Sources */,
@@ -575,6 +596,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = GamePad/GamePad.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
@@ -592,6 +614,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = marcodejulho.GamePad;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "GamePad/GamePad-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -600,6 +624,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = GamePad/GamePad.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
@@ -617,6 +642,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = marcodejulho.GamePad;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "GamePad/GamePad-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;

@@ -13,8 +13,10 @@ import Foundation
 class Xbox360Controller {
 
 	static let VENDOR_ID_MICROSOFT:Int64 = 0x045E // 1118
+
 	static let CONTROLLER_ID_XBOX_360:Int64 = 0x028E // 654
 	static let CONTROLLER_ID_XBOX_360_WIRELESS:Int64 = 0x028F // ??
+
 	static let CONTROLLER_ID_XBOX_WIRELESS_DONGLE:Int64 = 0x0291 // v1??
 	static let CONTROLLER_ID_XBOX_WIRELESS_DONGLE_V2:Int64 = 0x02E6 // ??
 
@@ -49,17 +51,18 @@ class Xbox360Controller {
 	var xButton = false
 	var previousXButton = false
 
-	// shoulder buttons
+	// shoulder buttons ("bumper" buttons officially)
 	var leftShoulderButton = false
 	var previousLeftShoulderButton = false
 	var rightShoulderButton = false
 	var previousRightShoulderButton = false
+	
 	var leftTriggerButton = false // adding for compatibility, the report only has analog data
 	var previousLeftTriggerButton = false
 	var rightTriggerButton = false  // adding for compatibility, the report only has analog data
 	var previousRightTriggerButton = false
 
-	/// contains start, back, thumbstick buttons and directionla pad
+	/// contains start, back, thumbstick buttons and directional pad
 	var secondaryButtons:UInt8 = 0
 	var previousSecondaryButtons:UInt8 = 0
 
@@ -85,6 +88,7 @@ class Xbox360Controller {
 
 	var backButton = false
 	var previousBackButton = false
+
 	var startButton = false
 	var previousStartButton = false
 
@@ -93,21 +97,32 @@ class Xbox360Controller {
 
 	// analog buttons
 
-	var leftStickX:Int16 = 0
-	var previousLeftStickX:Int16 = 0
-	var leftStickY:Int16 = 0
-	var previousLeftStickY:Int16 = 0
-	var rightStickX:Int16 = 0
-	var previousRightStickX:Int16 = 0
-	var rightStickY:Int16 = 0
-	var previousRightStickY:Int16 = 0
-	
+	var leftStickX:UInt16 = 0
+	var previousLeftStickX:UInt16 = 0
+	var leftStickY:UInt16 = 0
+	var previousLeftStickY:UInt16 = 0
+	var rightStickX:UInt16 = 0
+	var previousRightStickX:UInt16 = 0
+	var rightStickY:UInt16 = 0
+	var previousRightStickY:UInt16 = 0
+
 	var leftTrigger:UInt8 = 0
 	var previousLeftTrigger:UInt8 = 0
 	var rightTrigger:UInt8 = 0
 	var previousRightTrigger:UInt8 = 0
 
 	// battery ??
+
+	/*
+	var cableConnected = false
+	var batteryCharging = false
+	var batteryLevel:UInt8 = 0 // 0 to 10 on USB, 0 - 9 on Bluetooth
+	var previousBatteryLevel:UInt8 = 0
+	*/
+
+	// misc
+
+	//
 
 	init(_ device:IOHIDDevice, productID:Int64, transport:String) {
 
@@ -162,11 +177,11 @@ class Xbox360Controller {
 	/// Gets called by GamePadMonitor
 	func parseReport(_ report:Data) {
 
-		// report[0] // always 0x00
-		// report[1] // always 0x14
-
 		// for xbox 360
 		// type 0, id 0, length 20 bytes
+
+		// report[0] // always 0x00
+		// report[1] // always 0x14
 
 		self.mainButtons = report[3]
 
@@ -175,7 +190,7 @@ class Xbox360Controller {
 		self.bButton             = mainButtons & 0b00100000 == 0b00100000
 		self.aButton             = mainButtons & 0b00010000 == 0b00010000
 
-		// no 0b00001000, reserved for the new upload button maybe??
+		// no 0b00001000
 
 		self.xboxButton          = mainButtons & 0b00000100 == 0b00000100
 		self.rightShoulderButton = mainButtons & 0b00000010 == 0b00000010
@@ -194,6 +209,9 @@ class Xbox360Controller {
 		self.leftTrigger = report[4]
 		self.rightTrigger = report[5]
 
+		self.leftTriggerButton = self.leftTrigger > 0 // TODO improve this with a getter and or deadzone
+		self.rightTriggerButton = self.rightTrigger > 0 // TODO improve this with a getter and or deadzone
+
 		if self.previousMainButtons != self.mainButtons
 			|| self.previousSecondaryButtons != self.secondaryButtons
 			|| self.previousDirectionalPad != self.directionalPad
@@ -205,16 +223,16 @@ class Xbox360Controller {
 				NotificationCenter.default.post(
 					name: GamepadButtonChangedNotification.Name,
 					object: GamepadButtonChangedNotification(
-						leftTriggerButton: self.leftTrigger > 0, // TODO improve this with a getter
+						leftTriggerButton: self.leftTriggerButton,
 						leftShoulderButton: self.leftShoulderButton,
 						minusButton:false,
 						leftSideTopButton:false,
 						leftSideBottomButton:false,
 						// TODO maybe save the dpad states individually?
-						upButton:    self.secondaryButtons & 0b00000001 == 0b00000001,
-						rightButton: self.secondaryButtons & 0b00001000 == 0b00001000,
-						downButton:  self.secondaryButtons & 0b00000010 == 0b00000010,
-						leftButton:  self.secondaryButtons & 0b00000100 == 0b00000100,
+						upButton:    self.directionalPad & 0b00000001 == 0b00000001,
+						rightButton: self.directionalPad & 0b00001000 == 0b00001000,
+						downButton:  self.directionalPad & 0b00000010 == 0b00000010,
+						leftButton:  self.directionalPad & 0b00000100 == 0b00000100,
 						socialButton: self.backButton,
 						leftStickButton: self.leftStickButton,
 						trackPadButton: false,
@@ -229,7 +247,7 @@ class Xbox360Controller {
 						rightSideTopButton:false,
 						plusButton:false,
 						rightShoulderButton: self.rightShoulderButton,
-						rightTriggerButton: self.rightTrigger > 0 // TODO improve this with a getter
+						rightTriggerButton: self.rightTriggerButton
 					)
 				)
 			}
@@ -247,15 +265,13 @@ class Xbox360Controller {
 
 			self.previousLeftShoulderButton = self.leftShoulderButton
 			self.previousRightShoulderButton = self.rightShoulderButton
-			// TODO save and notify the triggers as digital readings for compatibility
-			//self.previousLeftTriggerButton = self.leftTriggerButton
-			//self.previousRightTriggerButton = self.rightTriggerButton
+			self.previousLeftTriggerButton = self.leftTriggerButton
+			self.previousRightTriggerButton = self.rightTriggerButton
 			self.previousLeftStickButton = self.leftStickButton
 			self.previousRightStickButton = self.rightStickButton
 
 			self.previousBackButton = self.backButton
 			self.previousStartButton = self.startButton
-
 			self.previousXboxButton = self.xboxButton
 
 		}
@@ -263,10 +279,10 @@ class Xbox360Controller {
 		// analog buttons
 		// origin left top
 
-		self.leftStickX = Int16(report[7]) << 8 | Int16(report[6]) // 0 left
-		self.leftStickY = Int16(report[9]) << 8 | Int16(report[8]) // 0 up
-		self.rightStickX = Int16(report[11]) << 8 | Int16(report[10])
-		self.rightStickY = Int16(report[13]) << 8 | Int16(report[12])
+		self.leftStickX  = UInt16(report[7])  << 8 | UInt16(report[6])
+		self.leftStickY  = UInt16(report[9])  << 8 | UInt16(report[8])
+		self.rightStickX = UInt16(report[11]) << 8 | UInt16(report[10])
+		self.rightStickY = UInt16(report[13]) << 8 | UInt16(report[12])
 
 		if self.previousLeftStickX != self.leftStickX
 			|| self.previousLeftStickY != self.leftStickY
@@ -284,8 +300,8 @@ class Xbox360Controller {
 						leftStickY: self.leftStickY,
 						rightStickX: self.rightStickX,
 						rightStickY: self.rightStickY,
-						leftTrigger: self.leftTrigger,
-						rightTrigger: self.rightTrigger
+						leftTrigger: UInt16(self.leftTrigger),
+						rightTrigger: UInt16(self.rightTrigger)
 					)
 				)
 			}

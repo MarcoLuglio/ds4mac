@@ -142,7 +142,7 @@ class GamepadHIDMonitor {
 		let transport = IOHIDDeviceGetProperty(device, kIOHIDTransportKey as CFString)
 
 		// not sure if I'll need this
-		// let reportInterval = IOHIDDeviceGetProperty(device, kIOHIDReportIntervalKey as CFString);
+		// let reportInterval = IOHIDDeviceGetProperty(device, kIOHIDReportIntervalKey as CFString)
 		// print(reportInterval!) // for DS4 11250 micro seconds or 11.25ms
 
 		print(locationID!) // TODO could be used as ID

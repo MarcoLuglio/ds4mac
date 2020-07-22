@@ -277,12 +277,13 @@ class Xbox360Controller {
 		}
 
 		// analog buttons
-		// origin left top
+		// origin middle
+		// but converting to origin left top for xbox one compatibility
 
-		self.leftStickX  = UInt16(report[7])  << 8 | UInt16(report[6])
-		self.leftStickY  = UInt16(report[9])  << 8 | UInt16(report[8])
-		self.rightStickX = UInt16(report[11]) << 8 | UInt16(report[10])
-		self.rightStickY = UInt16(report[13]) << 8 | UInt16(report[12])
+		self.leftStickX  = UInt16(  Int32(  (  Int16(report[7])  << 8 | Int16(report[6])   )  ) + 32768)
+		self.leftStickY  = UInt16(  Int32(  (  Int16(report[9])  << 8 | Int16(report[8])   )  ) + 32768)
+		self.rightStickX = UInt16(  Int32(  (  Int16(report[11]) << 8 | Int16(report[10])  )  ) + 32768)
+		self.rightStickY = UInt16(  Int32(  (  Int16(report[13]) << 8 | Int16(report[12])  )  ) + 32768)
 
 		if self.previousLeftStickX != self.leftStickX
 			|| self.previousLeftStickY != self.leftStickY
@@ -300,8 +301,10 @@ class Xbox360Controller {
 						leftStickY: self.leftStickY,
 						rightStickX: self.rightStickX,
 						rightStickY: self.rightStickY,
+						stickMax: UInt16.max,
 						leftTrigger: UInt16(self.leftTrigger),
-						rightTrigger: UInt16(self.rightTrigger)
+						rightTrigger: UInt16(self.rightTrigger),
+						triggerMax: UInt16(UInt8.max)
 					)
 				)
 			}
@@ -407,18 +410,18 @@ class Xbox360Controller {
 
 		for wireless version is. maybe I can try this
 
-		packet->data[0] = 0x00;
-		packet->data[1] = 0x01;
-		packet->data[2] = 0x0F;
-		packet->data[3] = 0xC0;
-		packet->data[4] = 0x00;
-		packet->data[5] = strong / 256;
-		packet->data[6] = weak / 256;
-		packet->data[7] = 0x00;
-		packet->data[8] = 0x00;
-		packet->data[9] = 0x00;
-		packet->data[10] = 0x00;
-		packet->data[11] = 0x00;
+		packet->data[0] = 0x00
+		packet->data[1] = 0x01
+		packet->data[2] = 0x0F
+		packet->data[3] = 0xC0
+		packet->data[4] = 0x00
+		packet->data[5] = strong / 256
+		packet->data[6] = weak / 256
+		packet->data[7] = 0x00
+		packet->data[8] = 0x00
+		packet->data[9] = 0x00
+		packet->data[10] = 0x00
+		packet->data[11] = 0x00
 
 
 		or maybe removing the first 2 bytes?
@@ -450,7 +453,7 @@ class Xbox360Controller {
 			0x00, // buffer[0], // Report ID
 			xbox360ControllerRumbleOutputReport,
 			xbox360ControllerRumbleOutputReportLength
-		);
+		)
 
 		if success == kIOReturnSuccess {
 			print("success")

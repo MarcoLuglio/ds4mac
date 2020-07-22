@@ -305,6 +305,7 @@ class XboxOneController {
 		self.viewButton = report[16] & 0b0000_0001 == 0b0000_0001
 
 		// triggers put here to enable digital reading of them
+		// Even though 2 bytes are reserved for the triggers, the report never has a value greater than 255
 		self.leftTrigger  = UInt16(report[10] << 8) | UInt16(report[9])
 		self.rightTrigger = UInt16(report[12] << 8) | UInt16(report[11])
 
@@ -400,8 +401,10 @@ class XboxOneController {
 						leftStickY: self.leftStickY,
 						rightStickX: self.rightStickX,
 						rightStickY: self.rightStickY,
+						stickMax: UInt16.max,
 						leftTrigger: self.leftTrigger,
-						rightTrigger: self.rightTrigger
+						rightTrigger: self.rightTrigger,
+						triggerMax: UInt16(UInt8.max)
 					)
 				)
 			}

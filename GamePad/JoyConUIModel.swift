@@ -54,6 +54,28 @@ class JoyConUIModel: ObservableObject {
 	var rightTriggerButton = false
 	var rightTrigger:Float = 0
 
+
+	var gyroPitchLeft:Int32 = 0
+	var gyroYawLeft:Int32 = 0
+	var gyroRollLeft:Int32 = 0
+
+	var accelXLeft:Int32 = 0
+	var accelYLeft:Int32 = 0
+	var accelZLeft:Int32 = 0
+
+	var gyroPitchRight:Int32 = 0
+	var gyroYawRight:Int32 = 0
+	var gyroRollRight:Int32 = 0
+
+	var accelXRight:Int32 = 0
+	var accelYRight:Int32 = 0
+	var accelZRight:Int32 = 0
+
+	var isConnected = false
+	var isCharging = false
+	var batteryLeft:Float = 0
+	var batteryRight:Float = 0
+
 	let objectWillChange = ObservableObjectPublisher()
 
 	init() {

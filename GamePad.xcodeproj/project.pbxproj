@@ -41,9 +41,7 @@
 		A9D72FAA248204080000A89F /* GamepadHIDMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9D72FA9248204080000A89F /* GamepadHIDMonitor.swift */; };
 		A9D72FAD2482046A0000A89F /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9D72FAC2482046A0000A89F /* IOKit.framework */; };
 		A9D72FAF248204FE0000A89F /* GameController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9D72FAE248204FE0000A89F /* GameController.framework */; };
-		A9D72FB1248205070000A89F /* ForceFeedback.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9D72FB0248205070000A89F /* ForceFeedback.framework */; };
 		A9E414F224C4006000FE6420 /* DualShock4Direction.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9E414F124C4006000FE6420 /* DualShock4Direction.swift */; };
-		A9EC025324C5F76C00A1A763 /* hid.c in Sources */ = {isa = PBXBuildFile; fileRef = A9EC025124C5F76C00A1A763 /* hid.c */; };
 		A9FBA15224BBC39F009B7CEE /* Coords2d.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9FBA15124BBC39F009B7CEE /* Coords2d.swift */; };
 /* End PBXBuildFile section */
 
@@ -106,11 +104,7 @@
 		A9D72FA9248204080000A89F /* GamepadHIDMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamepadHIDMonitor.swift; sourceTree = "<group>"; };
 		A9D72FAC2482046A0000A89F /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
 		A9D72FAE248204FE0000A89F /* GameController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameController.framework; path = System/Library/Frameworks/GameController.framework; sourceTree = SDKROOT; };
-		A9D72FB0248205070000A89F /* ForceFeedback.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ForceFeedback.framework; path = System/Library/Frameworks/ForceFeedback.framework; sourceTree = SDKROOT; };
 		A9E414F124C4006000FE6420 /* DualShock4Direction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DualShock4Direction.swift; sourceTree = "<group>"; };
-		A9EC025024C5F76C00A1A763 /* GamePad-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "GamePad-Bridging-Header.h"; sourceTree = "<group>"; };
-		A9EC025124C5F76C00A1A763 /* hid.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = hid.c; sourceTree = "<group>"; };
-		A9EC025224C5F76C00A1A763 /* hidapi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hidapi.h; sourceTree = "<group>"; };
 		A9FBA15124BBC39F009B7CEE /* Coords2d.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coords2d.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -122,7 +116,6 @@
 				A9D72FAF248204FE0000A89F /* GameController.framework in Frameworks */,
 				A97A418D249C6F3000250DB7 /* libz.tbd in Frameworks */,
 				A9D72FAD2482046A0000A89F /* IOKit.framework in Frameworks */,
-				A9D72FB1248205070000A89F /* ForceFeedback.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -198,7 +191,6 @@
 		A9D72F79248202350000A89F /* GamePad */ = {
 			isa = PBXGroup;
 			children = (
-				A9EC024F24C5F57B00A1A763 /* hidapi */,
 				A9888F9C24904BFF0084EA3C /* UI */,
 				A9D72F7A248202350000A89F /* AppDelegate.swift */,
 				A9D72F7E248202360000A89F /* Assets.xcassets */,
@@ -251,21 +243,10 @@
 			isa = PBXGroup;
 			children = (
 				A97A418C249C6F0700250DB7 /* libz.tbd */,
-				A9D72FB0248205070000A89F /* ForceFeedback.framework */,
 				A9D72FAE248204FE0000A89F /* GameController.framework */,
 				A9D72FAC2482046A0000A89F /* IOKit.framework */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		A9EC024F24C5F57B00A1A763 /* hidapi */ = {
-			isa = PBXGroup;
-			children = (
-				A9EC025124C5F76C00A1A763 /* hid.c */,
-				A9EC025224C5F76C00A1A763 /* hidapi.h */,
-				A9EC025024C5F76C00A1A763 /* GamePad-Bridging-Header.h */,
-			);
-			name = hidapi;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -407,7 +388,6 @@
 				A993A107249EB9E50059EADA /* JoyConChangeRumbleNotification.swift in Sources */,
 				A9C66D382494529C00DB799F /* DualShock4ChangeRumbleNotification.swift in Sources */,
 				A993A10A249ECE3A0059EADA /* JoyConDirection.swift in Sources */,
-				A9EC025324C5F76C00A1A763 /* hid.c in Sources */,
 				A917BFD824984D2C00992913 /* XboxSeriesXUIModel.swift in Sources */,
 				A9A27CBF249F12E000EFC9D5 /* JoyConUIModel.swift in Sources */,
 				A9879C1F248481C200AB4DE9 /* CRC32.swift in Sources */,
@@ -610,8 +590,10 @@
 				PRODUCT_BUNDLE_IDENTIFIER = marcodejulho.GamePad;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "GamePad/GamePad-Bridging-Header.h";
+				SWIFT_INSTALL_OBJC_HEADER = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_PRECOMPILE_BRIDGING_HEADER = YES;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -638,7 +620,9 @@
 				PRODUCT_BUNDLE_IDENTIFIER = marcodejulho.GamePad;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "GamePad/GamePad-Bridging-Header.h";
+				SWIFT_INSTALL_OBJC_HEADER = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_PRECOMPILE_BRIDGING_HEADER = YES;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;

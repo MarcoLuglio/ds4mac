@@ -16,154 +16,258 @@ struct XboxSeriesXTab: View {
 
 		VStack {
 
-			Group {
-				Button("Left heavy slow motor", action: rumbleLeft(intensity: 1))
-				Slider(value: $xboxSeriesX.leftTrigger, in: 0...255, step: 1)
-				Button(action: addItem) {
-					if self.xboxSeriesX.leftTriggerButton {
-						Text("Pressed")
-					} else {
-						Text("Left trigger")
+			Slider<Text, Text>(
+				value: $xboxSeriesX.battery,
+				in: 0...3,
+				step: 1,
+				onEditingChanged: {(someBool) in },
+				minimumValueLabel: Text("0"),
+				maximumValueLabel: Text("3"),
+				label: {() in
+					var batteryState = xboxSeriesX.isConnected ? "🔌" :"🔋"
+					if xboxSeriesX.isCharging {
+						batteryState += "⚡"
 					}
+					let label = Text("battery: \(batteryState)")
+					return label
 				}
-				Button(action: addItem) {
-					if self.xboxSeriesX.leftShoulderButton {
-						Text("Pressed")
-					} else {
-						Text("Left shoulder")
-					}
-				}
-			}
+			)
+			.frame(
+				minWidth: 150,
+				idealWidth: 220,
+				maxWidth: 250,
+				minHeight: 30,
+				idealHeight: 50,
+				maxHeight: 80,
+				alignment: Alignment.center
+			)
 
-			Group {
-				Button(action: addItem) {
-					if self.xboxSeriesX.upButton {
-						Text("Pressed")
-					} else {
-						Text("Up")
-					}
-				}
-				Button(action: addItem) {
-					if self.xboxSeriesX.rightButton {
-						Text("Pressed")
-					} else {
-						Text("Right")
-					}
-				}
-				Button(action: addItem) {
-					if self.xboxSeriesX.downButton {
-						Text("Pressed")
-					} else {
-						Text("Down")
-					}
-				}
-				Button(action: addItem) {
-					if self.xboxSeriesX.leftButton {
-						Text("Pressed")
-					} else {
-						Text("Left")
-					}
-				}
-			}
+			HStack {
 
-			Group {
+				// MARK: Xbox left
 
-				Button(action: addItem) {
-					if self.xboxSeriesX.backButton {
-						Text("Pressed")
-					} else {
-						Text("Back")
+				VStack {
+
+					Button("Left trigger motor", action: rumbleLeft(intensity: 255))
+
+					Slider(value: $xboxSeriesX.leftTrigger, in: 0...255, step: 1)
+						.frame(
+							minWidth: 100,
+							idealWidth: 170,
+							maxWidth: 200,
+							minHeight: 30,
+							idealHeight: 50,
+							maxHeight: 80,
+							alignment: Alignment.center
+						)
+
+					ZStack {
+
+						Path(
+							roundedRect: CGRect(x: 0, y: 0, width: 90, height: 30),
+							cornerRadius: 30
+						)
+						.foregroundColor(self.xboxSeriesX.leftShoulderButton ? Color.red : Color.white)
+						.frame(
+							minWidth: 90,
+							idealWidth: 90,
+							maxWidth: 90,
+							minHeight: 30,
+							idealHeight: 30,
+							maxHeight: 30,
+							alignment: Alignment.center
+						)
+
+						Text("LB").foregroundColor(Color.black)
+
 					}
+
+					Coords2d(
+						x:CGFloat(self.xboxSeriesX.leftStickX),
+						y:CGFloat(self.xboxSeriesX.leftStickY),
+						foregroundColor: self.xboxSeriesX.leftStickButton ? Color.red : Color.white
+					)
+					.frame(
+						minWidth: 100,
+						idealWidth: 100,
+						maxWidth: 100,
+						minHeight: 100,
+						idealHeight: 100,
+						maxHeight: 100,
+						alignment: Alignment(
+							horizontal: HorizontalAlignment.center,
+							vertical: VerticalAlignment.center
+						)
+					)
+					.clipShape(Circle())
+
+					Button(action: addItem) {
+						if self.xboxSeriesX.upButton {
+							Text("Pressed")
+						} else {
+							Text("Up")
+						}
+					}
+
+					HStack {
+
+						Button(action: addItem) {
+							if self.xboxSeriesX.leftButton {
+								Text("Pressed")
+							} else {
+								Text("Left")
+							}
+						}
+
+						Button(action: addItem) {
+							if self.xboxSeriesX.rightButton {
+								Text("Pressed")
+							} else {
+								Text("Right")
+							}
+						}
+
+					}
+
+					Button(action: addItem) {
+						if self.xboxSeriesX.downButton {
+							Text("Pressed")
+						} else {
+							Text("Down")
+						}
+					}
+
+					Button("Left heavy slow motor", action: rumbleLeft(intensity: 255))
+
 				}
 
-				Button(action: addItem) {
-					if self.xboxSeriesX.leftStickButton {
-						Text("Pressed")
-					} else {
-						Text("Left stick")
+				// MARK: Xbox center
+
+				Group {
+
+					Button(action: addItem) {
+						if self.xboxSeriesX.backButton {
+							Text("Pressed")
+						} else {
+							Text("Back / View")
+						}
 					}
-				}
-				Text("Left stick analog")
 
-			}
-
-			Button(action: addItem) {
-				if self.xboxSeriesX.xboxButton {
-					Text("Pressed")
-				} else {
-					Text("Xbox")
-				}
-			}
-
-			Group {
-
-				Text("Right stick analog")
-				Button(action: addItem) {
-					if self.xboxSeriesX.rightStickButton {
-						Text("Pressed")
-					} else {
-						Text("Right stick")
+					Button(action: addItem) {
+						if self.xboxSeriesX.xboxButton {
+							Text("Pressed")
+						} else {
+							Text("Xbox")
+						}
 					}
-				}
 
-				Button(action: addItem) {
-					if self.xboxSeriesX.startButton {
-						Text("Pressed")
-					} else {
-						Text("Start")
+					Button(action: addItem) {
+						if self.xboxSeriesX.startButton {
+							Text("Pressed")
+						} else {
+							Text("Start / Menu")
+						}
 					}
+
 				}
 
-			}
+				// MARK: Xbox right
 
-			Group {
-				Button(action: addItem) {
-					if self.xboxSeriesX.yButton {
-						Text("Pressed")
-					} else {
-						Text("Y")
-					}
-				}
-				Button(action: addItem) {
-					if self.xboxSeriesX.bButton {
-						Text("Pressed")
-					} else {
-						Text("B")
-					}
-				}
-				Button(action: addItem) {
-					if self.xboxSeriesX.aButton {
-						Text("Pressed")
-					} else {
-						Text("A")
-					}
-				}
-				Button(action: addItem) {
-					if self.xboxSeriesX.xButton {
-						Text("Pressed")
-					} else {
-						Text("X")
-					}
-				}
-			}
+				VStack {
 
-			Group {
-				Button(action: addItem) {
-					if self.xboxSeriesX.rightShoulderButton {
-						Text("Pressed")
-					} else {
-						Text("Right shoulder")
+					Button("Right trigger", action: rumbleRight(intensity: 1))
+
+					Slider(value: $xboxSeriesX.rightTrigger, in: 0...255, step: 1)
+						.frame(
+							minWidth: 100,
+							idealWidth: 170,
+							maxWidth: 200,
+							minHeight: 30,
+							idealHeight: 50,
+							maxHeight: 80,
+							alignment: Alignment.center
+						)
+
+					ZStack {
+
+						Path(
+							roundedRect: CGRect(x: 0, y: 0, width: 90, height: 30),
+							cornerRadius: 30
+						)
+						.foregroundColor(self.xboxSeriesX.rightShoulderButton ? Color.red : Color.white)
+						.frame(
+							minWidth: 90,
+							idealWidth: 90,
+							maxWidth: 90,
+							minHeight: 30,
+							idealHeight: 30,
+							maxHeight: 30,
+							alignment: Alignment.center
+						)
+
+						Text("RB").foregroundColor(Color.black)
+
 					}
-				}
-				Button(action: addItem) {
-					if self.xboxSeriesX.rightTriggerButton {
-						Text("Pressed")
-					} else {
-						Text("Right trigger")
+
+					Button(action: addItem) {
+						if self.xboxSeriesX.yButton {
+							Text("Pressed")
+						} else {
+							Text("Y")
+						}
 					}
+
+					HStack {
+
+						Button(action: addItem) {
+							if self.xboxSeriesX.xButton {
+								Text("Pressed")
+							} else {
+								Text("X")
+							}
+						}
+
+						Button(action: addItem) {
+							if self.xboxSeriesX.bButton {
+								Text("Pressed")
+							} else {
+								Text("B")
+							}
+						}
+
+					}
+
+					Button(action: addItem) {
+						if self.xboxSeriesX.aButton {
+							Text("Pressed")
+						} else {
+							Text("A")
+						}
+					}
+
+					Coords2d(
+						x:CGFloat(self.xboxSeriesX.rightStickX),
+						y:CGFloat(self.xboxSeriesX.rightStickY),
+						foregroundColor: self.xboxSeriesX.rightStickButton ? Color.red : Color.white
+					)
+					.frame(
+						minWidth: 100,
+						idealWidth: 100,
+						maxWidth: 100,
+						minHeight: 100,
+						idealHeight: 100,
+						maxHeight: 100,
+						alignment: Alignment(
+							horizontal: HorizontalAlignment.center,
+							vertical: VerticalAlignment.center
+						)
+					)
+					.clipShape(Circle())
+
+					Button("Right light fast motor", action: rumbleRight(intensity: 1))
+
 				}
-				Slider(value: $xboxSeriesX.rightTrigger, in: 0...255, step: 1)
-				Button("Right light fast motor", action: rumbleRight(intensity: 1))
+
 			}
 
 		}
@@ -223,46 +327,27 @@ struct DualShock4Tab: View {
 							alignment: Alignment.center
 						)
 
-					if self.dualShock4.leftShoulderButton {
-						ZStack {
-							Path(
-								roundedRect: CGRect(x: 0, y: -30, width: 70, height: 60),
-								cornerRadius: 30
-							)
-							.offsetBy(dx: 0, dy: -0.5)
-							.foregroundColor(Color.red)
-							.clipped()
-							.frame(
-								minWidth: 70,
-								idealWidth: 70,
-								maxWidth: 70,
-								minHeight: 30,
-								idealHeight: 30,
-								maxHeight: 30,
-								alignment: Alignment.center
-							)
-							Text("L1").foregroundColor(Color.black)
-						}
-					} else {
-						ZStack {
-							Path(
-								roundedRect: CGRect(x: 0, y: -30, width: 70, height: 60),
-								cornerRadius: 30
-							)
-							.offsetBy(dx: 0, dy: -0.5)
-							.foregroundColor(Color.white)
-							.clipped()
-							.frame(
-								minWidth: 70,
-								idealWidth: 70,
-								maxWidth: 70,
-								minHeight: 30,
-								idealHeight: 30,
-								maxHeight: 30,
-								alignment: Alignment.center
-							)
-							Text("L1").foregroundColor(Color.black)
-						}
+					ZStack {
+
+						Path(
+							roundedRect: CGRect(x: 0, y: -30, width: 70, height: 60),
+							cornerRadius: 30
+						)
+						.offsetBy(dx: 0, dy: -0.5)
+						.foregroundColor(self.dualShock4.leftShoulderButton ? Color.red : Color.white)
+						.clipped()
+						.frame(
+							minWidth: 70,
+							idealWidth: 70,
+							maxWidth: 70,
+							minHeight: 30,
+							idealHeight: 30,
+							maxHeight: 30,
+							alignment: Alignment.center
+						)
+
+						Text("L1").foregroundColor(Color.black)
+
 					}
 
 					Button(action: addItem) {
@@ -272,7 +357,9 @@ struct DualShock4Tab: View {
 							Text("Up")
 						}
 					}
+
 					HStack {
+
 						Button(action: addItem) {
 							if self.dualShock4.leftButton {
 								Text("Pressed")
@@ -280,6 +367,7 @@ struct DualShock4Tab: View {
 								Text("Left")
 							}
 						}
+
 						Button(action: addItem) {
 							if self.dualShock4.rightButton {
 								Text("Pressed")
@@ -287,7 +375,9 @@ struct DualShock4Tab: View {
 								Text("Right")
 							}
 						}
+
 					}
+
 					Button(action: addItem) {
 						if self.dualShock4.downButton {
 							Text("Pressed")
@@ -308,7 +398,9 @@ struct DualShock4Tab: View {
 					HStack {
 
 						VStack {
+
 							Text("SHARE").font(Font.system(size: 9))
+
 							if self.dualShock4.shareButton {
 								Path(
 									roundedRect: CGRect(x: 0, y: 0, width: 15, height: 30),
@@ -363,6 +455,7 @@ struct DualShock4Tab: View {
 								)
 
 							ZStack {
+
 								Coords2d(
 									x:CGFloat(self.dualShock4.touchpadTouch0X),
 									y:CGFloat(self.dualShock4.touchpadTouch0Y),
@@ -398,12 +491,15 @@ struct DualShock4Tab: View {
 										vertical: VerticalAlignment.center
 									)
 								)
+
 							}
 
 						}
 
 						VStack {
+
 							Text("OPTIONS").font(Font.system(size: 9))
+
 							if self.dualShock4.optionsButton {
 								Path(
 									roundedRect: CGRect(x: 0, y: 0, width: 15, height: 30),
@@ -435,94 +531,69 @@ struct DualShock4Tab: View {
 									alignment: Alignment.top
 								)
 							}
+
 						}
 
 					}
 
 					HStack {
 
-						VStack {
+						Coords2d(
+							x:CGFloat(self.dualShock4.leftStickX),
+							y:CGFloat(self.dualShock4.leftStickY),
+							foregroundColor: self.dualShock4.leftStickButton ? Color.red : Color.white
+						)
+						.frame(
+							minWidth: 100,
+							idealWidth: 100,
+							maxWidth: 100,
+							minHeight: 100,
+							idealHeight: 100,
+							maxHeight: 100,
+							alignment: Alignment(
+								horizontal: HorizontalAlignment.center,
+								vertical: VerticalAlignment.center
+							)
+						)
+						.clipShape(Circle())
+						/*.overlay(
+							Circle().stroke(Color.gray, lineWidth: 4))*/
 
-							// TODO get the trackpad touches
-							Coords2d(
-								x:CGFloat(self.dualShock4.leftStickX),
-								y:CGFloat(self.dualShock4.leftStickY),
-								foregroundColor: self.dualShock4.leftStickButton ? Color.red : Color.white
-							)
-							.frame(
-								minWidth: 100,
-								idealWidth: 100,
-								maxWidth: 100,
-								minHeight: 100,
-								idealHeight: 100,
-								maxHeight: 100,
-								alignment: Alignment(
-									horizontal: HorizontalAlignment.center,
-									vertical: VerticalAlignment.center
-								)
-							)
-							.clipShape(Circle())
-							/*.overlay(
-								Circle().stroke(Color.gray, lineWidth: 4))*/
+						Path(
+							roundedRect: CGRect(x: 0, y: 0, width: 22, height: 22),
+							cornerRadius: 11
+						)
+						.foregroundColor(self.dualShock4.psButton ? Color.red : Color.white)
+						.frame(
+							minWidth: 22,
+							idealWidth: 22,
+							maxWidth: 22,
+							minHeight: 22,
+							idealHeight: 22,
+							maxHeight: 22,
+							alignment: Alignment.center
+						)
 
-						}
-
-						if self.dualShock4.psButton {
-							Path(
-								roundedRect: CGRect(x: 0, y: 0, width: 22, height: 22),
-								cornerRadius: 11
+						Coords2d(
+							x:CGFloat(self.dualShock4.rightStickX),
+							y:CGFloat(self.dualShock4.rightStickY),
+							foregroundColor: self.dualShock4.rightStickButton ? Color.red : Color.white
+						)
+						.frame(
+							minWidth: 100,
+							idealWidth: 100,
+							maxWidth: 100,
+							minHeight: 100,
+							idealHeight: 100,
+							maxHeight: 100,
+							alignment: Alignment(
+								horizontal: HorizontalAlignment.center,
+								vertical: VerticalAlignment.center
 							)
-							.foregroundColor(Color.red)
-							.frame(
-								minWidth: 22,
-								idealWidth: 22,
-								maxWidth: 22,
-								minHeight: 22,
-								idealHeight: 22,
-								maxHeight: 22,
-								alignment: Alignment.center
-							)
-						} else {
-							Path(
-								roundedRect: CGRect(x: 0, y: 0, width: 22, height: 22),
-								cornerRadius: 11
-							)
-							.foregroundColor(Color.white)
-							.frame(
-								minWidth: 22,
-								idealWidth: 22,
-								maxWidth: 22,
-								minHeight: 22,
-								idealHeight: 22,
-								maxHeight: 22,
-								alignment: Alignment.center
-							)
-						}
-
-						VStack {
-
-							Coords2d(
-								x:CGFloat(self.dualShock4.rightStickX),
-								y:CGFloat(self.dualShock4.rightStickY),
-								foregroundColor: self.dualShock4.rightStickButton ? Color.red : Color.white
-							)
-							.frame(
-								minWidth: 100,
-								idealWidth: 100,
-								maxWidth: 100,
-								minHeight: 100,
-								idealHeight: 100,
-								maxHeight: 100,
-								alignment: Alignment(
-									horizontal: HorizontalAlignment.center,
-									vertical: VerticalAlignment.center
-								)
-							)
-							.clipShape(Circle())
-							/*.overlay(
-								Circle().stroke(Color.gray, lineWidth: 4))*/
-
-						}
+						)
+						.clipShape(Circle())
+						/*.overlay(
+							Circle().stroke(Color.gray, lineWidth: 4))*/
 
 					}
 
@@ -543,46 +614,27 @@ struct DualShock4Tab: View {
 							alignment: Alignment.center
 						)
 
-					if self.dualShock4.rightShoulderButton {
-						ZStack {
-							Path(
-								roundedRect: CGRect(x: 0, y: -30, width: 70, height: 60),
-								cornerRadius: 30
-							)
-							.offsetBy(dx: 0, dy: -0.5)
-							.foregroundColor(Color.red)
-							.clipped()
-							.frame(
-								minWidth: 70,
-								idealWidth: 70,
-								maxWidth: 70,
-								minHeight: 30,
-								idealHeight: 30,
-								maxHeight: 30,
-								alignment: Alignment.center
-							)
-							Text("R1").foregroundColor(Color.black)
-						}
-					} else {
-						ZStack {
-							Path(
-								roundedRect: CGRect(x: 0, y: -30, width: 70, height: 60),
-								cornerRadius: 30
-							)
-							.offsetBy(dx: 0, dy: -0.5)
-							.foregroundColor(Color.white)
-							.clipped()
-							.frame(
-								minWidth: 70,
-								idealWidth: 70,
-								maxWidth: 70,
-								minHeight: 30,
-								idealHeight: 30,
-								maxHeight: 30,
-								alignment: Alignment.center
-							)
-							Text("R1").foregroundColor(Color.black)
-						}
+					ZStack {
+
+						Path(
+							roundedRect: CGRect(x: 0, y: -30, width: 70, height: 60),
+							cornerRadius: 30
+						)
+						.offsetBy(dx: 0, dy: -0.5)
+						.foregroundColor(self.dualShock4.rightShoulderButton ? Color.red : Color.white)
+						.clipped()
+						.frame(
+							minWidth: 70,
+							idealWidth: 70,
+							maxWidth: 70,
+							minHeight: 30,
+							idealHeight: 30,
+							maxHeight: 30,
+							alignment: Alignment.center
+						)
+
+						Text("R1").foregroundColor(Color.black)
+
 					}
 
 					if self.dualShock4.triangleButton {
@@ -592,6 +644,7 @@ struct DualShock4Tab: View {
 					}
 
 					HStack {
+
 						Button(action: addItem) {
 							if self.dualShock4.squareButton {
 								Text("Pressed")
@@ -599,6 +652,7 @@ struct DualShock4Tab: View {
 								Text("Square")
 							}
 						}
+
 						Button(action: addItem) {
 							if self.dualShock4.circleButton {
 								Text("Pressed")
@@ -606,7 +660,9 @@ struct DualShock4Tab: View {
 								Text("Circle")
 							}
 						}
+
 					}
+
 					Button(action: addItem) {
 						if self.dualShock4.crossButton {
 							Text("Pressed")
@@ -651,187 +707,432 @@ struct JoyConTab: View {
 
 	var body: some View {
 
-		VStack {
+		HStack {
 
-			Group {
-				//Button("Left motor", action: rumbleLeft(intensity: 1))
-				Button(action: addItem) {
-					if self.joyCon.leftTriggerButton {
-						Text("Pressed")
-					} else {
-						Text("Left trigger")
+			// MARK: JoyCon left
+			VStack {
+
+				Slider<Text, Text>(
+					value: $joyCon.batteryLeft,
+					in: 0...3,
+					step: 1,
+					onEditingChanged: {(someBool) in },
+					minimumValueLabel: Text("0"),
+					maximumValueLabel: Text("3"),
+					label: {() in
+						var batteryState = joyCon.isConnected ? "🔌" :"🔋"
+						if joyCon.isCharging {
+							batteryState += "⚡"
+						}
+						let label = Text("battery: \(batteryState)")
+						return label
 					}
-				}
-				Button(action: addItem) {
-					if self.joyCon.leftShoulderButton {
-						Text("Pressed")
-					} else {
-						Text("Left shoulder")
+				)
+				.frame(
+					minWidth: 150,
+					idealWidth: 220,
+					maxWidth: 250,
+					minHeight: 30,
+					idealHeight: 50,
+					maxHeight: 80,
+					alignment: Alignment.center
+				)
+
+				Group {
+
+					//Button("Left motor", action: rumbleLeft(intensity: 1))
+
+					ZStack {
+
+						Path(
+							roundedRect: CGRect(x: 0, y: 0, width: 70, height: 60),
+							cornerRadius: 30
+						)
+						.offsetBy(dx: 0, dy: 0.5)
+						.foregroundColor(self.joyCon.leftTriggerButton ? Color.red : Color.white)
+						.clipped()
+						.frame(
+							minWidth: 70,
+							idealWidth: 70,
+							maxWidth: 70,
+							minHeight: 30,
+							idealHeight: 30,
+							maxHeight: 30,
+							alignment: Alignment.center
+						)
+
+						Text("ZL").foregroundColor(Color.black)
+
 					}
-				}
-				Button(action: addItem) {
-					if self.joyCon.minusButton {
-						Text("Pressed")
-					} else {
-						Text("-")
+
+					ZStack {
+
+						Path(
+							roundedRect: CGRect(x: 0, y: 0, width: 90, height: 15),
+							cornerRadius: 15
+						)
+						.foregroundColor(self.joyCon.leftShoulderButton ? Color.red : Color.white)
+						.frame(
+							minWidth: 90,
+							idealWidth: 90,
+							maxWidth: 90,
+							minHeight: 15,
+							idealHeight: 15,
+							maxHeight: 15,
+							alignment: Alignment.center
+						)
+
+						Text("L").foregroundColor(Color.black)
+
 					}
+
+					Button(action: addItem) {
+						if self.joyCon.minusButton {
+							Text("Pressed")
+						} else {
+							Text("-")
+						}
+					}
+
 				}
+
+				HStack {
+
+					Coords2d(
+						x:CGFloat(self.joyCon.leftStickX),
+						y:CGFloat(self.joyCon.leftStickY),
+						foregroundColor: self.joyCon.leftStickButton ? Color.red : Color.white
+					)
+					.frame(
+						minWidth: 100,
+						idealWidth: 100,
+						maxWidth: 100,
+						minHeight: 100,
+						idealHeight: 100,
+						maxHeight: 100,
+						alignment: Alignment(
+							horizontal: HorizontalAlignment.center,
+							vertical: VerticalAlignment.center
+						)
+					)
+					.clipShape(Circle())
+
+					ZStack {
+
+						Path(CGRect(x: 0, y: 0, width: 15, height: 30))
+							.foregroundColor(self.joyCon.leftSideTopButton ? Color.red : Color.white)
+							.frame(
+								minWidth: 15,
+								idealWidth: 15,
+								maxWidth: 15,
+								minHeight: 30,
+								idealHeight: 30,
+								maxHeight: 30,
+								alignment: Alignment.center
+							)
+
+						Text("SL")
+							.foregroundColor(Color.black)
+							.rotationEffect(Angle(degrees: 90))
+
+					}
+
+				}
+
+				VStack {
+
+					Button(action: addItem) {
+						if self.joyCon.upButton {
+							Text("Pressed")
+						} else {
+							Text("Up")
+						}
+					}
+
+					HStack {
+
+						Button(action: addItem) {
+							if self.joyCon.leftButton {
+								Text("Pressed")
+							} else {
+								Text("Left")
+							}
+						}
+
+						Button(action: addItem) {
+							if self.joyCon.rightButton {
+								Text("Pressed")
+							} else {
+								Text("Right")
+							}
+						}
+
+					}
+
+					Button(action: addItem) {
+						if self.joyCon.downButton {
+							Text("Pressed")
+						} else {
+							Text("Down")
+						}
+					}
+
+				}
+
+				HStack {
+
+					Button(action: addItem) {
+						if self.joyCon.captureButton {
+							Text("Pressed")
+						} else {
+							Text("Capture")
+						}
+					}
+
+					ZStack {
+
+						Path(CGRect(x: 0, y: 0, width: 15, height: 30))
+							.foregroundColor(self.joyCon.leftSideBottomButton ? Color.red : Color.white)
+							.frame(
+								minWidth: 15,
+								idealWidth: 15,
+								maxWidth: 15,
+								minHeight: 30,
+								idealHeight: 30,
+								maxHeight: 30,
+								alignment: Alignment.center
+							)
+
+						Text("SR")
+							.foregroundColor(Color.black)
+							.rotationEffect(Angle(degrees: 90))
+
+					}
+
+				}
+
+				VStack {
+					Text("Gyro pitch: \(self.joyCon.gyroPitchLeft)").frame(width: 150, height: 30, alignment: Alignment.leading)
+					Text("Gyro yaw:  \(self.joyCon.gyroYawLeft)").frame(width: 150, height: 30, alignment: Alignment.leading)
+					Text("Gyro roll:  \(self.joyCon.gyroRollLeft)").frame(width: 150, height: 30, alignment: Alignment.leading)
+					Text("Accel x:  \(self.joyCon.accelXLeft)").frame(width: 150, height: 30, alignment: Alignment.leading)
+					Text("Accel y:  \(self.joyCon.accelYLeft)").frame(width: 150, height: 30, alignment: Alignment.leading)
+					Text("Accel z:  \(self.joyCon.accelZLeft)").frame(width: 150, height: 30, alignment: Alignment.leading)
+				}
+
 			}
 
-			Group {
+			// MARK: JoyCon right
+			VStack{
 
-				Button(action: addItem) {
-					if self.joyCon.leftStickButton {
-						Text("Pressed")
-					} else {
-						Text("Left stick")
+				Slider<Text, Text>(
+					value: $joyCon.batteryRight,
+					in: 0...3,
+					step: 1,
+					onEditingChanged: {(someBool) in },
+					minimumValueLabel: Text("0"),
+					maximumValueLabel: Text("3"),
+					label: {() in
+						var batteryState = joyCon.isConnected ? "🔌" :"🔋"
+						if joyCon.isCharging {
+							batteryState += "⚡"
+						}
+						let label = Text("battery: \(batteryState)")
+						return label
 					}
-				}
-				Text("Left stick analog")
-				Button(action: addItem) {
-					if self.joyCon.leftSideTopButton {
-						Text("Pressed")
-					} else {
-						Text("Left side top")
-					}
-				}
+				)
+				.frame(
+					minWidth: 150,
+					idealWidth: 220,
+					maxWidth: 250,
+					minHeight: 30,
+					idealHeight: 50,
+					maxHeight: 80,
+					alignment: Alignment.center
+				)
 
-			}
+				Group {
 
-			Group {
-				Button(action: addItem) {
-					if self.joyCon.upButton {
-						Text("Pressed")
-					} else {
-						Text("Up")
-					}
-				}
-				Button(action: addItem) {
-					if self.joyCon.rightButton {
-						Text("Pressed")
-					} else {
-						Text("Right")
-					}
-				}
-				Button(action: addItem) {
-					if self.joyCon.downButton {
-						Text("Pressed")
-					} else {
-						Text("Down")
-					}
-				}
-				Button(action: addItem) {
-					if self.joyCon.leftButton {
-						Text("Pressed")
-					} else {
-						Text("Left")
-					}
-				}
-			}
+					ZStack {
 
-			Group {
+						Path(
+							roundedRect: CGRect(x: 0, y: 0, width: 70, height: 60),
+							cornerRadius: 30
+						)
+						.offsetBy(dx: 0, dy: 0.5)
+							.foregroundColor(self.joyCon.rightTriggerButton ? Color.red : Color.white)
+						.clipped()
+						.frame(
+							minWidth: 70,
+							idealWidth: 70,
+							maxWidth: 70,
+							minHeight: 30,
+							idealHeight: 30,
+							maxHeight: 30,
+							alignment: Alignment.center
+						)
 
-				Button(action: addItem) {
-					if self.joyCon.captureButton {
-						Text("Pressed")
-					} else {
-						Text("Capture")
+						Text("ZR").foregroundColor(Color.black)
+
 					}
-				}
 
-				Button(action: addItem) {
-					if self.joyCon.leftSideBottomButton {
-						Text("Pressed")
-					} else {
-						Text("Left side bottom")
+					ZStack {
+
+						Path(
+							roundedRect: CGRect(x: 0, y: 0, width: 90, height: 15),
+							cornerRadius: 15
+						)
+						.foregroundColor(self.joyCon.rightShoulderButton ? Color.red : Color.white)
+						.frame(
+							minWidth: 90,
+							idealWidth: 90,
+							maxWidth: 90,
+							minHeight: 15,
+							idealHeight: 15,
+							maxHeight: 15,
+							alignment: Alignment.center
+						)
+
+						Text("R").foregroundColor(Color.black)
+
 					}
-				}
 
-				Button(action: addItem) {
-					if self.joyCon.rightSideBottomButton {
-						Text("Pressed")
-					} else {
-						Text("Right side bottom")
+					Button(action: addItem) {
+						if self.joyCon.plusButton {
+							Text("Pressed")
+						} else {
+							Text("+")
+						}
 					}
-				}
 
-				Button(action: addItem) {
-					if self.joyCon.homeButton {
-						Text("Pressed")
-					} else {
-						Text("Home")
-					}
-				}
+					//Button("Right light fast motor", action: rumbleRight(intensity: 1))
 
-			}
-
-			Group {
-
-				Text("Right stick analog")
-				Button(action: addItem) {
-					if self.joyCon.rightStickButton {
-						Text("Pressed")
-					} else {
-						Text("Right stick")
-					}
 				}
 
-			}
+				HStack {
 
-			Group {
-				Button(action: addItem) {
-					if self.joyCon.xButton {
-						Text("Pressed")
-					} else {
-						Text("X")
-					}
-				}
-				Button(action: addItem) {
-					if self.joyCon.aButton {
-						Text("Pressed")
-					} else {
-						Text("A")
-					}
-				}
-				Button(action: addItem) {
-					if self.joyCon.bButton {
-						Text("Pressed")
-					} else {
-						Text("B")
-					}
-				}
-				Button(action: addItem) {
-					if self.joyCon.yButton {
-						Text("Pressed")
-					} else {
-						Text("Y")
-					}
-				}
-			}
+					ZStack {
 
-			Group {
-				Button(action: addItem) {
-					if self.joyCon.plusButton {
-						Text("Pressed")
-					} else {
-						Text("+")
+						Path(CGRect(x: 0, y: 0, width: 15, height: 30))
+							.foregroundColor(self.joyCon.rightSideTopButton ? Color.red : Color.white)
+							.frame(
+								minWidth: 15,
+								idealWidth: 15,
+								maxWidth: 15,
+								minHeight: 30,
+								idealHeight: 30,
+								maxHeight: 30,
+								alignment: Alignment.center
+							)
+
+						Text("SR")
+							.foregroundColor(Color.black)
+							.rotationEffect(Angle(degrees: -90))
+
 					}
-				}
-				Button(action: addItem) {
-					if self.joyCon.rightShoulderButton {
-						Text("Pressed")
-					} else {
-						Text("Right shoulder")
+
+					VStack {
+
+						Button(action: addItem) {
+							if self.joyCon.xButton {
+								Text("Pressed")
+							} else {
+								Text("X")
+							}
+						}
+
+						HStack {
+
+							Button(action: addItem) {
+								if self.joyCon.yButton {
+									Text("Pressed")
+								} else {
+									Text("Y")
+								}
+							}
+
+							Button(action: addItem) {
+								if self.joyCon.aButton {
+									Text("Pressed")
+								} else {
+									Text("A")
+								}
+							}
+
+						}
+
+						Button(action: addItem) {
+							if self.joyCon.bButton {
+								Text("Pressed")
+							} else {
+								Text("B")
+							}
+						}
+
 					}
+
 				}
-				Button(action: addItem) {
-					if self.joyCon.rightTriggerButton {
-						Text("Pressed")
-					} else {
-						Text("Right trigger")
+
+				Coords2d(
+					x:CGFloat(self.joyCon.rightStickX),
+					y:CGFloat(self.joyCon.rightStickY),
+					foregroundColor: self.joyCon.rightStickButton ? Color.red : Color.white
+				)
+				.frame(
+					minWidth: 100,
+					idealWidth: 100,
+					maxWidth: 100,
+					minHeight: 100,
+					idealHeight: 100,
+					maxHeight: 100,
+					alignment: Alignment(
+						horizontal: HorizontalAlignment.center,
+						vertical: VerticalAlignment.center
+					)
+				)
+				.clipShape(Circle())
+
+				HStack {
+
+					ZStack {
+
+						Path(CGRect(x: 0, y: 0, width: 15, height: 30))
+							.foregroundColor(self.joyCon.rightSideBottomButton ? Color.red : Color.white)
+							.frame(
+								minWidth: 15,
+								idealWidth: 15,
+								maxWidth: 15,
+								minHeight: 30,
+								idealHeight: 30,
+								maxHeight: 30,
+								alignment: Alignment.center
+							)
+
+						Text("SL")
+							.foregroundColor(Color.black)
+							.rotationEffect(Angle(degrees: -90))
+
 					}
+
+					Button(action: addItem) {
+						if self.joyCon.homeButton {
+							Text("Pressed")
+						} else {
+							Text("Home")
+						}
+					}
+
 				}
-				//Button("Right light fast motor", action: rumbleRight(intensity: 1))
+
+				VStack {
+					Text("Gyro pitch: \(self.joyCon.gyroPitchRight)").frame(width: 150, height: 30, alignment: Alignment.leading)
+					Text("Gyro yaw:  \(self.joyCon.gyroYawRight)").frame(width: 150, height: 30, alignment: Alignment.leading)
+					Text("Gyro roll:  \(self.joyCon.gyroRollRight)").frame(width: 150, height: 30, alignment: Alignment.leading)
+					Text("Accel x:  \(self.joyCon.accelXRight)").frame(width: 150, height: 30, alignment: Alignment.leading)
+					Text("Accel y:  \(self.joyCon.accelYRight)").frame(width: 150, height: 30, alignment: Alignment.leading)
+					Text("Accel z:  \(self.joyCon.accelZRight)").frame(width: 150, height: 30, alignment: Alignment.leading)
+				}
+
 			}
 
 		}
@@ -850,13 +1151,13 @@ struct ContentView: View {
 				.tabItem {
 					Text("Joy-Con")
 				}
-			DualShock4Tab()
-				.tabItem {
-					Text("DualShock 4")
-				}
 			XboxSeriesXTab()
 				.tabItem {
 					Text("Xbox")
+				}
+			DualShock4Tab()
+				.tabItem {
+					Text("DualShock 4")
 				}
 		}
 

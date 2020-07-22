@@ -396,8 +396,10 @@ class DualShock4Controller {
 						leftStickY: UInt16(self.leftStickY),
 						rightStickX: UInt16(self.rightStickX),
 						rightStickY: UInt16(self.rightStickY),
+						stickMax: UInt16(UInt8.max),
 						leftTrigger: UInt16(self.leftTrigger),
-						rightTrigger: UInt16(self.rightTrigger)
+						rightTrigger: UInt16(self.rightTrigger),
+						triggerMax: UInt16(UInt8.max)
 					)
 				)
 			}
@@ -553,7 +555,7 @@ class DualShock4Controller {
 			//&& self.accelY < 50_000
 		{
 			self.previousAccelY = self.accelY
-			print(self.previousAccelY)
+			//print(self.previousAccelY) // PAREI AQUI
 		}
 
 		/*self.applyCalibration(

@@ -46,6 +46,12 @@ class XboxSeriesXUIModel: ObservableObject {
 	var rightTriggerButton = false
 	var rightTrigger:Float = 0
 
+	// TODO LED here
+
+	var isConnected = false
+	var isCharging = false
+	var battery:Float = 0
+
 	let objectWillChange = ObservableObjectPublisher()
 
 	init() {
@@ -63,6 +69,22 @@ class XboxSeriesXUIModel: ObservableObject {
 				self,
 				selector: #selector(self.updateAnalog),
 				name: GamepadAnalogChangedNotification.Name,
+				object: nil
+			)
+
+		/*NotificationCenter.default
+			.addObserver(
+				self,
+				selector: #selector(self.updateLed),
+				name: Xbox360ChangeLedNotification.Name,
+				object: nil
+			)*/
+
+		NotificationCenter.default
+			.addObserver(
+				self,
+				selector: #selector(self.updateBattery),
+				name: GamepadBatteryChangedNotification.Name,
 				object: nil
 			)
 
@@ -98,15 +120,43 @@ class XboxSeriesXUIModel: ObservableObject {
 
 		let o = notification.object as! GamepadAnalogChangedNotification
 
-		self.leftTrigger = Float(o.leftTrigger)
+		self.leftTrigger = Float32(o.leftTrigger) * 256 / Float32(o.triggerMax)
 
-		self.leftStickX = Float(o.leftStickX)
-		self.leftStickY = Float(o.leftStickY)
+		// scales values to fit the Coords2d size
 
-		self.rightStickX = Float(o.rightStickX)
-		self.rightStickY = Float(o.rightStickY)
+		let coords2dSize:Float64 = 40
+		let stickMiddleValue = (Int32(o.stickMax) / 2) + 1
 
-		self.rightTrigger = Float(o.rightTrigger)
+		self.leftStickX = Float32(Float64(Int32(o.leftStickX) - stickMiddleValue) * coords2dSize / Float64(stickMiddleValue))
+		self.leftStickY = Float32(Float64(Int32(o.leftStickY) - stickMiddleValue) * coords2dSize / Float64(stickMiddleValue))
+		self.rightStickX = Float32(Float64(Int32(o.rightStickX) - stickMiddleValue) * coords2dSize / Float64(stickMiddleValue))
+		self.rightStickY = Float32(Float64(Int32(o.rightStickY) - stickMiddleValue) * coords2dSize / Float64(stickMiddleValue))
+
+		self.rightTrigger = Float32(o.rightTrigger) * 256 / Float32(o.triggerMax)
+
+		objectWillChange.send()
+
+	}
+
+	/*
+	@objc func updateLed(_ notification:Notification) {
+
+		let o = notification.object as! Xbox360ChangeLedNotification
+
+		self.red = Double(o.red) // pattern here
+
+		objectWillChange.send()
+
+	}
+	*/
+
+	@objc func updateBattery(_ notification:Notification) {
+
+		let o = notification.object as! GamepadBatteryChangedNotification
+
+		self.battery = Float(o.battery)
+		self.isConnected = o.isConnected
+		self.isCharging = o.isCharging
 
 		objectWillChange.send()
 

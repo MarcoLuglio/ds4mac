@@ -157,19 +157,21 @@ class DualShock4UIModel: ObservableObject {
 
 		let o = notification.object as! GamepadAnalogChangedNotification
 
-		self.leftTrigger = Float(o.leftTrigger)
+		self.leftTrigger = Float32(o.leftTrigger) * 256 / Float32(o.triggerMax)
+
+		print(o.leftTrigger)
 
 		// scales values to fit the Coords2d size
 
-		let coords2dSize:Float = 40;
+		let coords2dSize:Float64 = 40
+		let stickMiddleValue = (Int32(o.stickMax) / 2) + 1
 
-		self.leftStickX = Float(o.leftStickX - 128) * coords2dSize / 128
-		self.leftStickY = Float(o.leftStickY - 128) * coords2dSize / 128
+		self.leftStickX = Float32(Float64(Int32(o.leftStickX) - stickMiddleValue) * coords2dSize / Float64(stickMiddleValue))
+		self.leftStickY = Float32(Float64(Int32(o.leftStickY) - stickMiddleValue) * coords2dSize / Float64(stickMiddleValue))
+		self.rightStickX = Float32(Float64(Int32(o.rightStickX) - stickMiddleValue) * coords2dSize / Float64(stickMiddleValue))
+		self.rightStickY = Float32(Float64(Int32(o.rightStickY) - stickMiddleValue) * coords2dSize / Float64(stickMiddleValue))
 
-		self.rightStickX = Float(o.rightStickX - 128) * coords2dSize / 128
-		self.rightStickY = Float(o.rightStickY - 128) * coords2dSize / 128
-
-		self.rightTrigger = Float(o.rightTrigger)
+		self.rightTrigger = Float32(o.rightTrigger) * 256 / Float32(o.triggerMax)
 
 		objectWillChange.send()
 

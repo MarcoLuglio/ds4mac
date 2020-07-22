@@ -90,6 +90,7 @@ class DualShock4Controller {
 
 	var shareButton = false
 	var previousShareButton = false
+	
 	var optionsButton = false
 	var previousOptionsButton = false
 
@@ -271,6 +272,8 @@ class DualShock4Controller {
 
 		let bluetoothOffset = self.isBluetooth ? 2 : 0
 
+		// MARK: digital buttons
+
 		self.mainButtons = report[5 + bluetoothOffset]
 
 		self.triangleButton = self.mainButtons & 0b10000000 == 0b10000000
@@ -293,7 +296,8 @@ class DualShock4Controller {
 		self.shareButton   = self.secondaryButtons & 0b00010000 == 0b00010000
 		self.optionsButton = self.secondaryButtons & 0b00100000 == 0b00100000
 
-		self.psButton = report[7 + bluetoothOffset] & 0b00000001 == 0b00000001
+		self.psButton =       report[7 + bluetoothOffset] & 0b00000001 == 0b00000001
+		self.touchpadButton = report[7 + bluetoothOffset] & 0b00000010 == 0b00000010
 
 		self.reportIterator = report[7 + bluetoothOffset] >> 2 // [7] 	Counter (counts up by 1 per report), I guess this is only relevant to bluetooth
 
@@ -312,10 +316,10 @@ class DualShock4Controller {
 						minusButton:false,
 						leftSideTopButton:false,
 						leftSideBottomButton:false,
-						upButton: (self.directionalPad == 0 || self.directionalPad == 1 || self.directionalPad == 7),
-						rightButton: (self.directionalPad == 2 || self.directionalPad == 1 || self.directionalPad == 3),
-						downButton: (self.directionalPad == 4 || self.directionalPad == 3 || self.directionalPad == 5),
-						leftButton: (self.directionalPad == 6 || self.directionalPad == 5 || self.directionalPad == 7),
+						upButton: (self.directionalPad == DualShock4Direction.up.rawValue || self.directionalPad == DualShock4Direction.rightUp.rawValue || self.directionalPad == DualShock4Direction.leftUp.rawValue),
+						rightButton: (self.directionalPad == DualShock4Direction.right.rawValue || self.directionalPad == DualShock4Direction.rightUp.rawValue || self.directionalPad == DualShock4Direction.rightDown.rawValue),
+						downButton: (self.directionalPad == DualShock4Direction.down.rawValue || self.directionalPad == DualShock4Direction.rightDown.rawValue || self.directionalPad == DualShock4Direction.leftDown.rawValue),
+						leftButton: (self.directionalPad == DualShock4Direction.left.rawValue || self.directionalPad == DualShock4Direction.leftUp.rawValue || self.directionalPad == DualShock4Direction.leftDown.rawValue),
 						socialButton: self.shareButton,
 						leftStickButton: self.l3,
 						trackPadButton: self.touchpadButton,
@@ -361,17 +365,19 @@ class DualShock4Controller {
 
 		}
 
+		// If the report with inertial motion unit (imu) data has not been enabled yet
+		// TODO check this and the trigger data below. also, the trackpad button is read before that
 		if report.count < 11 {
 			return
 		}
 
-		// analog buttons
+		// MARK: analog buttons
 		// origin left top
-		self.leftStickX = report[1 + bluetoothOffset] // 0 left
-		self.leftStickY = report[2 + bluetoothOffset] // 0 up
-		self.rightStickX = report[3 + bluetoothOffset]
-		self.rightStickY = report[4 + bluetoothOffset]
-		self.leftTrigger = report[8 + bluetoothOffset] // 0 - 255
+		self.leftStickX   = report[1 + bluetoothOffset] // 0 left
+		self.leftStickY   = report[2 + bluetoothOffset] // 0 up
+		self.rightStickX  = report[3 + bluetoothOffset]
+		self.rightStickY  = report[4 + bluetoothOffset]
+		self.leftTrigger  = report[8 + bluetoothOffset] // 0 - 255
 		self.rightTrigger = report[9 + bluetoothOffset] // 0 - 255
 
 		if self.previousLeftStickX != self.leftStickX
@@ -386,12 +392,12 @@ class DualShock4Controller {
 				NotificationCenter.default.post(
 					name: GamepadAnalogChangedNotification.Name,
 					object: GamepadAnalogChangedNotification(
-						leftStickX: Int16(self.leftStickX),
-						leftStickY: Int16(self.leftStickY),
-						rightStickX: Int16(self.rightStickX),
-						rightStickY: Int16(self.rightStickY),
-						leftTrigger: self.leftTrigger,
-						rightTrigger: self.rightTrigger
+						leftStickX: UInt16(self.leftStickX),
+						leftStickY: UInt16(self.leftStickY),
+						rightStickX: UInt16(self.rightStickX),
+						rightStickY: UInt16(self.rightStickY),
+						leftTrigger: UInt16(self.leftTrigger),
+						rightTrigger: UInt16(self.rightTrigger)
 					)
 				)
 			}
@@ -405,9 +411,7 @@ class DualShock4Controller {
 
 		}
 
-		// trackpad
-
-		self.touchpadButton = report[7 + bluetoothOffset] & 0b00000010 == 0b00000010
+		// MARK: timestamp
 
 		self.previousReportTime = self.reportTime
 		self.reportTime = Int32(report[11 + bluetoothOffset]) << 8 | Int32(report[10 + bluetoothOffset]) // this is little endian
@@ -416,89 +420,9 @@ class DualShock4Controller {
 			self.reportTimeInterval += UINT16_MAX
 		}
 
-		/*
+		let reportTimeWhatUnit = (reportTime * 16) / 3 // TODO save this somewhere?
 
-		trackpad can send up to 4 packets per report
-		it is sampled at a higher frequency
-
-		The Dualshock 4 multi-touch trackpad data starts at offset 33 on USB
-		and 35 on Bluetooth.
-		The first byte indicates the number of touch data in the report.
-		Trackpad data starts 2 bytes later (e.g. 35 for USB).
-
-		*/
-
-		let numberOfPackets = report[33 + bluetoothOffset] // 1 to 4
-
-		// report[34 + bluetoothOffset] // packet counter??
-
-		self.touchpadTouch0IsActive = report[35 + bluetoothOffset] & 0b10000000 != 0b10000000
-
-		if self.touchpadTouch0IsActive {
-			self.touchpadTouch0Id = report[35 + bluetoothOffset] & 0b01111111
-			 // 12 bits only
-			self.touchpadTouch0X = Int16((UInt16(report[37 + bluetoothOffset]) << 8 | UInt16(report[36 + bluetoothOffset]))      & 0b0000_1111_1111_1111)
-			self.touchpadTouch0Y = Int16((UInt16(report[38 + bluetoothOffset]) << 4 | UInt16(report[37 + bluetoothOffset]) >> 4) & 0b0000_1111_1111_1111)
-		}
-
-		self.touchpadTouch1IsActive = report[39 + bluetoothOffset] & 0b10000000 != 0b10000000 // if not active, no need to parse the rest
-
-		if self.touchpadTouch1IsActive {
-			self.touchpadTouch1Id = report[39 + bluetoothOffset] & 0b01111111
-			// 12 bits only
-			self.touchpadTouch1X = Int16((UInt16(report[41 + bluetoothOffset]) << 8 | UInt16(report[40 + bluetoothOffset]))      & 0b0000_1111_1111_1111)
-			self.touchpadTouch1Y = Int16((UInt16(report[42 + bluetoothOffset]) << 4 | UInt16(report[41 + bluetoothOffset]) >> 4) & 0b0000_1111_1111_1111)
-		}
-
-		/*
-		to move mouse
-
-		import core graphics I guess
-		func CGDisplayMoveCursorToPoint(_ display: CGDirectDisplayID, _ point: CGPoint) -> CGError
-		The coordinates of a point in local display space. The origin is the upper-left corner of the specified display.
-		func CGMainDisplayID() -> CGDirectDisplayID
-
-		for multiple monitors, check finding displays https://developer.apple.com/documentation/coregraphics/quartz_display_services#1655882
-		*/
-
-		if self.previousTouchpadTouch0IsActive != self.touchpadTouch0IsActive
-			|| self.previousTouchpadTouch0Id != self.touchpadTouch0Id
-			|| self.previousTouchpadTouch0X != self.touchpadTouch0X
-			|| self.previousTouchpadTouch0Y != self.touchpadTouch0Y
-			|| self.previousTouchpadTouch1IsActive != self.touchpadTouch1IsActive
-			|| self.previousTouchpadTouch1Id != self.touchpadTouch1Id
-			|| self.previousTouchpadTouch1X != self.touchpadTouch1X
-			|| self.previousTouchpadTouch1Y != self.touchpadTouch1Y
-		{
-
-			DispatchQueue.main.async {
-				NotificationCenter.default.post(
-					name: DualShock4TouchpadChangedNotification.Name,
-					object: DualShock4TouchpadChangedNotification(
-						touchpadTouch0IsActive: self.touchpadTouch0IsActive,
-						touchpadTouch0Id: self.touchpadTouch0Id,
-						touchpadTouch0X: self.touchpadTouch0X,
-						touchpadTouch0Y: self.touchpadTouch0Y,
-						touchpadTouch1IsActive: self.touchpadTouch1IsActive,
-						touchpadTouch1Id: self.touchpadTouch1Id,
-						touchpadTouch1X: self.touchpadTouch1X,
-						touchpadTouch1Y: self.touchpadTouch1Y
-					)
-				)
-			}
-
-			self.previousTouchpadTouch0IsActive = self.touchpadTouch0IsActive
-			self.previousTouchpadTouch0Id = self.touchpadTouch0Id
-			self.previousTouchpadTouch0X = self.touchpadTouch0X
-			self.previousTouchpadTouch0Y = self.touchpadTouch0Y
-			self.previousTouchpadTouch1IsActive = self.touchpadTouch1IsActive
-			self.previousTouchpadTouch1Id = self.touchpadTouch1Id
-			self.previousTouchpadTouch1X = self.touchpadTouch1X
-			self.previousTouchpadTouch1Y = self.touchpadTouch1Y
-
-		}
-
-		// TODO IMU
+		// MARK: inertial movement unit (imu)
 
 		/*
 		linux driver uses Default to 4ms poll interval, which is same as USB (not adjustable).
@@ -581,6 +505,57 @@ class DualShock4Controller {
 		self.accelY = Int32(report[22 + bluetoothOffset]) << 8 | Int32(report[21 + bluetoothOffset]) // changes when we pitch or roll
 		self.accelZ = Int32(report[24 + bluetoothOffset]) << 8 | Int32(report[23 + bluetoothOffset]) // changes when we pitch
 
+
+		/*
+
+		Calculation of accelerometer mapping (as factor of gravity, 1g):
+
+		              2 * (raw - low)
+		calibrated = -----------------  - 1
+		               (high - low)
+		with:
+		raw .... Raw sensor reading
+		high ... Raw reading at +1g
+		low .... Raw reading at -1g
+
+		Now define:
+
+		             2
+		gain = --------------
+		        (high - low)
+
+		And combine constants:
+		bias as the amount the min reading differs from -1.0g
+		bias = - (gain * low) - 1
+
+		Then we get:
+		calibrated = raw * gain + bias
+
+		calibratedValue = (2 * (sensorRawValue - sensorRawNegative1GValue) / (sensorRawPositive1GValue - sensorRawNegative1GValue)) - 1 // using the non precomputed constant version (at least for now)
+
+		sensorBias (accelXPlus - ((accelXPlus - accelXMinus) / 2))
+		sensorRange: self.calibration[Calibration.AccelYIndex].rawPositive1GValue! - self.calibration[Calibration.AccelYIndex].rawNegative1GValue!
+
+		// breaking up expression because swift compiler complains...
+		let sensorRawOffset = Int32(sensorRawValue - sensorBias)
+		let sensorResolution32 = Int32(sensorResolution)
+		let sensorRange32 = Int32(sensorRange)
+		calibratedValue = Int32((sensorRawOffset * 2 * sensorResolution32) / sensorRange32)
+		return calibratedValue
+
+		
+		self.calibration[Calibration.AccelYIndex].rawPositive1GValue
+		self.calibration[Calibration.AccelYIndex].rawNegative1GValue
+
+		*/
+
+		if self.accelY > self.previousAccelY
+			//&& self.accelY < 50_000
+		{
+			self.previousAccelY = self.accelY
+			print(self.previousAccelY)
+		}
+
 		/*self.applyCalibration(
 			pitch: &self.gyroPitch,
 			yaw: &self.gyroYaw,
@@ -594,7 +569,7 @@ class DualShock4Controller {
 			|| self.previousGyroYaw != self.gyroYaw
 			|| self.previousGyroRoll != self.gyroRoll
 			|| self.previousAccelX != self.accelX
-			|| self.previousAccelY != self.accelY
+			//|| self.previousAccelY != self.accelY
 			|| self.previousAccelZ != self.accelZ
 		{
 
@@ -603,7 +578,7 @@ class DualShock4Controller {
 			self.previousGyroRoll  = self.gyroRoll
 
 			self.previousAccelX = self.accelX
-			self.previousAccelY = self.accelY
+			//self.previousAccelY = self.accelY
 			self.previousAccelZ = self.accelZ
 
 			DispatchQueue.main.async {
@@ -622,10 +597,7 @@ class DualShock4Controller {
 
 		}
 
-		// battery
-
-		let timestamp = UInt32(report[11 + bluetoothOffset]) << 8 | UInt32(report[10 + bluetoothOffset])
-		let timestampUS = (timestamp * 16) / 3
+		// MARK: battery
 
 		self.cableConnected = ((report[30 + bluetoothOffset] >> 4) & 0b00000001) == 1
 		self.batteryLevel = report[30 + bluetoothOffset] & 0b00001111
@@ -673,6 +645,81 @@ class DualShock4Controller {
 		00001000 is bluetooth? (0x08)
 		00000101 is ? (0x05)
 		*/
+
+		// MARK: trackpad
+
+		// trackpad can send up to 4 packets per report
+		// it is sampled at a higher frequency
+
+		let numberOfPackets = report[33 + bluetoothOffset] // 1 to 4
+
+		// report[34 + bluetoothOffset] // packet counter??
+
+		self.touchpadTouch0IsActive = report[35 + bluetoothOffset] & 0b10000000 != 0b10000000
+
+		if self.touchpadTouch0IsActive {
+			self.touchpadTouch0Id = report[35 + bluetoothOffset] & 0b01111111
+			 // 12 bits only
+			self.touchpadTouch0X = Int16((UInt16(report[37 + bluetoothOffset]) << 8 | UInt16(report[36 + bluetoothOffset]))      & 0b0000_1111_1111_1111)
+			self.touchpadTouch0Y = Int16((UInt16(report[38 + bluetoothOffset]) << 4 | UInt16(report[37 + bluetoothOffset]) >> 4) & 0b0000_1111_1111_1111)
+		}
+
+		self.touchpadTouch1IsActive = report[39 + bluetoothOffset] & 0b10000000 != 0b10000000 // if not active, no need to parse the rest
+
+		if self.touchpadTouch1IsActive {
+			self.touchpadTouch1Id = report[39 + bluetoothOffset] & 0b01111111
+			// 12 bits only
+			self.touchpadTouch1X = Int16((UInt16(report[41 + bluetoothOffset]) << 8 | UInt16(report[40 + bluetoothOffset]))      & 0b0000_1111_1111_1111)
+			self.touchpadTouch1Y = Int16((UInt16(report[42 + bluetoothOffset]) << 4 | UInt16(report[41 + bluetoothOffset]) >> 4) & 0b0000_1111_1111_1111)
+		}
+
+		/*
+		to move mouse
+
+		import core graphics I guess
+		func CGDisplayMoveCursorToPoint(_ display: CGDirectDisplayID, _ point: CGPoint) -> CGError
+		The coordinates of a point in local display space. The origin is the upper-left corner of the specified display.
+		func CGMainDisplayID() -> CGDirectDisplayID
+
+		for multiple monitors, check finding displays https://developer.apple.com/documentation/coregraphics/quartz_display_services#1655882
+		*/
+
+		if self.previousTouchpadTouch0IsActive != self.touchpadTouch0IsActive
+			|| self.previousTouchpadTouch0Id != self.touchpadTouch0Id
+			|| self.previousTouchpadTouch0X != self.touchpadTouch0X
+			|| self.previousTouchpadTouch0Y != self.touchpadTouch0Y
+			|| self.previousTouchpadTouch1IsActive != self.touchpadTouch1IsActive
+			|| self.previousTouchpadTouch1Id != self.touchpadTouch1Id
+			|| self.previousTouchpadTouch1X != self.touchpadTouch1X
+			|| self.previousTouchpadTouch1Y != self.touchpadTouch1Y
+		{
+
+			DispatchQueue.main.async {
+				NotificationCenter.default.post(
+					name: DualShock4TouchpadChangedNotification.Name,
+					object: DualShock4TouchpadChangedNotification(
+						touchpadTouch0IsActive: self.touchpadTouch0IsActive,
+						touchpadTouch0Id: self.touchpadTouch0Id,
+						touchpadTouch0X: self.touchpadTouch0X,
+						touchpadTouch0Y: self.touchpadTouch0Y,
+						touchpadTouch1IsActive: self.touchpadTouch1IsActive,
+						touchpadTouch1Id: self.touchpadTouch1Id,
+						touchpadTouch1X: self.touchpadTouch1X,
+						touchpadTouch1Y: self.touchpadTouch1Y
+					)
+				)
+			}
+
+			self.previousTouchpadTouch0IsActive = self.touchpadTouch0IsActive
+			self.previousTouchpadTouch0Id = self.touchpadTouch0Id
+			self.previousTouchpadTouch0X = self.touchpadTouch0X
+			self.previousTouchpadTouch0Y = self.touchpadTouch0Y
+			self.previousTouchpadTouch1IsActive = self.touchpadTouch1IsActive
+			self.previousTouchpadTouch1Id = self.touchpadTouch1Id
+			self.previousTouchpadTouch1X = self.touchpadTouch1X
+			self.previousTouchpadTouch1Y = self.touchpadTouch1Y
+
+		}
 
 		//self.sendReport()
 
@@ -877,18 +924,20 @@ class DualShock4Controller {
 	func requestCalibrationDataReport() {
 
 		/*
-		* The default behavior of the Dualshock 4 is to send reports using
-		* report type 1 when running over Bluetooth. However, when feature
-		* report 2 is requested during the controller initialization it starts
-		* sending input reports in report 17. Since report 17 is undefined
-		* in the default HID descriptor, the HID layer won't generate events.
-		* While it is possible (and this was done before) to fixup the HID
-		* descriptor to add this mapping, it was better to do this manually.
-		* The reason is there were various pieces software both open and closed
-		* source, relying on the descriptors to be the same across various
-		* operating systems. If the descriptors wouldn't match some
-		* applications e.g. games on Wine would not be able to function due
-		* to different descriptors, which such applications are not parsing.
+		Note form Linux hid driver:
+
+		The default behavior of the Dualshock 4 is to send reports using
+		report type 1 when running over Bluetooth. However, when feature
+		report 2 is requested during the controller initialization it starts
+		sending input reports in report 17. Since report 17 is undefined
+		in the default HID descriptor, the HID layer won't generate events.
+		While it is possible (and this was done before) to fixup the HID
+		descriptor to add this mapping, it was better to do this manually.
+		The reason is there were various pieces software both open and closed
+		source, relying on the descriptors to be the same across various
+		operating systems. If the descriptors wouldn't match some
+		applications e.g. games on Wine would not be able to function due
+		to different descriptors, which such applications are not parsing.
 		*/
 
 		var dualshock4CalibrationDataReport = [UInt8](repeating: 0, count: 41)
@@ -911,7 +960,7 @@ class DualShock4Controller {
 		self.parseCalibrationFeatureReport(calibrationReport: &dualshock4CalibrationDataReport, fromUSB: self.isBluetooth)
 
 		/*
-		// for reference:
+		// for debug reference:
 		[0] 5 // report type
 		[1] 251
 		[2] 255
@@ -988,14 +1037,14 @@ class DualShock4Controller {
 
 		}
 
-		self.calibration[Calibration.GyroPitchIndex].rawPositive1GValue  = pitchPlus
+		self.calibration[Calibration.GyroPitchIndex].rawPositive1GValue = pitchPlus
 		self.calibration[Calibration.GyroPitchIndex].rawNegative1GValue = pitchMinus
 
 		// TODO is this inverted? Or are all values inverted? This is the only where the plus values is bigger than the minus value
-		self.calibration[Calibration.GyroYawIndex].rawPositive1GValue    = yawPlus
+		self.calibration[Calibration.GyroYawIndex].rawPositive1GValue   = yawPlus
 		self.calibration[Calibration.GyroYawIndex].rawNegative1GValue   = yawMinus
 
-		self.calibration[Calibration.GyroRollIndex].rawPositive1GValue   = rollPlus
+		self.calibration[Calibration.GyroRollIndex].rawPositive1GValue  = rollPlus
 		self.calibration[Calibration.GyroRollIndex].rawNegative1GValue  = rollMinus
 
 		self.calibration[Calibration.GyroPitchIndex].gyroBias = Int32(calibrationReport[2] << 8) | Int32(calibrationReport[1])
@@ -1017,13 +1066,13 @@ class DualShock4Controller {
 		let accelZPlus  = Int32(calibrationReport[32] << 8) | Int32(calibrationReport[31])
 		let accelZMinus = Int32(calibrationReport[34] << 8) | Int32(calibrationReport[33])
 
-		self.calibration[Calibration.AccelXIndex].rawPositive1GValue  = accelXPlus
+		self.calibration[Calibration.AccelXIndex].rawPositive1GValue = accelXPlus
 		self.calibration[Calibration.AccelXIndex].rawNegative1GValue = accelXMinus
 
-		self.calibration[Calibration.AccelYIndex].rawPositive1GValue  = accelYPlus
+		self.calibration[Calibration.AccelYIndex].rawPositive1GValue = accelYPlus
 		self.calibration[Calibration.AccelYIndex].rawNegative1GValue = accelYMinus
 
-		self.calibration[Calibration.AccelZIndex].rawPositive1GValue  = accelZPlus
+		self.calibration[Calibration.AccelZIndex].rawPositive1GValue = accelZPlus
 		self.calibration[Calibration.AccelZIndex].rawNegative1GValue = accelZMinus
 
 	}

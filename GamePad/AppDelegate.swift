@@ -49,6 +49,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		window.makeKeyAndOrderFront(nil)
 
 		self.gamePadHIDMonitor = GamepadHIDMonitor()
+		//self.gamePadHIDMonitor.hidapi()
 		self.gamePadHIDThread = Thread(target: self.gamePadHIDMonitor, selector:#selector(self.gamePadHIDMonitor.setupHidObservers), object: nil)
 		self.gamePadHIDThread.start()
 

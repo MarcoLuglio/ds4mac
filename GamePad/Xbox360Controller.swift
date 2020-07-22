@@ -169,8 +169,8 @@ class Xbox360Controller {
 				ledPattern = Xbox360LedPattern.allBlink
 		}
 
-		sendLedReport(ledPattern:ledPattern)
-		//sendRumbleReport(leftHeavySlowRumble: 30, rightLightFastRumble: 50)
+		self.sendLedReport(ledPattern:ledPattern)
+		//self.sendRumbleReport(leftHeavySlowRumble: 30, rightLightFastRumble: 50)
 
 	}
 
@@ -402,6 +402,26 @@ class Xbox360Controller {
 		right motor high frequency
 
 		xinput allows values of ??
+
+
+
+		for wireless version is. maybe I can try this
+
+		packet->data[0] = 0x00;
+		packet->data[1] = 0x01;
+		packet->data[2] = 0x0F;
+		packet->data[3] = 0xC0;
+		packet->data[4] = 0x00;
+		packet->data[5] = strong / 256;
+		packet->data[6] = weak / 256;
+		packet->data[7] = 0x00;
+		packet->data[8] = 0x00;
+		packet->data[9] = 0x00;
+		packet->data[10] = 0x00;
+		packet->data[11] = 0x00;
+
+
+		or maybe removing the first 2 bytes?
 		*/
 
 		let xbox360ControllerRumbleOutputReport:[UInt8] = [0x00, 0x08, 0x00, leftHeavySlowRumble, rightLightFastRumble, 0x00, 0x00, 0x00]
@@ -424,13 +444,19 @@ class Xbox360Controller {
 		)
 		*/
 
-		IOHIDDeviceSetReport(
+		let success = IOHIDDeviceSetReport(
 			self.device,
 			kIOHIDReportTypeOutput,
-			0x00, // report id, not sure which, 0x00, 0x01?
+			0x00, // buffer[0], // Report ID
 			xbox360ControllerRumbleOutputReport,
 			xbox360ControllerRumbleOutputReportLength
-		)
+		);
+
+		if success == kIOReturnSuccess {
+			print("success")
+		} else {
+			print("no success rumbling x360")
+		}
 
 	}
 

@@ -116,14 +116,12 @@ class XboxOneController {
 	var rightTrigger:UInt16 = 0
 	var previousRightTrigger:UInt16 = 0
 
-	// battery ??
+	// battery
 
-	/*
-	var cableConnected = false
+	var cableConnected = false // TODO xbox one is able to tell usb from ac?
 	var batteryCharging = false
-	var batteryLevel:UInt8 = 0 // 0 to 10 on USB, 0 - 9 on Bluetooth
+	var batteryLevel:UInt8 = 0 // 0 to 3
 	var previousBatteryLevel:UInt8 = 0
-	*/
 
 	// misc
 
@@ -143,7 +141,7 @@ class XboxOneController {
 		self.device = device
 		IOHIDDeviceOpen(self.device, IOOptionBits(kIOHIDOptionsTypeNone)) // or kIOHIDManagerOptionUsePersistentProperties
 
-		self.sendInitReport()
+		//self.sendInitReport()
 
 		NotificationCenter.default
 			.addObserver(
@@ -153,31 +151,7 @@ class XboxOneController {
 				object: nil
 			)
 
-		/*NotificationCenter.default
-			.addObserver(
-				self,
-				selector: #selector(self.changeLed),
-				name: XboxOneChangeLedNotification.Name,
-				object: nil
-			)*/
-
-		/*var ledPattern:XboxOneLedPattern
-
-		switch self.id {
-			case 0:
-				ledPattern = Xbox360LedPattern.blink1
-			case 1:
-				ledPattern = Xbox360LedPattern.blink1
-			case 2:
-				ledPattern = Xbox360LedPattern.blink1
-			case 3:
-				ledPattern = Xbox360LedPattern.blink1
-			default:
-				ledPattern = Xbox360LedPattern.allBlink
-		}
-
-		sendLedReport(ledPattern:ledPattern)*/
-		//sendRumbleReport(leftHeavySlowRumble: 30, rightLightFastRumble: 50)
+		// self.sendRumbleReport(leftHeavySlowRumble: 30, rightLightFastRumble: 50, leftTriggerRumble: 0, rightTriggerRumble: 0)
 
 	}
 
@@ -189,9 +163,124 @@ class XboxOneController {
 
 		// report[0] // always 0x01
 
-		if report.count < 17 {
+		// baterry?
+		if report[0] == 0x04 || report.count == 2 {
+
+			print("report[0] \(report[0])")
+			print("report[1] \(String(report[1], radix: 2))") // 10000111 what is the first bit??
+
+			/*
+			0b000_0100 battery
+			0b000_1000 pnc (what is that??)
+			0b000_0000 usb
+			*/
+
+			if report[1] & 0b0000_1100 != 0b000_0100 {
+				self.cableConnected = true
+			}
+			self.batteryCharging = report[1] & 0b001_0000 == 0b001_0000
+			self.batteryLevel = report[1] & 0b0000_0011
+
+			if self.previousBatteryLevel != self.batteryLevel {
+
+				self.previousBatteryLevel = self.batteryLevel
+
+				DispatchQueue.main.async {
+					NotificationCenter.default.post(
+						name: GamepadBatteryChangedNotification.Name,
+						object: GamepadBatteryChangedNotification(
+							battery: self.batteryLevel,
+							batteryMin: 0,
+							batteryMax: 3,
+							isConnected: self.cableConnected,
+							isCharging: self.batteryCharging
+						)
+					)
+				}
+
+			}
+
+			return
+
+		}
+
+		if report[0] != 0x01 || report.count < 17 {
+			print("report[0] \(report[0])")
+			print("report.count \(report.count)")
 			return
 		}
+
+		/*
+		// the xbox button has its own special report
+		if (data[0] == 0X07) {
+			/*
+			 * The Xbox One S controller requires these reports to be
+			 * acked otherwise it continues sending them forever and
+			 * won't report further mode button events.
+			 */
+			if (data[1] == 0x30)
+				xpadone_ack_mode_report(xpad, data[2]);
+
+			input_report_key(dev, BTN_MODE, data[4] & 0x01);
+			input_sync(dev);
+			return;
+		}
+		// check invalid packet
+		else if (data[0] != 0X20)
+			return;
+
+		0x03: Heartbeat
+
+		struct XboxOneHeartbeatData{
+			uint8_t type;
+			uint8_t const_20;
+			uint16_t id;
+
+			uint8_t dummy_const_80;
+			uint8_t first_after_controller;
+			uint8_t dummy1;
+			uint8_t dummy2;
+		};
+
+		0x07: Guide button status
+
+		Sent when guide button status changes.
+
+		struct XboxOneGuideData{
+			uint8_t type;
+			uint8_t const_20;
+			uint16_t id;
+
+			uint8_t down;
+			uint8_t dummy_const_5b;
+		};
+
+
+		// we are taking care of the battery report ourselves
+		if (xdata->battery.report_id && report->id == xdata->battery.report_id && reportsize == 2) {
+			xpadneo_update_psy(xdata, data[1]);
+			return -1;
+		}
+
+		#define XPADNEO_PSY_ONLINE(data)     ((data&0x80)>0) 0b0000_1000 power supply online
+		#define XPADNEO_PSY_MODE(data)       ((data&0x0C)>>2) 0b0000_1100 >> 2
+
+		#define XPADNEO_POWER_USB(data)      (XPADNEO_PSY_MODE(data)==0)
+		#define XPADNEO_POWER_BATTERY(data)  (XPADNEO_PSY_MODE(data)==1)
+		#define XPADNEO_POWER_PNC(data)      (XPADNEO_PSY_MODE(data)==2)
+
+		#define XPADNEO_BATTERY_ONLINE(data)         ((data&0x0C)>0) 0b0000_1100 > 0
+		#define XPADNEO_BATTERY_CHARGING(data)       ((data&0x10)>0) 0b0001_0000 > 0
+
+		#define XPADNEO_BATTERY_CAPACITY_LEVEL(data) (data&0x03) 0b000_0011
+
+		static int capacity_level_map[] = {
+			[0] = POWER_SUPPLY_CAPACITY_LEVEL_LOW,
+			[1] = POWER_SUPPLY_CAPACITY_LEVEL_NORMAL,
+			[2] = POWER_SUPPLY_CAPACITY_LEVEL_HIGH,
+			[3] = POWER_SUPPLY_CAPACITY_LEVEL_FULL,
+		};
+		*/
 
 		self.directionalPad = report[13]
 
@@ -225,6 +314,7 @@ class XboxOneController {
 		if self.previousMainButtons != self.mainButtons
 			|| self.previousSecondaryButtons != self.secondaryButtons
 			|| self.previousDirectionalPad != self.directionalPad
+			|| self.previousViewButton != self.viewButton
 			|| self.previousLeftTrigger != self.leftTrigger
 			|| self.previousRightTrigger != self.rightTrigger
 		{
@@ -294,11 +384,6 @@ class XboxOneController {
 		self.rightStickX = UInt16(report[6]) << 8 | UInt16(report[5])
 		self.rightStickY = UInt16(report[8]) << 8 | UInt16(report[7])
 
-		print("left stick x \(self.leftStickX)")
-		print("left stick y \(self.leftStickY)")
-		print("right stick x \(self.rightStickX)")
-		print("right stick y \(self.rightStickY)")
-
 		if self.previousLeftStickX != self.leftStickX
 			|| self.previousLeftStickY != self.leftStickY
 			|| self.previousRightStickX != self.rightStickX
@@ -345,85 +430,135 @@ class XboxOneController {
 
 	}
 
-	/*
-	@objc func changeLed(_ notification:Notification) {
-		let o = notification.object as! XboxOneChangeLedNotification
-		sendLedReport(ledPattern:o.ledPattern)
-	}
-
-	private func sendLedReport(ledPattern:Xbox360LedPattern) {
-
-		/*
-		message of the following form:
-
-		0103xx
-		0x01 is the message type
-		0x03 is the message length
-		0xXX is the desired pattern:
-
-		Where xx is the byte led pattern
-		*/
-
-		let xbox360ControllerOutputReport:[UInt8] = [0x01, 0x03, ledPattern.rawValue]
-		let xbox360ControllerOutputReportLength = xbox360ControllerOutputReport.count
-
-		/*
-		let pointer = unsafeBitCast(xbox360ControllerOutputReport, to: UnsafePointer<Any>.self)
-
-		IOHIDDeviceSetReportWithCallback(
-			device,
-			kIOHIDReportTypeInput,
-			1,
-			unsafeBitCast(xbox360ControllerOutputReport, to: UnsafePointer.self),
-			xbox360ControllerOutputReportLength,
-			500, // timeout in what?? ms
-			{() in
-				//
-			},
-			hidContext
-		)
-		*/
-
-		IOHIDDeviceSetReport(
-			self.device,
-			kIOHIDReportTypeOutput,
-			0x01,
-			xbox360ControllerOutputReport,
-			xbox360ControllerOutputReportLength
-		)
-
-	}
-	*/
-
 	private func sendRumbleReport(leftHeavySlowRumble:UInt8, rightLightFastRumble:UInt8, leftTriggerRumble:UInt8, rightTriggerRumble:UInt8) {
 
-		// FIXME not working :(
-		// maybe try a different driver...
-
 		/*
 
-		Updates to the controller’s user feedback features are sent on endpoint 1 OUT (0x01), also on interface 0.
-		These updates follow the same format as the sent data, where byte 0 is the ‘type’ identifier and byte 1 is the packet length (in bytes).
+		packet->data[0] = 0x09; /* activate rumble */
+		packet->data[1] = 0x00;
+		packet->data[2] = xpad->odata_serial++;
+		packet->data[3] = 0x09;
+		packet->data[4] = 0x00;
+		packet->data[5] = 0x0F;
+		packet->data[6] = 0x00;
+		packet->data[7] = 0x00;
+		packet->data[8] = strong / 512;	/* left actuator */
+		packet->data[9] = weak / 512;	/* right actuator */
+		packet->data[10] = 0xFF; /* on period */
+		packet->data[11] = 0x00; /* off period */
+		packet->data[12] = 0xFF; /* repeat count */
 
-		message of the following form:
 
-		00 08 00 bb ll 00 00 00
 
-		0x00 is the message type
-		0x08 is the message length
-		other 0x00 reserved for future use?
 
-		Where b is the speed to set the motor with the big weight
-		and l is the speed to set the small weight
-		(0x00 to 0xFF in both cases).
 
-		left motor low frequency
-		right motor high frequency
+		0x09: Activate rumble
 
-		xinput allows values of ??
+		buffer[0] = 0x09;
+		buffer[1] = 0x08; // 0x20 bit and all bits of 0x07 prevents rumble effect.
+		buffer[2] = 0x00; // This may have something to do with how many times effect is played
+		buffer[3] = 0x??; // Substructure (what substructure rest of this packet has)
+
+		If you send too long packet, overflown data is ignored. If you send too short packet, missing values are considered as 0.
+
+		Buffer[3] defines what the rest of this packets is:
+
+		Continous rumble effect
+
+		buffer[3] = 0x08; // Substructure (what substructure rest of this packet has)
+		buffer[4] = 0x00; // Mode
+		buffer[5] = 0x0f; // Rumble mask (what motors are activated) (0000 lT rT L R)
+		buffer[6] = 0x04; // lT force
+		buffer[7] = 0x04; // rT force
+		buffer[8] = 0x20; // L force
+		buffer[9] = 0x20; // R force
+		buffer[10] = 0x80; // Length of pulse
+		buffer[11] = 0x00; // Period between pulses
+
+		Single rumble effect
+
+		buffer[3] = 0x09; // Substructure (what substructure rest of this packet has)
+		buffer[4] = 0x00; // Mode
+		buffer[5] = 0x0f; // Rumble mask (what motors are activated) (0000 lT rT L R)
+		buffer[6] = 0x04; // lT force
+		buffer[7] = 0x04; // rT force
+		buffer[8] = 0x20; // L force
+		buffer[9] = 0x20; // R force
+		buffer[10] = 0x80; // Length of pulse
+
+		Play effect
+
+		buffer[3] = 0x04; // Substructure (what substructure rest of this packet has)
+		buffer[4] = 0x00; // Mode
+		buffer[5] = 0x0f; // Rumble mask (what motors are activated) (0000 lT rT L R)
+		buffer[6] = 0x04; // lT force ?
+		buffer[7] = 0x04; // rT force ?
+
+		Short rumble packet
+
+		buffer[3] = 0x02; // Substructure (what substructure rest of this packet has)
+		buffer[4] = 0x00; // Mode
+		buffer[5] = 0x0f; // Rumble mask (what motors are activated) (0000 lT rT L R) ?
+		buffer[6] = 0x04; // lT force ?
+		buffer[7] = 0x04; // rT force ?
+
+		List of different modes
+
+			0x00: Normal
+			0x20: Normal, but sometimes prevents rest of 0x00 mode effects
+			0x40: Triggerhell (= Pressing trigger starts rumbling all motors fast. I assume there is way to upload some pattern here, but don't know how.)
+			0x41: Trigger effect (if substructure = 4?) (= Pressing trigger causes single rumble effect)(if buffer[6] >= 0x0b this rumble effect can be played multiple times. if buffer[6] > 0x4F this doesn't work)
+			0x42: Fast + short rumble once
+
+		0x07: Load rumble effect
+
+		buffer[0] = 0x07,
+		buffer[1] = 0x85, // At least one of 0x07 bits must be on
+		buffer[2] = 0xa0, // Dummy ?
+		buffer[3] = 0x20, // L force
+		buffer[4] = 0x20, // R force
+		buffer[5] = 0x30, // length
+		buffer[6] = 0x20, // period
+		buffer[7] = 0x02, // Effect extra play count (0x02 means that effect is played 1+2 times)
+		buffer[8] = 0x00, // Dummy ?
+
 		*/
 
-		let xboxOneControllerRumbleOutputReport:[UInt8] = [0x00, 0x08, 0x00, leftHeavySlowRumble, rightLightFastRumble, 0x00, 0x00, 0x00]
+		/// Rumble mask (what motors are activated) (0000 left trigger, right trigger, left, right)
+		var rumbleMask:UInt8 = 0
+
+		if leftHeavySlowRumble > 0 {
+			rumbleMask = rumbleMask | 0b000_0010
+		}
+
+		if rightLightFastRumble > 0 {
+			rumbleMask = rumbleMask | 0b000_0001
+		}
+
+		if leftTriggerRumble > 0 {
+			rumbleMask = rumbleMask | 0b000_1000
+		}
+
+		if rightTriggerRumble > 0 {
+			rumbleMask = rumbleMask | 0b000_0100
+		}
+
+		let xboxOneControllerRumbleOutputReport:[UInt8] = [
+			0x09,
+			0x08, // 0x20 bit and all bits of 0x07 prevents rumble effect.
+			0x00,
+			0x09, // substructure 9
+			0x00, // simple mode
+			rumbleMask,
+			leftTriggerRumble,
+			rightTriggerRumble,
+			leftHeavySlowRumble,
+			rightLightFastRumble,
+			0x01, // on period - what is the unit of measurement?
+			0x00, // off period
+			0x00 // repeat count
+		]
+
 		let xboxOneControllerRumbleOutputReportLength = xboxOneControllerRumbleOutputReport.count
 
 		/*
@@ -446,13 +581,14 @@ class XboxOneController {
 		IOHIDDeviceSetReport(
 			self.device,
 			kIOHIDReportTypeOutput,
-			0x00, // report id, not sure which, 0x00, 0x01?
+			0x09, // report id
 			xboxOneControllerRumbleOutputReport,
 			xboxOneControllerRumbleOutputReportLength
 		)
 
 	}
 
+	/*
 	private func sendInitReport() {
 
 		/*
@@ -542,5 +678,6 @@ class XboxOneController {
 		//service.
 
 	}
+	*/
 
 }

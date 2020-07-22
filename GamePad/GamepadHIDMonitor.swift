@@ -166,6 +166,7 @@ class GamepadHIDMonitor {
 		} else if vendorID == XboxOneController.VENDOR_ID_MICROSOFT
 			&& (productID == XboxOneController.CONTROLLER_ID_XBOX_ONE
 			|| productID == XboxOneController.CONTROLLER_ID_XBOX_ONE_2015
+			|| productID == XboxOneController.CONTROLLER_ID_XBOX_ONE_BLUETOOTH
 			|| productID == XboxOneController.CONTROLLER_ID_XBOX_ONE_ELITE
 			|| productID == XboxOneController.CONTROLLER_ID_XBOX_ONE_S
 			|| productID == XboxOneController.CONTROLLER_ID_XBOX_ONE_S_BLUETOOTH
@@ -213,6 +214,8 @@ class GamepadHIDMonitor {
 			self.joyConController.parseReport(report, controllerType:JoyConController.CONTROLLER_ID_JOY_CON_RIGHT)
 		} else if device == self.dualShock4Controller?.device {
 			self.dualShock4Controller.parseReport(report)
+		} else if device == self.xboxOneController?.device {
+			self.xboxOneController.parseReport(report)
 		} else if device == self.xbox360Controller?.device {
 			self.xbox360Controller.parseReport(report)
 		} else {

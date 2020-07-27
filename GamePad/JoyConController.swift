@@ -16,9 +16,20 @@ class JoyConController {
 	static let CONTROLLER_ID_JOY_CON_LEFT:Int64 = 0x2006 // 8198
 	static let CONTROLLER_ID_JOY_CON_RIGHT:Int64 = 0x2007 // 8199
 	static let CONTROLLER_ID_SWITCH_PRO:Int64 = 0x2009 // 8201
-	static let CONTROLLER_ID_CHARGING_GRIP:Int64 = 0x200e // TODO
+	static let CONTROLLER_ID_CHARGING_GRIP:Int64 = 0x200e // 8206
 	// 0x0306 Wii Remote Controller RVL-003
 	// 0x0337 Wii U GameCube Controller Adapter
+
+	static let INPUT_REPORT_ID_BUTTONS:UInt8 = 0x21 // 0x3F too?
+	static let INPUT_REPORT_ID_BUTTONS_GYRO:UInt8 = 0x30 //
+	static let INPUT_REPORT_ID_BUTTONS_GYRO_NFC_IR:UInt8 = 0x31 // near field communication reader and infra red camera
+
+	static let OUTPUT_REPORT_ID_RUMBLE_SEND_SUB_TYPE:UInt8 = 0x01
+	static let OUTPUT_REPORT_ID_RUMBLE:UInt8 = 0x10
+
+	static let OUTPUT_REPORT_SUB_ID_SET_PLAYER_LIGHTS:UInt8 = 0x30
+	static let OUTPUT_REPORT_SUB_ID_GET_PLAYER_LIGHTS:UInt8 = 0x31
+	static let OUTPUT_REPORT_SUB_ID_SET_HOME_LIGHT:UInt8    = 0x38
 
 	static var nextId:UInt8 = 0
 
@@ -88,7 +99,13 @@ class JoyConController {
 	var leftStickY:Int8 = 0
 	var previousLeftStickY:Int8 = 0
 
-	// battery ??
+	// battery
+	//var cableConnected = false
+	var batteryLeftCharging = false
+	var batteryLeftLevel:UInt8 = 0
+	var previousBatteryLeftLevel:UInt8 = 0
+
+	// misc
 
 	// MARK: - right joy-con
 
@@ -147,7 +164,13 @@ class JoyConController {
 	var rightStickY:Int8 = 0
 	var previousRightStickY:Int8 = 0
 
-	// battery ??
+	// battery
+	var batteryRightCharging = false
+	var batteryRightLevel:UInt8 = 0
+	var previousBatteryRightLevel:UInt8 = 0
+
+	// TODO
+	//var cableConnected = false
 
 	// MARK: - Methods
 
@@ -175,25 +198,6 @@ class JoyConController {
 			)
 
 		/*
-
-		Subcommand 0x30: Set player lights
-
-		First argument byte is a bitfield:
-
-		aaaa bbbb
-			 3210 - keep player light on
-		3210 - flash player light
-
-		On overrides flashing. When on USB, flashing bits work like always on bits.
-		Subcommand 0x31: Get player lights
-
-		Replies with ACK xB0 x31 and one byte that uses the same bitfield with x30 subcommand
-
-		xB1 is the 4 leds trail effect. But it can't be set via x30.
-
-		*/
-
-		/*
 		uint8_t buf[0x40]; bzero(buf, 0x40);
 		buf[0] = 1; // 0x10 for rumble only
 		buf[1] = GlobalPacketNumber; // Increment by 1 for each packet sent. It loops in 0x0 - 0xF range.
@@ -202,29 +206,6 @@ class JoyConController {
 		memcpy(buf + 11, subcommandData, subcommandDataLen);
 		hid_write(handle, buf, 0x40);
 		*/
-
-		/*var joyConControllerLedOutputReport:[UInt8] = [0b00001000]
-		let joyConControllerLedOutputReportLength = joyConControllerLedOutputReport.count
-
-		IOHIDDeviceSetReport(
-			self.leftDevice,
-			kIOHIDReportTypeFeature, // input 0x01, output 0x02
-			0x01,
-			joyConControllerLedOutputReport,
-			joyConControllerLedOutputReportLength
-		)*/
-
-		/*let joyConControllerInputReportModeOutputReport:[UInt8] = [0x30]
-		let joyConControllerInputReportModeOutputReportLength = joyConControllerInputReportModeOutputReport.count
-
-		IOHIDDeviceSetReport(
-			self.leftDevice,
-			kIOHIDReportTypeOutput,
-			0x03,
-			joyConControllerInputReportModeOutputReport,
-			joyConControllerInputReportModeOutputReportLength
-		)*/
-
 
 		/*
 
@@ -292,38 +273,12 @@ class JoyConController {
 		You can send rumble data and subcommand with x01 command, otherwise only rumble with x10 command.
 
 		See "Rumble data" below.
+
 		OUTPUT 0x03
-
 		NFC/IR MCU FW Update packet.
-		OUTPUT 0x10
 
-		Rumble only. See OUTPUT 0x01 and "Rumble data" below.
 		OUTPUT 0x11
-
 		Request specific data from the NFC/IR MCU. Can also send rumble.
-
-
-
-
-		Rumble data
-
-		A timing byte, then 4 bytes of rumble data for left Joy-Con, followed by 4 bytes for right Joy-Con. [00 01 40 40 00 01 40 40] (320Hz 0.0f 160Hz 0.0f) is neutral. The rumble data structure contains 2 bytes High Band data, 2 byte Low Band data. The values for HF Band frequency and LF amplitude are encoded.
-		Byte # 	Range 	Remarks
-		0, 4 	x04 - xFC (81.75Hz - 313.14Hz) 	High Band Lower Frequency. Steps +0x0004.
-		0-1, 4-5 	x00 01 - xFC 01 (320.00Hz - 1252.57Hz) 	Byte 1,5 LSB enables High Band Higher Frequency. Steps +0x0400.
-		1, 5 	x00 00 - xC8 00 (0.0f - 1.0f) 	High Band Amplitude. Steps +0x0200. Real max: FE.
-		2, 6 	x01 - x7F (40.87Hz - 626.28Hz) 	Low Band Frequency.
-		3, 7 	x40 - x72 (0.0f - 1.0f) 	Low Band Amplitude. Safe max: 00 72.
-		2-3, 6-7 	x80 40 - x80 71 (0.01f - 0.98f) 	Byte 2,6 +0x80 enables intermediate LF amplitude. Real max: 80 FF.
-
-		For a rumble values table, example and the algorithm for frequency, check rumble_data_table.md.
-
-		The byte values for frequency raise the frequency in Hz exponentially and not linearly.
-
-		Don't use real maximum values for Amplitude. Otherwise, they can damage the linear actuators. These safe amplitude ranges are defined by Switch HID library.
-
-
-
 
 		*/
 
@@ -348,44 +303,47 @@ class JoyConController {
 			var timming_byte:UInt8 = 0;
 			var buffer = [UInt8](repeating: 0, count: 49)
 
-			buffer[0] = 0x01 // cmd or report id, when this is 0, SetReport needs a change
+			buffer[0] = JoyConController.OUTPUT_REPORT_ID_SEND_SUB_TYPE
 			buffer[1] = timming_byte & 0xF; // timer!?
 
+			// rumble left
 			// buffer[2] rumble
 			// buffer[3] rumble
 			// buffer[4] rumble
 			// buffer[5] rumble
 
-			// buffer[6] rumble_r[4]
-			// buffer[7] rumble_r[4]
-			// buffer[8] rumble_r[4]
-			// buffer[9] rumble_r[4]
+			// rumble right
+			// buffer[6] rumble
+			// buffer[7] rumble
+			// buffer[8] rumble
+			// buffer[9] rumble
 
-			buffer[10] = 0x30 // sub command, set player LEDs
-			buffer[11] = 0b0000_0001 // sub command parameter 1, bitfield for LEDS
+			// sub report type or sub command
+			buffer[10] = JoyConController.OUTPUT_REPORT_SUB_ID_SET_PLAYER_LIGHTS
+
+			// sub report type parameter 1
+			buffer[11] = 0b0000_0001
+
 			/*
+			for setting leds, param 1 is a bitfield
+
 			aaaa bbbb
 				 3210 - keep player light on
 			3210      - flash player light
 
 			"on" bits override "flash" bits. When on USB, "flash" bits work like "on" bits.
 
-			Subcommand 0x31: Get player lights
+			Subcommand Get player lights
 			Replies with ACK xB0 x31 and one byte that uses the same bitfield with x30 subcommand
-			The initial LED trail effects is xB1, but it cannot be set via x30. subcommand
+			The initial LED trail effects is 10110001 (xB1), but it cannot be set via x30. subcommand
 			*/
 
 			// NO CRC??
 
-			// buffer[6] sub command parameter 2
-
-			// let bytesWrittenCount = hid_write(self.leftDevice, buffer, buffer.count); // -1 means error
-			// res = hid_read_timeout(handle, buf, 0, 64); // reads right after, but doesn't do anything about it
-
 			let success = IOHIDDeviceSetReport(
 				self.leftDevice!,
 				kIOHIDReportTypeOutput,
-				0x01, //Int(buffer[0]), // Report ID
+				Int(buffer[0]), // Report ID
 				buffer,
 				buffer.count
 			);
@@ -394,6 +352,10 @@ class JoyConController {
 				print("Error setting LED")
 			}
 
+
+			// TODO send format with 0x11, then enable accelerometer report
+
+
 		}
 
 	}
@@ -401,32 +363,39 @@ class JoyConController {
 	/// Gets called by GamePadMonitor
 	func parseReport(_ report:Data, controllerType:Int64) {
 
-		// report[0] // is the report type
-		// 0x3F is just buttons, 0x21 is just buttons (dufferent than 3F??), 0x30 includes gyro, 0x31 includes NFC (large packet size)
+		// report[0] // the report type
+
+		let bluetoothOffset = self.isBluetooth ? 0 : 10
 
 		if controllerType == JoyConController.CONTROLLER_ID_JOY_CON_LEFT {
 
-			self.leftMainButtons = report[1]
+			// MARK: left joycon input report
 
-			self.directionalPad = leftMainButtons & 0b00001111
+			// MARK: digital buttons
 
-			self.upButton   = self.directionalPad & 0b00000100 == 0b00000100
-			self.rightButton = self.directionalPad & 0b00001000 == 0b00001000
-			self.downButton  = self.directionalPad & 0b00000010 == 0b00000010
-			self.leftButton  = self.directionalPad & 0b00000001 == 0b00000001
+			self.leftMainButtons = report[1 + bluetoothOffset]
 
-			self.leftSideTopButton    = leftMainButtons & 0b00010000 == 0b00010000
-			self.leftSideBottomButton = leftMainButtons & 0b00100000 == 0b00100000
+			self.batteryLeftLevel = (leftMainButtons & 0b1111_0000) >> 4
 
-			self.leftSecondaryButtons = report[2]
+			self.directionalPad = leftMainButtons & 0b0000_1111
 
-			self.leftShoulderButton = leftSecondaryButtons & 0b01000000 == 0b01000000
-			self.leftTriggerButton  = leftSecondaryButtons & 0b10000000 == 0b10000000
+			self.upButton    = self.directionalPad & 0b0000_0100 == 0b0000_0100
+			self.rightButton = self.directionalPad & 0b0000_1000 == 0b0000_1000
+			self.downButton  = self.directionalPad & 0b0000_0010 == 0b0000_0010
+			self.leftButton  = self.directionalPad & 0b0000_0001 == 0b0000_0001
 
-			self.minusButton        = leftSecondaryButtons & 0b00000001 == 0b00000001
-			self.captureButton      = leftSecondaryButtons & 0b00100000 == 0b00100000
+			self.leftSideTopButton    = leftMainButtons & 0b0001_0000 == 0b0001_0000
+			self.leftSideBottomButton = leftMainButtons & 0b0010_0000 == 0b0010_0000
 
-			self.leftStickButton    = leftSecondaryButtons & 0b00000100 == 0b00000100
+			self.leftSecondaryButtons = report[2 + bluetoothOffset]
+
+			self.leftShoulderButton = leftSecondaryButtons & 0b0100_0000 == 0b0100_0000
+			self.leftTriggerButton  = leftSecondaryButtons & 0b1000_0000 == 0b1000_0000
+
+			self.minusButton        = leftSecondaryButtons & 0b0000_0001 == 0b0000_0001
+			self.captureButton      = leftSecondaryButtons & 0b0010_0000 == 0b0010_0000
+
+			self.leftStickButton    = leftSecondaryButtons & 0b0000_0100 == 0b0000_0100
 
 			if leftMainButtons != self.previousLeftMainButtons
 				|| leftSecondaryButtons != self.previousLeftSecondaryButtons
@@ -488,7 +457,7 @@ class JoyConController {
 
 			}
 
-			self.leftStick = report[3]
+			self.leftStick = report[3 + bluetoothOffset]
 
 			// origin left top for compatibility with other controllers
 
@@ -510,33 +479,49 @@ class JoyConController {
 
 			// TODO send "analog" notification
 
+			if (report[0] == JoyConController.INPUT_REPORT_ID_BUTTONS) {
+				return
+			}
+
+			// TODO gyro
+
+			if (report[0] == JoyConController.INPUT_REPORT_ID_BUTTONS_GYRO) {
+				return
+			}
+
 		} else if controllerType == JoyConController.CONTROLLER_ID_JOY_CON_RIGHT {
 
-			self.rightMainButtons = report[1]
+			// MARK: right joycon input report
 
-			self.faceButtons = rightMainButtons & 0b00001111
+			// MARK: digital buttons
+
+			self.rightMainButtons = report[1 + bluetoothOffset]
+
+			self.batteryRightLevel = (rightMainButtons & 0b1111_0000) >> 4
+
+			self.faceButtons = rightMainButtons & 0b0000_1111
 
 			print(String(self.faceButtons, radix:2))
 
-			self.xButton = self.faceButtons & 0b00000010 == 0b00000010
-			self.aButton = self.faceButtons & 0b00000001 == 0b00000001
-			self.bButton = self.faceButtons & 0b00000100 == 0b00000100
-			self.yButton = self.faceButtons & 0b00001000 == 0b00001000
+			self.xButton = self.faceButtons & 0b0000_0010 == 0b0000_0010
+			self.aButton = self.faceButtons & 0b0000_0001 == 0b0000_0001
+			self.bButton = self.faceButtons & 0b0000_0100 == 0b0000_0100
+			self.yButton = self.faceButtons & 0b0000_1000 == 0b0000_1000
 
-			self.rightSideTopButton    = rightMainButtons & 0b00100000 == 0b00100000
-			self.rightSideBottomButton = rightMainButtons & 0b00010000 == 0b00010000
+			self.rightSideTopButton    = rightMainButtons & 0b0010_0000 == 0b0010_0000
+			self.rightSideBottomButton = rightMainButtons & 0b0001_0000 == 0b0001_0000
 
-			self.rightSecondaryButtons = report[2]
+			self.rightSecondaryButtons = report[2 + bluetoothOffset]
 
-			self.rightShoulderButton = rightSecondaryButtons & 0b01000000 == 0b01000000
-			self.rightTriggerButton  = rightSecondaryButtons & 0b10000000 == 0b10000000
+			self.rightShoulderButton = rightSecondaryButtons & 0b0100_0000 == 0b0100_0000
+			self.rightTriggerButton  = rightSecondaryButtons & 0b1000_0000 == 0b1000_0000
 
 			print(String(rightSecondaryButtons, radix: 2))
 
-			self.plusButton          = rightSecondaryButtons & 0b00000010 == 0b00000010
-			self.homeButton          = rightSecondaryButtons & 0b00010000 == 0b00010000
+			self.plusButton          = rightSecondaryButtons & 0b0000_0010 == 0b0000_0010
+			self.homeButton          = rightSecondaryButtons & 0b0001_0000 == 0b0001_0000
 
-			self.rightStickButton    = rightSecondaryButtons & 0b00001000 == 0b00001000
+			self.rightStickButton    = rightSecondaryButtons & 0b0000_1000 == 0b0000_1000
 
 			if rightMainButtons != self.previousRightMainButtons
 				|| rightSecondaryButtons != self.previousRightSecondaryButtons
@@ -598,7 +583,7 @@ class JoyConController {
 
 			}
 
-			self.rightStick = report[3]
+			self.rightStick = report[3 + bluetoothOffset]
 
 			// origin left top for compatibility with other controllers
 
@@ -618,6 +603,22 @@ class JoyConController {
 				self.rightStickY = 0
 			}
 
+			// TODO send "analog" notification
+
+			if (report[0] == JoyConController.INPUT_REPORT_ID_BUTTONS) {
+				return
+			}
+
+			// TODO gyro
+
+			if (report[0] == JoyConController.INPUT_REPORT_ID_BUTTONS_GYRO) {
+				return
+			}
+
+			// TODO IR
+
+			// TODO NFC
+
 		}
 
 		// 4-7 (Pro Con) 	x40 8A 4F 8A 	Left analog stick data
@@ -625,6 +626,8 @@ class JoyConController {
 		// for joy-cons this can be ignored
 
 	}
+
+	// MARK: - Output reports
 
 	@objc func changeRumble(_ notification:Notification) {
 
@@ -661,6 +664,12 @@ class JoyConController {
 		*/
 
 		//sendLedReport(ledPattern:o.ledPattern)*/
+	}
+
+	func sendReport() { // TODO what params to send?
+
+		//
+
 	}
 
 }

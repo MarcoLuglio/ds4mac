@@ -185,25 +185,25 @@ class Xbox360Controller {
 
 		self.mainButtons = report[3]
 
-		self.yButton             = mainButtons & 0b10000000 == 0b10000000
-		self.xButton             = mainButtons & 0b01000000 == 0b01000000
-		self.bButton             = mainButtons & 0b00100000 == 0b00100000
-		self.aButton             = mainButtons & 0b00010000 == 0b00010000
+		self.yButton             = mainButtons & 0b1000_0000 == 0b1000_0000
+		self.xButton             = mainButtons & 0b0100_0000 == 0b0100_0000
+		self.bButton             = mainButtons & 0b0010_0000 == 0b0010_0000
+		self.aButton             = mainButtons & 0b0001_0000 == 0b0001_0000
 
 		// no 0b00001000
 
-		self.xboxButton          = mainButtons & 0b00000100 == 0b00000100
-		self.rightShoulderButton = mainButtons & 0b00000010 == 0b00000010
-		self.leftShoulderButton  = mainButtons & 0b00000001 == 0b00000001
+		self.xboxButton          = mainButtons & 0b0000_0100 == 0b0000_0100
+		self.rightShoulderButton = mainButtons & 0b0000_0010 == 0b0000_0010
+		self.leftShoulderButton  = mainButtons & 0b0000_0001 == 0b0000_0001
 
 		self.secondaryButtons = report[2]
 
-		self.startButton      = secondaryButtons & 0b00010000 == 0b00010000
-		self.backButton       = secondaryButtons & 0b00100000 == 0b00100000
-		self.leftStickButton  = secondaryButtons & 0b01000000 == 0b01000000
-		self.rightStickButton = secondaryButtons & 0b10000000 == 0b10000000
+		self.startButton      = secondaryButtons & 0b0001_0000 == 0b0001_0000
+		self.backButton       = secondaryButtons & 0b0010_0000 == 0b0010_0000
+		self.leftStickButton  = secondaryButtons & 0b0100_0000 == 0b0100_0000
+		self.rightStickButton = secondaryButtons & 0b1000_0000 == 0b1000_0000
 
-		self.directionalPad   = secondaryButtons & 0b00001111
+		self.directionalPad   = secondaryButtons & 0b0000_1111
 
 		// triggers put here to enable digital reading of them
 		self.leftTrigger = report[4]
@@ -229,10 +229,10 @@ class Xbox360Controller {
 						leftSideTopButton:false,
 						leftSideBottomButton:false,
 						// TODO maybe save the dpad states individually?
-						upButton:    self.directionalPad & 0b00000001 == 0b00000001,
-						rightButton: self.directionalPad & 0b00001000 == 0b00001000,
-						downButton:  self.directionalPad & 0b00000010 == 0b00000010,
-						leftButton:  self.directionalPad & 0b00000100 == 0b00000100,
+						upButton:    self.directionalPad & 0b0000_0001 == 0b0000_0001,
+						rightButton: self.directionalPad & 0b0000_1000 == 0b0000_1000,
+						downButton:  self.directionalPad & 0b0000_0010 == 0b0000_0010,
+						leftButton:  self.directionalPad & 0b0000_0100 == 0b0000_0100,
 						socialButton: self.backButton,
 						leftStickButton: self.leftStickButton,
 						trackPadButton: false,
@@ -319,6 +319,8 @@ class Xbox360Controller {
 		}
 
 	}
+
+	// MARK: - Output reports
 
 	@objc func changeRumble(_ notification:Notification) {
 

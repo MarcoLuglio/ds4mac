@@ -420,6 +420,8 @@ class XboxOneController {
 
 	}
 
+	// MARK: - Output reports
+
 	@objc func changeRumble(_ notification:Notification) {
 
 		let o = notification.object as! XboxOneChangeRumbleNotification

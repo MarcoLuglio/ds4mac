@@ -276,28 +276,28 @@ class DualShock4Controller {
 
 		self.mainButtons = report[5 + bluetoothOffset]
 
-		self.triangleButton = self.mainButtons & 0b10000000 == 0b10000000
-		self.circleButton   = self.mainButtons & 0b01000000 == 0b01000000
-		self.squareButton   = self.mainButtons & 0b00010000 == 0b00010000
-		self.crossButton    = self.mainButtons & 0b00100000 == 0b00100000
+		self.triangleButton = self.mainButtons & 0b1000_0000 == 0b1000_0000
+		self.circleButton   = self.mainButtons & 0b0100_0000 == 0b0100_0000
+		self.squareButton   = self.mainButtons & 0b0001_0000 == 0b0001_0000
+		self.crossButton    = self.mainButtons & 0b0010_0000 == 0b0010_0000
 
 		self.directionalPad = self.mainButtons & 0b00001111
 
 		self.secondaryButtons = report[6 + bluetoothOffset]
 
-		self.l1            = self.secondaryButtons & 0b00000001 == 0b00000001
-		self.r1            = self.secondaryButtons & 0b00000010 == 0b00000010
-		self.l2            = self.secondaryButtons & 0b00000100 == 0b00000100
-		self.r2            = self.secondaryButtons & 0b00001000 == 0b00001000
+		self.l1            = self.secondaryButtons & 0b0000_0001 == 0b0000_0001
+		self.r1            = self.secondaryButtons & 0b0000_0010 == 0b0000_0010
+		self.l2            = self.secondaryButtons & 0b0000_0100 == 0b0000_0100
+		self.r2            = self.secondaryButtons & 0b0000_1000 == 0b0000_1000
 
-		self.l3            = self.secondaryButtons & 0b01000000 == 0b01000000
-		self.r3            = self.secondaryButtons & 0b10000000 == 0b10000000
+		self.l3            = self.secondaryButtons & 0b0100_0000 == 0b0100_0000
+		self.r3            = self.secondaryButtons & 0b1000_0000 == 0b1000_0000
 
-		self.shareButton   = self.secondaryButtons & 0b00010000 == 0b00010000
-		self.optionsButton = self.secondaryButtons & 0b00100000 == 0b00100000
+		self.shareButton   = self.secondaryButtons & 0b0001_0000 == 0b0001_0000
+		self.optionsButton = self.secondaryButtons & 0b0010_0000 == 0b0010_0000
 
-		self.psButton =       report[7 + bluetoothOffset] & 0b00000001 == 0b00000001
-		self.touchpadButton = report[7 + bluetoothOffset] & 0b00000010 == 0b00000010
+		self.psButton =       report[7 + bluetoothOffset] & 0b0000_0001 == 0b0000_0001
+		self.touchpadButton = report[7 + bluetoothOffset] & 0b0000_0010 == 0b0000_0010
 
 		self.reportIterator = report[7 + bluetoothOffset] >> 2 // [7] 	Counter (counts up by 1 per report), I guess this is only relevant to bluetooth
 
@@ -601,8 +601,8 @@ class DualShock4Controller {
 
 		// MARK: battery
 
-		self.cableConnected = ((report[30 + bluetoothOffset] >> 4) & 0b00000001) == 1
-		self.batteryLevel = report[30 + bluetoothOffset] & 0b00001111
+		self.cableConnected = ((report[30 + bluetoothOffset] >> 4) & 0b0000_0001) == 1
+		self.batteryLevel = report[30 + bluetoothOffset] & 0b0000_1111
 
 		if !self.cableConnected || self.batteryLevel > 10 {
 			self.batteryCharging = false
@@ -657,19 +657,19 @@ class DualShock4Controller {
 
 		// report[34 + bluetoothOffset] // packet counter??
 
-		self.touchpadTouch0IsActive = report[35 + bluetoothOffset] & 0b10000000 != 0b10000000
+		self.touchpadTouch0IsActive = report[35 + bluetoothOffset] & 0b1000_0000 != 0b1000_0000
 
 		if self.touchpadTouch0IsActive {
-			self.touchpadTouch0Id = report[35 + bluetoothOffset] & 0b01111111
+			self.touchpadTouch0Id = report[35 + bluetoothOffset] & 0b0111_1111
 			 // 12 bits only
 			self.touchpadTouch0X = Int16((UInt16(report[37 + bluetoothOffset]) << 8 | UInt16(report[36 + bluetoothOffset]))      & 0b0000_1111_1111_1111)
 			self.touchpadTouch0Y = Int16((UInt16(report[38 + bluetoothOffset]) << 4 | UInt16(report[37 + bluetoothOffset]) >> 4) & 0b0000_1111_1111_1111)
 		}
 
-		self.touchpadTouch1IsActive = report[39 + bluetoothOffset] & 0b10000000 != 0b10000000 // if not active, no need to parse the rest
+		self.touchpadTouch1IsActive = report[39 + bluetoothOffset] & 0b1000_0000 != 0b1000_0000 // if not active, no need to parse the rest
 
 		if self.touchpadTouch1IsActive {
-			self.touchpadTouch1Id = report[39 + bluetoothOffset] & 0b01111111
+			self.touchpadTouch1Id = report[39 + bluetoothOffset] & 0b0111_1111
 			// 12 bits only
 			self.touchpadTouch1X = Int16((UInt16(report[41 + bluetoothOffset]) << 8 | UInt16(report[40 + bluetoothOffset]))      & 0b0000_1111_1111_1111)
 			self.touchpadTouch1Y = Int16((UInt16(report[42 + bluetoothOffset]) << 4 | UInt16(report[41 + bluetoothOffset]) >> 4) & 0b0000_1111_1111_1111)

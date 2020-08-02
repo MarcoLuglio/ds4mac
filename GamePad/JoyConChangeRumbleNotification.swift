@@ -10,18 +10,22 @@ import Foundation
 
 
 
-class JoyConChangeRumbleNotification {
+final class JoyConChangeRumbleNotification {
 
 	static let Name = Notification.Name("JoyConChangeRumbleNotification")
 
 	let leftHighBand:UInt16
 	let leftLowBand:UInt16
 	let rightHighBand:UInt16
-	let rightLowBand:Uint16
+	let rightLowBand:UInt16
 
-	init(leftHighBand:UInt16, leftLowBand:UInt16, rightHighBand:UInt16, rightLowBand:Uint16) {
+	// TODO amplitude an time as well?
+	init(leftHighBand:UInt16, leftLowBand:UInt16, rightHighBand:UInt16, rightLowBand:UInt16) {
 
-		//
+		self.leftHighBand = leftHighBand
+		self.leftLowBand = leftLowBand
+		self.rightHighBand = rightHighBand
+		self.rightLowBand = rightLowBand
 
 		// rumble left
 		// buffer[2] rumble
@@ -38,7 +42,7 @@ class JoyConChangeRumbleNotification {
 		/*
 		Rumble data
 
-		A timing byte (iterator??),
+		Iterator byte
 		then 4 bytes of rumble data for left Joy-Con,
 		followed by 4 bytes for right Joy-Con.
 		[00 01 40 40     00 01 40 40] (320Hz 0.0f 160Hz 0.0f) is neutral.

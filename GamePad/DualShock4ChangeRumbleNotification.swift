@@ -10,7 +10,7 @@ import Foundation
 
 
 
-class DualShock4ChangeRumbleNotification {
+final class DualShock4ChangeRumbleNotification {
 
 	static let Name = Notification.Name("DualShock4ChangeRumbleNotification")
 

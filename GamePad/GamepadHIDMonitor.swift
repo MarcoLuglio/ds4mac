@@ -19,7 +19,7 @@ import IOKit.hid
 //import ForceFeedback
 
 
-class GamepadHIDMonitor {
+final class GamepadHIDMonitor {
 
 	var joyConController:JoyConController!
 	//var dualSenseController:DualSenseController!

@@ -11,7 +11,7 @@ import zlib
 
 
 
-class Crc32 {
+final class Crc32 {
 
 	// https://docs.microsoft.com/en-us/openspecs/office_protocols/ms-abs/06966aa2-70da-4bf9-8448-3355f277cd77
 

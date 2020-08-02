@@ -10,7 +10,7 @@ import Foundation
 
 
 
-class DualShock4Controller {
+final class DualShock4Controller {
 
 	static let VENDOR_ID_SONY:Int64 = 0x054C // 1356
 	static let CONTROLLER_ID_DUALSHOCK_4_USB:Int64 = 0x05C4 // 1476
@@ -733,7 +733,7 @@ class DualShock4Controller {
 
 		let o = notification.object as! DualShock4ChangeRumbleNotification
 
-		sendReport(
+		self.sendReport(
 			leftHeavySlowRumble: o.leftHeavySlowRumble,
 			rightLightFastRumble: o.rightLightFastRumble,
 			red: 0,
@@ -747,7 +747,7 @@ class DualShock4Controller {
 
 		let o = notification.object as! DualShock4ChangeLedNotification
 
-		sendReport(
+		self.sendReport(
 			leftHeavySlowRumble: 0,
 			rightLightFastRumble: 0,
 			red: UInt8(o.red * 255),

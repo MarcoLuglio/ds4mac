@@ -10,7 +10,7 @@ import Foundation
 
 
 
-class XboxOneController {
+final class XboxOneController {
 
 	static let VENDOR_ID_MICROSOFT:Int64 = 0x045E // 1118
 

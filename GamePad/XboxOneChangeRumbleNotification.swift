@@ -10,7 +10,7 @@ import Foundation
 
 
 
-class XboxOneChangeRumbleNotification {
+final class XboxOneChangeRumbleNotification {
 
 	static let Name = Notification.Name("XboxOneChangeRumbleNotification")
 

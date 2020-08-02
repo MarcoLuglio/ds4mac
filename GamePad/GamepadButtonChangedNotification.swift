@@ -10,7 +10,7 @@ import Foundation
 
 
 
-class GamepadButtonChangedNotification {
+final class GamepadButtonChangedNotification {
 
 	static let Name = Notification.Name("GamePadButtonChangedNotification")
 

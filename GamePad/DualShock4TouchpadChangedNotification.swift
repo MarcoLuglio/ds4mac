@@ -10,7 +10,7 @@ import Foundation
 
 
 
-class DualShock4TouchpadChangedNotification {
+final class DualShock4TouchpadChangedNotification {
 
 	static let Name = Notification.Name("DualShock4TouchpadChangedNotification")
 

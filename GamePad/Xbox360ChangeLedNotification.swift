@@ -10,7 +10,7 @@ import Foundation
 
 
 
-class Xbox360ChangeLedNotification {
+final class Xbox360ChangeLedNotification {
 
 	static let Name = Notification.Name("Xbox360ChangeLedNotification")
 

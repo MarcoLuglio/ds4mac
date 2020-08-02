@@ -10,7 +10,7 @@ import Foundation
 
 
 
-class DualShock4ChangeLedNotification {
+final class DualShock4ChangeLedNotification {
 
 	static let Name = Notification.Name("DualShock4ChangeLedNotification")
 

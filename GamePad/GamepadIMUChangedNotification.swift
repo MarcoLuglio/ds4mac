@@ -10,7 +10,7 @@ import Foundation
 
 
 
-class GamepadIMUChangedNotification {
+final class GamepadIMUChangedNotification {
 
 	static let Name = Notification.Name("GamePadIMUChangedNotification")
 

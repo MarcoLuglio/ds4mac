@@ -159,7 +159,7 @@ class DualShock4UIModel: ObservableObject {
 
 		self.leftTrigger = Float32(o.leftTrigger) * 256 / Float32(o.triggerMax)
 
-		print(o.leftTrigger)
+		//print("left trigger: \(o.leftTrigger)")
 
 		// scales values to fit the Coords2d size
 

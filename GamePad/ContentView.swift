@@ -682,7 +682,7 @@ struct DualShock4Tab: View {
 
 				VStack {
 					Text("Gyro pitch: \(self.dualShock4.gyroPitch)").frame(width: 150, height: 30, alignment: Alignment.leading)
-					Text("Gyro yaw:  \(self.dualShock4.gyroYaw)").frame(width: 150, height: 30, alignment: Alignment.leading)
+					Text("Gyro yaw:   \(self.dualShock4.gyroYaw)").frame(width: 150, height: 30, alignment: Alignment.leading)
 					Text("Gyro roll:  \(self.dualShock4.gyroRoll)").frame(width: 150, height: 30, alignment: Alignment.leading)
 				}
 
@@ -713,7 +713,7 @@ struct JoyConTab: View {
 			VStack {
 
 				Slider<Text, Text>(
-					value: $joyCon.batteryLeft,
+					value: $joyCon.leftBattery,
 					in: 0...3,
 					step: 1,
 					onEditingChanged: {(someBool) in },
@@ -912,12 +912,12 @@ struct JoyConTab: View {
 				}
 
 				VStack {
-					Text("Gyro pitch: \(self.joyCon.gyroPitchLeft)").frame(width: 150, height: 30, alignment: Alignment.leading)
-					Text("Gyro yaw:  \(self.joyCon.gyroYawLeft)").frame(width: 150, height: 30, alignment: Alignment.leading)
-					Text("Gyro roll:  \(self.joyCon.gyroRollLeft)").frame(width: 150, height: 30, alignment: Alignment.leading)
-					Text("Accel x:  \(self.joyCon.accelXLeft)").frame(width: 150, height: 30, alignment: Alignment.leading)
-					Text("Accel y:  \(self.joyCon.accelYLeft)").frame(width: 150, height: 30, alignment: Alignment.leading)
-					Text("Accel z:  \(self.joyCon.accelZLeft)").frame(width: 150, height: 30, alignment: Alignment.leading)
+					Text("Gyro pitch: \(self.joyCon.leftGyroPitch)").frame(width: 150, height: 30, alignment: Alignment.leading)
+					Text("Gyro yaw:  \(self.joyCon.leftGyroYaw)").frame(width: 150, height: 30, alignment: Alignment.leading)
+					Text("Gyro roll:  \(self.joyCon.leftGyroRoll)").frame(width: 150, height: 30, alignment: Alignment.leading)
+					Text("Accel x:  \(self.joyCon.leftAccelX)").frame(width: 150, height: 30, alignment: Alignment.leading)
+					Text("Accel y:  \(self.joyCon.leftAccelY)").frame(width: 150, height: 30, alignment: Alignment.leading)
+					Text("Accel z:  \(self.joyCon.leftAccelZ)").frame(width: 150, height: 30, alignment: Alignment.leading)
 				}
 
 			}
@@ -926,7 +926,7 @@ struct JoyConTab: View {
 			VStack{
 
 				Slider<Text, Text>(
-					value: $joyCon.batteryRight,
+					value: $joyCon.leftBattery,
 					in: 0...3,
 					step: 1,
 					onEditingChanged: {(someBool) in },
@@ -1125,12 +1125,12 @@ struct JoyConTab: View {
 				}
 
 				VStack {
-					Text("Gyro pitch: \(self.joyCon.gyroPitchRight)").frame(width: 150, height: 30, alignment: Alignment.leading)
-					Text("Gyro yaw:  \(self.joyCon.gyroYawRight)").frame(width: 150, height: 30, alignment: Alignment.leading)
-					Text("Gyro roll:  \(self.joyCon.gyroRollRight)").frame(width: 150, height: 30, alignment: Alignment.leading)
-					Text("Accel x:  \(self.joyCon.accelXRight)").frame(width: 150, height: 30, alignment: Alignment.leading)
-					Text("Accel y:  \(self.joyCon.accelYRight)").frame(width: 150, height: 30, alignment: Alignment.leading)
-					Text("Accel z:  \(self.joyCon.accelZRight)").frame(width: 150, height: 30, alignment: Alignment.leading)
+					Text("Gyro pitch: \(self.joyCon.rightGyroPitch)").frame(width: 150, height: 30, alignment: Alignment.leading)
+					Text("Gyro yaw:   \(self.joyCon.rightGyroYaw)").frame(width: 150, height: 30, alignment: Alignment.leading)
+					Text("Gyro roll:  \(self.joyCon.rightGyroRoll)").frame(width: 150, height: 30, alignment: Alignment.leading)
+					Text("Accel x:  \(self.joyCon.rightAccelX)").frame(width: 150, height: 30, alignment: Alignment.leading)
+					Text("Accel y:  \(self.joyCon.rightAccelY)").frame(width: 150, height: 30, alignment: Alignment.leading)
+					Text("Accel z:  \(self.joyCon.rightAccelZ)").frame(width: 150, height: 30, alignment: Alignment.leading)
 				}
 
 			}

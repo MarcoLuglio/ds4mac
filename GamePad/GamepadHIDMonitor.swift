@@ -145,10 +145,10 @@ final class GamepadHIDMonitor {
 		// let reportInterval = IOHIDDeviceGetProperty(device, kIOHIDReportIntervalKey as CFString)
 		// print(reportInterval!) // for DS4 11250 micro seconds or 11.25ms
 
-		print(locationID!) // TODO could be used as ID
-		print(productName!)
-		print(vendorName!)
-		print(transport!)
+		print("locationID: \(locationID!)") // TODO could be used as ID
+		print("productName: \(productName!)")
+		print("vendorName: \(vendorName!)")
+		print("transport: \(transport!)")
 
 		if vendorID == JoyConController.VENDOR_ID_NINTENDO
 			&& (productID == JoyConController.CONTROLLER_ID_JOY_CON_LEFT

@@ -588,8 +588,8 @@ final class DualShock4Controller {
 					name: GamepadIMUChangedNotification.Name,
 					object: GamepadIMUChangedNotification(
 						gyroPitch: self.gyroPitch,
-						gyroYaw: self.gyroYaw,
-						gyroRoll: self.gyroRoll,
+						gyroYaw:   self.gyroYaw,
+						gyroRoll:  self.gyroRoll,
 						accelX: self.accelX,
 						accelY: self.accelY,
 						accelZ: self.accelZ

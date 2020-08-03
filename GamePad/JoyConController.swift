@@ -52,6 +52,8 @@ final class JoyConController {
 	NFC/IR MCU FW Update packet.
 	*/
 
+	static let MAX_STICK = 4096 // 2 ^ 12
+
 	static var outputReportIterator:UInt8 = 0
 
 	static var nextId:UInt8 = 0
@@ -116,12 +118,16 @@ final class JoyConController {
 
 	var leftStickButton = false
 	var previousLeftStickButton = false
+
+	// 8 direction stick data
 	var leftStick:UInt8 = 0
 	var previousLeftStick:UInt8 = 0
-	var leftStickX:Int8 = 0
-	var previousLeftStickX:Int8 = 0
-	var leftStickY:Int8 = 0
-	var previousLeftStickY:Int8 = 0
+
+	// analog stick data
+	var leftStickX:Int16 = 0
+	var previousLeftStickX:Int16 = 0
+	var leftStickY:Int16 = 0
+	var previousLeftStickY:Int16 = 0
 
 	// inertial measurement unit (imu)
 
@@ -198,12 +204,16 @@ final class JoyConController {
 
 	var rightStickButton = false
 	var previousRightStickButton = false
+
+	// 8 direction stick data
 	var rightStick:UInt8 = 0
 	var previousRightStick:UInt8 = 0
-	var rightStickX:Int8 = 0
-	var previousRightStickX:Int8 = 0
-	var rightStickY:Int8 = 0
-	var previousRightStickY:Int8 = 0
+
+	// analog stick data
+	var rightStickX:Int16 = 0
+	var previousRightStickX:Int16 = 0
+	var rightStickY:Int16 = 0
+	var previousRightStickY:Int16 = 0
 
 	// inertial measurement unit (imu)
 
@@ -319,7 +329,7 @@ final class JoyConController {
 
 				// MARK: left joycon simple input report
 
-				// MARK: digital buttons
+				// MARK: left digital buttons
 
 				self.leftMainButtons = report[1 + bluetoothOffset]
 
@@ -407,22 +417,48 @@ final class JoyConController {
 
 				self.leftStick = report[3 + bluetoothOffset]
 
+				// MARK: left analog buttons
 				// origin left top for compatibility with other controllers
 
-				if self.leftStick == JoyConLeftDirection.right.rawValue || self.leftStick == JoyConLeftDirection.rightUp.rawValue || self.leftStick == JoyConLeftDirection.rightDown.rawValue {
+				if self.leftStick        == JoyConLeftDirection.right.rawValue || self.leftStick == JoyConLeftDirection.rightUp.rawValue || self.leftStick == JoyConLeftDirection.rightDown.rawValue {
 					self.leftStickX = 1
-				} else if self.leftStick == JoyConLeftDirection.left.rawValue || self.leftStick == JoyConLeftDirection.leftUp.rawValue || self.leftStick == JoyConLeftDirection.leftDown.rawValue {
+				} else if self.leftStick == JoyConLeftDirection.left.rawValue  || self.leftStick == JoyConLeftDirection.leftUp.rawValue  || self.leftStick == JoyConLeftDirection.leftDown.rawValue {
 					self.leftStickX = -1
 				} else {
 					self.leftStickX = 0
 				}
 
-				if self.leftStick == 2 || self.leftStick == 3 || self.leftStick == 1 {
+				if self.leftStick        == JoyConLeftDirection.down.rawValue || self.leftStick == JoyConLeftDirection.leftDown.rawValue || self.leftStick == JoyConLeftDirection.rightDown.rawValue {
 					self.leftStickY = 1
-				} else if self.leftStick == JoyConLeftDirection.up.rawValue || self.leftStick == JoyConLeftDirection.leftUp.rawValue || self.leftStick == JoyConLeftDirection.rightUp.rawValue {
+				} else if self.leftStick == JoyConLeftDirection.up.rawValue   || self.leftStick == JoyConLeftDirection.leftUp.rawValue   || self.leftStick == JoyConLeftDirection.rightUp.rawValue {
 					self.leftStickY = -1
 				} else {
 					self.leftStickY = 0
+				}
+
+				if self.previousLeftStickX != self.leftStickX
+					|| self.previousLeftStickY != self.leftStickY
+				{
+
+					DispatchQueue.main.async {
+						NotificationCenter.default.post(
+							name: GamepadAnalogChangedNotification.Name,
+							object: GamepadAnalogChangedNotification(
+								leftStickX: UInt16(self.leftStickX),
+								leftStickY: UInt16(self.leftStickY),
+								rightStickX: UInt16(self.rightStickX),
+								rightStickY: UInt16(self.rightStickY),
+								stickMax: 2,
+								leftTrigger: self.leftTriggerButton ? UInt16(UInt8.max) : 0,
+								rightTrigger: self.rightTriggerButton ? UInt16(UInt8.max) : 0,
+								triggerMax: UInt16(UInt8.max)
+							)
+						)
+					}
+
+					self.previousLeftStickX = self.leftStickX
+					self.previousLeftStickY = self.leftStickY
+
 				}
 
 			} else if report[0] == JoyConController.INPUT_REPORT_ID_BUTTONS_GYRO {
@@ -432,6 +468,8 @@ final class JoyConController {
 				// print(report[1]) // increments in 3
 				// print(report[2]) // 0x8E 142
 				// print(report[3]) // 0
+
+				// MARK: left digital buttons
 
 				self.leftMainButtons = report[5 + bluetoothOffset] // TODO not sure about bluetooth offset for tihs report
 
@@ -448,11 +486,9 @@ final class JoyConController {
 				self.leftShoulderButton = leftMainButtons & 0b0100_0000 == 0b0100_0000
 				self.leftTriggerButton  = leftMainButtons & 0b1000_0000 == 0b1000_0000
 
-				self.leftSecondaryButtons = report[4 + bluetoothOffset]
-
-				self.minusButton =     self.leftSecondaryButtons & 0b0000_0001 == 0b0000_0001
+				self.minusButton     = self.leftSecondaryButtons & 0b0000_0001 == 0b0000_0001
 				self.leftStickButton = self.leftSecondaryButtons & 0b0000_1000 == 0b0000_1000
-				self.captureButton =   self.leftSecondaryButtons & 0b0010_0000 == 0b0010_0000
+				self.captureButton   = self.leftSecondaryButtons & 0b0010_0000 == 0b0010_0000
 
 				if leftMainButtons != self.previousLeftMainButtons
 					|| leftSecondaryButtons != self.previousLeftSecondaryButtons
@@ -514,69 +550,63 @@ final class JoyConController {
 
 				}
 
-				// print(report[6]) // thumbstick
-				// print(report[7]) // thumbstick
-				// print(report[8]) // thumbstick
+				// print("report[9]:  \(report[9])")  // always 0!?
+				// print("report[10]: \(report[10])") // always 0!?
+				// print("report[11]: \(report[11])") // always 0!?
 
-				// TODO send "analog" notification
+				// print("report[12]: \(report[12])") // always 192!?
 
-				// print("report[9]:  \(report[9])") // always 0
-				// print("report[10]: \(report[10])") // always 0
-				// print("report[11]: \(report[11])") // always 0
+				// MARK: left analog buttons
 
-				// print("report[12]: \(report[12])") // always 192
+				// TODO calibrate
+				self.leftStickX = Int16(report[7] & 0b0000_1111) << 8 | Int16(report[6]) // 12 bits actually
+				self.leftStickY = Int16(report[8]) << 4 | Int16(report[7]) >> 4 // 12 bits actually
 
-				// TODO accel + gyro
+				if self.previousLeftStickX != self.leftStickX
+					|| self.previousLeftStickY != self.leftStickY
+				{
 
-				//self.leftAc
+					DispatchQueue.main.async {
+						NotificationCenter.default.post(
+							name: GamepadAnalogChangedNotification.Name,
+							object: GamepadAnalogChangedNotification(
+								leftStickX: UInt16(self.leftStickX),
+								leftStickY: UInt16(self.leftStickY),
+								rightStickX: UInt16(self.rightStickX),
+								rightStickY: UInt16(self.rightStickY),
+								stickMax: UInt16(JoyConController.MAX_STICK), // 12 bits
+								leftTrigger: self.leftTriggerButton ? UInt16(UInt8.max) : 0,
+								rightTrigger: self.rightTriggerButton ? UInt16(UInt8.max) : 0,
+								triggerMax: UInt16(UInt8.max)
+							)
+						)
+					}
+
+					self.previousLeftStickX = self.leftStickX
+					self.previousLeftStickY = self.leftStickY
+
+				}
+
+				// MARK: left inertial movement unit (imu)
+
+				// ?? The controller sends the sensor data 3 times with a little bit different values. Skip them
+
+				// ?? gyroscope data is in rad/s
+				self.leftGyroPitch = Int32(report[20 + bluetoothOffset]) << 8 | Int32(report[19 + bluetoothOffset]) // TODO calibrate
+				self.leftGyroYaw   = Int32(report[22 + bluetoothOffset]) << 8 | Int32(report[21 + bluetoothOffset]) // TODO calibrate
+				self.leftGyroRoll  = Int32(report[24 + bluetoothOffset]) << 8 | Int32(report[23 + bluetoothOffset]) // TODO calibrate
+
+				// ?? accelerometer data is in m/s²
+				self.leftAccelX = Int32(report[14 + bluetoothOffset]) << 8 | Int32(report[13 + bluetoothOffset]) // TODO calibrate
+				self.leftAccelY = Int32(report[16 + bluetoothOffset]) << 8 | Int32(report[15 + bluetoothOffset]) // TODO calibrate
+				self.leftAccelZ = Int32(report[18 + bluetoothOffset]) << 8 | Int32(report[17 + bluetoothOffset]) // TODO calibrate
 
 				/*
+				jc->accel.x = (float)(uint16_to_int16(packet[13] | (packet[14] << 8) & 0xFF00)) * jc->acc_cal_coeff[0];
 
-				input_report_sys = String::Format(L"Acc/meter (Raw/Cal):\r\n");
-							   //The controller sends the sensor data 3 times with a little bit different values. Skip them
-							   input_report_sys += String::Format(L"X: {0:X4}  {1,7:F2} m/s\u00B2\r\n", buf_reply[13] | (buf_reply[14] << 8) & 0xFF00,
-								   (float)(uint16_to_int16(buf_reply[13] | (buf_reply[14] << 8) & 0xFF00)) * acc_cal_coeff[0]);
-							   input_report_sys += String::Format(L"Y: {0:X4}  {1,7:F2} m/s\u00B2\r\n", buf_reply[15] | (buf_reply[16] << 8) & 0xFF00,
-								   (float)(uint16_to_int16(buf_reply[15] | (buf_reply[16] << 8) & 0xFF00)) * acc_cal_coeff[1]);
-							   input_report_sys += String::Format(L"Z: {0:X4}  {1,7:F2} m/s\u00B2\r\n", buf_reply[17] | (buf_reply[18] << 8) & 0xFF00,
-								   (float)(uint16_to_int16(buf_reply[17] | (buf_reply[18] << 8) & 0xFF00))  * acc_cal_coeff[2]);
-
-							   input_report_sys += String::Format(L"\r\nGyroscope (Raw/Cal):\r\n");
-							   input_report_sys += String::Format(L"X: {0:X4}  {1,7:F2} rad/s\r\n", buf_reply[19] | (buf_reply[20] << 8) & 0xFF00,
-								   (float)(uint16_to_int16(buf_reply[19] | (buf_reply[20] << 8) & 0xFF00) - uint16_to_int16(sensor_cal[1][0])) * gyro_cal_coeff[0]);
-							   input_report_sys += String::Format(L"Y: {0:X4}  {1,7:F2} rad/s\r\n", buf_reply[21] | (buf_reply[22] << 8) & 0xFF00,
-								   (float)(uint16_to_int16(buf_reply[21] | (buf_reply[22] << 8) & 0xFF00) - uint16_to_int16(sensor_cal[1][1])) * gyro_cal_coeff[1]);
-							   input_report_sys += String::Format(L"Z: {0:X4}  {1,7:F2} rad/s\r\n", buf_reply[23] | (buf_reply[24] << 8) & 0xFF00,
-								   (float)(uint16_to_int16(buf_reply[23] | (buf_reply[24] << 8) & 0xFF00) - uint16_to_int16(sensor_cal[1][2])) * gyro_cal_coeff[2]);
-
-
-				// Accelerometer:
-				// Accelerometer data is absolute (m/s^2)
-				{
-
-					// get accelerometer X:
-					jc->accel.x = (float)(uint16_to_int16(packet[13] | (packet[14] << 8) & 0xFF00)) * jc->acc_cal_coeff[0];
-
-					// get accelerometer Y:
-					jc->accel.y = (float)(uint16_to_int16(packet[15] | (packet[16] << 8) & 0xFF00)) * jc->acc_cal_coeff[1];
-
-					// get accelerometer Z:
-					jc->accel.z = (float)(uint16_to_int16(packet[17] | (packet[18] << 8) & 0xFF00)) * jc->acc_cal_coeff[2];
-				}
-
-				// Gyroscope:
-				// Gyroscope data is relative (rads/s)
-				{
-
-					// get roll:
-					jc->gyro.roll	= (float)((uint16_to_int16(packet[19] | (packet[20] << 8) & 0xFF00)) - jc->sensor_cal[1][0]) * jc->gyro_cal_coeff[0];
-
-					// get pitch:
-					jc->gyro.pitch	= (float)((uint16_to_int16(packet[21] | (packet[22] << 8) & 0xFF00)) - jc->sensor_cal[1][1]) * jc->gyro_cal_coeff[1];
-
-					// get yaw:
-					jc->gyro.yaw	= (float)((uint16_to_int16(packet[23] | (packet[24] << 8) & 0xFF00)) - jc->sensor_cal[1][2]) * jc->gyro_cal_coeff[2];
-				}
+				jc->gyro.roll	= (float)((uint16_to_int16(packet[19] | (packet[20] << 8) & 0xFF00)) - jc->sensor_cal[1][0]) * jc->gyro_cal_coeff[0];
+				jc->gyro.pitch	= (float)((uint16_to_int16(packet[21] | (packet[22] << 8) & 0xFF00)) - jc->sensor_cal[1][1]) * jc->gyro_cal_coeff[1];
+				jc->gyro.yaw	= (float)((uint16_to_int16(packet[23] | (packet[24] << 8) & 0xFF00)) - jc->sensor_cal[1][2]) * jc->gyro_cal_coeff[2];
 
 				// offsets:
 				{
@@ -628,133 +658,282 @@ final class JoyConController {
 
 		} else if controllerType == JoyConController.CONTROLLER_ID_JOY_CON_RIGHT {
 
+
 			// MARK: right joycon input report
 
-			// MARK: digital buttons
+			if report[0] == JoyConController.INPUT_REPORT_ID_BUTTONS {
 
-			self.rightMainButtons = report[1 + bluetoothOffset]
+				// MARK: right joycon simple input report
 
-			self.batteryRightLevel = (rightMainButtons & 0b1111_0000) >> 4
+				// MARK: right digital buttons
 
-			self.faceButtons = rightMainButtons & 0b0000_1111
+				self.rightMainButtons = report[1 + bluetoothOffset]
 
-			print(String(self.faceButtons, radix:2))
+				self.batteryRightLevel = (rightMainButtons & 0b1111_0000) >> 4
 
-			self.xButton = self.faceButtons & 0b0000_0010 == 0b0000_0010
-			self.aButton = self.faceButtons & 0b0000_0001 == 0b0000_0001
-			self.bButton = self.faceButtons & 0b0000_0100 == 0b0000_0100
-			self.yButton = self.faceButtons & 0b0000_1000 == 0b0000_1000
+				self.faceButtons = rightMainButtons & 0b0000_1111
 
-			self.rightSideTopButton    = rightMainButtons & 0b0010_0000 == 0b0010_0000
-			self.rightSideBottomButton = rightMainButtons & 0b0001_0000 == 0b0001_0000
+				self.xButton = self.faceButtons & 0b0000_0010 == 0b0000_0010
+				self.aButton = self.faceButtons & 0b0000_0001 == 0b0000_0001
+				self.bButton = self.faceButtons & 0b0000_0100 == 0b0000_0100
+				self.yButton = self.faceButtons & 0b0000_1000 == 0b0000_1000
 
-			self.rightSecondaryButtons = report[2 + bluetoothOffset]
+				self.rightSideTopButton    = rightMainButtons & 0b0010_0000 == 0b0010_0000
+				self.rightSideBottomButton = rightMainButtons & 0b0001_0000 == 0b0001_0000
 
-			self.rightShoulderButton = rightSecondaryButtons & 0b0100_0000 == 0b0100_0000
-			self.rightTriggerButton  = rightSecondaryButtons & 0b1000_0000 == 0b1000_0000
+				self.rightSecondaryButtons = report[2 + bluetoothOffset]
 
-			print(String(rightSecondaryButtons, radix: 2))
+				self.rightShoulderButton = rightSecondaryButtons & 0b0100_0000 == 0b0100_0000
+				self.rightTriggerButton  = rightSecondaryButtons & 0b1000_0000 == 0b1000_0000
 
-			self.plusButton          = rightSecondaryButtons & 0b0000_0010 == 0b0000_0010
-			self.homeButton          = rightSecondaryButtons & 0b0001_0000 == 0b0001_0000
+				print(String(rightSecondaryButtons, radix: 2))
 
-			self.rightStickButton    = rightSecondaryButtons & 0b0000_1000 == 0b0000_1000
+				self.plusButton          = rightSecondaryButtons & 0b0000_0010 == 0b0000_0010
+				self.homeButton          = rightSecondaryButtons & 0b0001_0000 == 0b0001_0000
 
-			if rightMainButtons != self.previousRightMainButtons
-				|| rightSecondaryButtons != self.previousRightSecondaryButtons
-			{
+				self.rightStickButton    = rightSecondaryButtons & 0b0000_1000 == 0b0000_1000
 
-				DispatchQueue.main.async {
-					NotificationCenter.default.post(
-						name: GamepadButtonChangedNotification.Name,
-						object: GamepadButtonChangedNotification(
-							leftTriggerButton: self.leftTriggerButton,
-							leftShoulderButton: self.leftShoulderButton,
-							minusButton: self.minusButton,
-							leftSideTopButton: self.leftSideTopButton,
-							leftSideBottomButton: self.leftSideBottomButton,
-							upButton: self.upButton,
-							rightButton: self.rightButton,
-							downButton: self.downButton,
-							leftButton: self.leftButton,
-							socialButton: self.captureButton,
-							leftStickButton: self.leftStickButton,
-							trackPadButton: false,
-							centralButton: false,
-							rightStickButton: self.rightStickButton,
-							rightAuxiliaryButton: self.homeButton,
-							faceNorthButton: self.xButton,
-							faceEastButton: self.aButton,
-							faceSouthButton: self.bButton,
-							faceWestButton: self.yButton,
-							rightSideBottomButton: self.rightSideBottomButton,
-							rightSideTopButton: self.rightSideTopButton,
-							plusButton: self.plusButton,
-							rightShoulderButton: self.rightShoulderButton,
-							rightTriggerButton: self.rightTriggerButton
+				if rightMainButtons != self.previousRightMainButtons
+					|| rightSecondaryButtons != self.previousRightSecondaryButtons
+				{
+
+					DispatchQueue.main.async {
+						NotificationCenter.default.post(
+							name: GamepadButtonChangedNotification.Name,
+							object: GamepadButtonChangedNotification(
+								leftTriggerButton: self.leftTriggerButton,
+								leftShoulderButton: self.leftShoulderButton,
+								minusButton: self.minusButton,
+								leftSideTopButton: self.leftSideTopButton,
+								leftSideBottomButton: self.leftSideBottomButton,
+								upButton: self.upButton,
+								rightButton: self.rightButton,
+								downButton: self.downButton,
+								leftButton: self.leftButton,
+								socialButton: self.captureButton,
+								leftStickButton: self.leftStickButton,
+								trackPadButton: false,
+								centralButton: false,
+								rightStickButton: self.rightStickButton,
+								rightAuxiliaryButton: self.homeButton,
+								faceNorthButton: self.xButton,
+								faceEastButton: self.aButton,
+								faceSouthButton: self.bButton,
+								faceWestButton: self.yButton,
+								rightSideBottomButton: self.rightSideBottomButton,
+								rightSideTopButton: self.rightSideTopButton,
+								plusButton: self.plusButton,
+								rightShoulderButton: self.rightShoulderButton,
+								rightTriggerButton: self.rightTriggerButton
+							)
 						)
-					)
+					}
+
+					self.previousRightMainButtons = self.rightMainButtons
+
+					self.previousFaceButtons = self.faceButtons
+
+					self.previousXButton = self.xButton
+					self.previousAButton = self.aButton
+					self.previousBButton = self.bButton
+					self.previousYButton = self.yButton
+
+					self.previousRightSideTopButton = self.rightSideTopButton
+					self.previousRightSideBottomButton = self.rightSideBottomButton
+
+					self.previousRightSecondaryButtons = self.rightSecondaryButtons
+
+					self.previousRightShoulderButton = self.rightShoulderButton
+					self.previousRightTriggerButton = self.rightTriggerButton
+
+					self.previousPlusButton = self.plusButton
+					self.previousHomeButton = self.homeButton
+
+					self.previousRightStickButton = self.rightStickButton
+
 				}
 
-				self.previousRightMainButtons = self.rightMainButtons
+				self.rightStick = report[3 + bluetoothOffset]
 
-				self.previousFaceButtons = self.faceButtons
+				// MARK: right analog buttons
+				// origin left top for compatibility with other controllers
 
-				self.previousXButton = self.xButton
-				self.previousAButton = self.aButton
-				self.previousBButton = self.bButton
-				self.previousYButton = self.yButton
+				if self.rightStick        == JoyConRightDirection.right.rawValue || self.rightStick == JoyConRightDirection.rightUp.rawValue || self.rightStick == JoyConRightDirection.rightDown.rawValue {
+					self.rightStickX = 1
+				} else if self.rightStick == JoyConRightDirection.left.rawValue  || self.rightStick == JoyConRightDirection.leftUp.rawValue  || self.rightStick == JoyConRightDirection.leftDown.rawValue {
+					self.rightStickX = -1
+				} else {
+					self.rightStickX = 0
+				}
 
-				self.previousRightSideTopButton = self.rightSideTopButton
-				self.previousRightSideBottomButton = self.rightSideBottomButton
+				if self.rightStick        == JoyConRightDirection.down.rawValue || self.rightStick == JoyConRightDirection.leftDown.rawValue || self.rightStick == JoyConRightDirection.rightDown.rawValue {
+					self.rightStickY = 1
+				} else if self.rightStick == JoyConRightDirection.up.rawValue   || self.rightStick == JoyConRightDirection.leftUp.rawValue   || self.rightStick == JoyConRightDirection.rightUp.rawValue {
+					self.rightStickY = -1
+				} else {
+					self.rightStickY = 0
+				}
 
-				self.previousRightSecondaryButtons = self.rightSecondaryButtons
+				if self.previousRightStickX != self.rightStickX
+					|| self.previousRightStickY != self.rightStickY
+				{
 
-				self.previousRightShoulderButton = self.rightShoulderButton
-				self.previousRightTriggerButton = self.rightTriggerButton
+					DispatchQueue.main.async {
+						NotificationCenter.default.post(
+							name: GamepadAnalogChangedNotification.Name,
+							object: GamepadAnalogChangedNotification(
+								leftStickX: UInt16(self.leftStickX),
+								leftStickY: UInt16(self.leftStickY),
+								rightStickX: UInt16(self.rightStickX),
+								rightStickY: UInt16(self.rightStickY),
+								stickMax: 2,
+								leftTrigger: self.leftTriggerButton ? UInt16(UInt8.max) : 0,
+								rightTrigger: self.rightTriggerButton ? UInt16(UInt8.max) : 0,
+								triggerMax: UInt16(UInt8.max)
+							)
+						)
+					}
 
-				self.previousPlusButton = self.plusButton
-				self.previousHomeButton = self.homeButton
+					self.previousRightStickX = self.rightStickX
+					self.previousRightStickY = self.rightStickY
 
-				self.previousRightStickButton = self.rightStickButton
+				}
 
-			}
+			} else if report[0] == JoyConController.INPUT_REPORT_ID_BUTTONS_GYRO {
 
-			self.rightStick = report[3 + bluetoothOffset]
+				// MARK: right joycon gyro input report
 
-			// origin left top for compatibility with other controllers
+				// print(report[1]) // increments in 3
+				// print(report[2]) // 0x8E 142
+				// print(report[3]) // 0
 
-			if self.rightStick == JoyConRightDirection.right.rawValue || self.rightStick == JoyConRightDirection.rightUp.rawValue || self.rightStick == JoyConRightDirection.rightDown.rawValue {
-				self.rightStickX = 1
-			} else if self.rightStick == JoyConRightDirection.left.rawValue || self.rightStick == JoyConRightDirection.leftUp.rawValue || self.rightStick == JoyConRightDirection.leftDown.rawValue {
-				self.rightStickX = -1
-			} else {
-				self.rightStickX = 0
-			}
+				// MARK: right digital buttons
 
-			if self.rightStick == 2 || self.rightStick == 3 || self.rightStick == 1 {
-				self.rightStickY = 1
-			} else if self.rightStick == JoyConRightDirection.up.rawValue || self.rightStick == JoyConRightDirection.leftUp.rawValue || self.rightStick == JoyConRightDirection.rightUp.rawValue {
-				self.rightStickY = -1
-			} else {
-				self.rightStickY = 0
-			}
+				self.rightMainButtons = report[5 + bluetoothOffset] // TODO not sure about bluetooth offset for tihs report
 
-			// TODO send "analog" notification
+				self.faceButtons = rightMainButtons & 0b0000_1111
 
-			if (report[0] == JoyConController.INPUT_REPORT_ID_BUTTONS) {
-				return
-			}
+				// TODO check these
+				self.yButton = self.faceButtons & 0b0000_0010 == 0b0000_0010
+				self.xButton = self.faceButtons & 0b0000_0100 == 0b0000_0100
+				self.aButton = self.faceButtons & 0b0000_0001 == 0b0000_0001
+				self.bButton = self.faceButtons & 0b0000_1000 == 0b0000_1000
 
-			// TODO gyro
+				self.rightSideTopButton    = rightMainButtons & 0b0010_0000 == 0b0010_0000
+				self.rightSideBottomButton = rightMainButtons & 0b0001_0000 == 0b0001_0000
 
-			if (report[0] == JoyConController.INPUT_REPORT_ID_BUTTONS_GYRO) {
-				return
+				self.rightShoulderButton = rightMainButtons & 0b0100_0000 == 0b0100_0000
+				self.rightTriggerButton  = rightMainButtons & 0b1000_0000 == 0b1000_0000
+
+				self.rightSecondaryButtons = report[4 + bluetoothOffset]
+
+				self.plusButton       = self.rightSecondaryButtons & 0b0000_0001 == 0b0000_0001
+				self.rightStickButton = self.rightSecondaryButtons & 0b0000_1000 == 0b0000_1000
+				self.homeButton       = self.rightSecondaryButtons & 0b0010_0000 == 0b0010_0000
+
+				if rightMainButtons != self.previousRightMainButtons
+					|| rightSecondaryButtons != self.previousRightSecondaryButtons
+				{
+
+					DispatchQueue.main.async {
+						NotificationCenter.default.post(
+							name: GamepadButtonChangedNotification.Name,
+							object: GamepadButtonChangedNotification(
+								leftTriggerButton: self.leftTriggerButton,
+								leftShoulderButton: self.leftShoulderButton,
+								minusButton: self.minusButton,
+								leftSideTopButton: self.leftSideTopButton,
+								leftSideBottomButton: self.leftSideBottomButton,
+								upButton: self.upButton,
+								rightButton: self.rightButton,
+								downButton: self.downButton,
+								leftButton: self.leftButton,
+								socialButton: self.captureButton,
+								leftStickButton: self.leftStickButton,
+								trackPadButton: false,
+								centralButton: false,
+								rightStickButton: self.rightStickButton,
+								rightAuxiliaryButton: self.homeButton,
+								faceNorthButton: self.xButton,
+								faceEastButton: self.aButton,
+								faceSouthButton: self.bButton,
+								faceWestButton: self.yButton,
+								rightSideBottomButton: self.rightSideBottomButton,
+								rightSideTopButton: self.rightSideTopButton,
+								plusButton: self.plusButton,
+								rightShoulderButton: self.rightShoulderButton,
+								rightTriggerButton: self.rightTriggerButton
+							)
+						)
+					}
+
+					self.previousRightMainButtons = self.rightMainButtons
+
+					self.previousFaceButtons = self.faceButtons
+
+					self.previousXButton = self.xButton
+					self.previousAButton = self.aButton
+					self.previousBButton = self.bButton
+					self.previousYButton = self.yButton
+
+					self.previousRightSideTopButton = self.rightSideTopButton
+					self.previousRightSideBottomButton = self.rightSideBottomButton
+
+					self.previousRightSecondaryButtons = self.rightSecondaryButtons
+
+					self.previousRightShoulderButton = self.rightShoulderButton
+					self.previousRightTriggerButton = self.rightTriggerButton
+
+					self.previousPlusButton = self.plusButton
+					self.previousHomeButton = self.homeButton
+
+					self.previousRightStickButton = self.rightStickButton
+
+				}
+
+				// print("report[9]:  \(report[9])")  // always 0!?
+				// print("report[10]: \(report[10])") // always 0!?
+				// print("report[11]: \(report[11])") // always 0!?
+
+				// print("report[12]: \(report[12])") // always 192!?
+
+				// MARK: right analog buttons
+
+				// TODO calibrate
+				self.rightStickX = Int16(report[7] & 0b0000_1111) << 8 | Int16(report[6]) // 12 bits actually
+				self.rightStickY = Int16(report[8]) << 4 | Int16(report[7]) >> 4 // 12 bits actually
+
+				if self.previousRightStickX != self.rightStickX
+					|| self.previousRightStickY != self.rightStickY
+				{
+
+					DispatchQueue.main.async {
+						NotificationCenter.default.post(
+							name: GamepadAnalogChangedNotification.Name,
+							object: GamepadAnalogChangedNotification(
+								leftStickX: UInt16(self.leftStickX),
+								leftStickY: UInt16(self.leftStickY),
+								rightStickX: UInt16(self.rightStickX),
+								rightStickY: UInt16(self.rightStickY),
+								stickMax: UInt16(JoyConController.MAX_STICK), // 12 bits
+								leftTrigger: self.leftTriggerButton ? UInt16(UInt8.max) : 0,
+								rightTrigger: self.rightTriggerButton ? UInt16(UInt8.max) : 0,
+								triggerMax: UInt16(UInt8.max)
+							)
+						)
+					}
+
+					self.previousRightStickX = self.rightStickX
+					self.previousRightStickY = self.rightStickY
+
+				}
+
 			}
 
 			// TODO IR
 
 			// TODO NFC
+
 
 		}
 

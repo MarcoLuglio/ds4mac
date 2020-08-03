@@ -29,11 +29,37 @@ final class JoyConController {
 	static let OUTPUT_REPORT_ID_NFC_IR:UInt8 = 0x11 // Request specific data from the NFC/IR MCU. Can also send rumble. Send with subcmd 03 00/01/02/03??
 
 	static let OUTPUT_REPORT_SUB_ID_SET_INPUT_REPORT_ID:UInt8 = 0x03
+
+	/*
+	spi serial pehipheral interface
+	Subcommand 0x10: SPI flash read
+
+	Little-endian int32 address, int8 size, max size is x1D. Replies with x9010 ack and echoes the request info, followed by size bytes of data.
+
+	Request:
+	[01 .. .. .. .. .. .. .. .. .. 10 80 60 00 00 18]
+								   ^ subcommand
+									  ^~~~~~~~~~~ address x6080
+												  ^ length = 0x18 bytes
+	Response: INPUT 21
+	[xx .E .. .. .. .. .. .. .. .. .. .. 0. 90 80 60 00 00 18 .. .. .. ....]
+											^ subcommand reply
+												  ^~~~~~~~~~~ address
+														   ^ length = 0x18 bytes
+															  ^~~~~ data
+
+	Subcommand 0x11: SPI flash Write
+
+	Little-endian int32 address, int8 size. Max size x1D data to write. Replies with x8011 ack and a uint8 status. x00 = success, x01 = write protected.
+	*/
+
+	static let OUTPUT_REPORT_SUB_ID_TOGGLE_IR_NFC:UInt8       = 0x22
 	static let OUTPUT_REPORT_SUB_ID_SET_PLAYER_LIGHTS:UInt8   = 0x30
 	static let OUTPUT_REPORT_SUB_ID_GET_PLAYER_LIGHTS:UInt8   = 0x31
 	static let OUTPUT_REPORT_SUB_ID_SET_HOME_LIGHT:UInt8      = 0x38
 	static let OUTPUT_REPORT_SUB_ID_TOGGLE_IMU:UInt8          = 0x40
 	static let OUTPUT_REPORT_SUB_ID_IMU_SETTINGS:UInt8        = 0x41
+	// 42 is write to IMU registers, 43 is read from IMU registers. Check is this is how to read calibration data
 	static let OUTPUT_REPORT_SUB_ID_TOGGLE_VIBRATION:UInt8    = 0x48
 	static let OUTPUT_REPORT_SUB_ID_BATTERY_VOLTAGE:UInt8     = 0x50
 
@@ -132,18 +158,18 @@ final class JoyConController {
 	// inertial measurement unit (imu)
 
 	var leftGyroPitch:Int32 = 0
-	var leftPreviousGyroPitch:Int32 = 0
+	var previousLeftGyroPitch:Int32 = 0
 	var leftGyroYaw:Int32 = 0
-	var leftPreviousGyroYaw:Int32 = 0
+	var previousLeftGyroYaw:Int32 = 0
 	var leftGyroRoll:Int32 = 0
-	var leftPreviousGyroRoll:Int32 = 0
+	var previousLeftGyroRoll:Int32 = 0
 
 	var leftAccelX:Int32 = 0
-	var leftPreviousAccelX:Int32 = 0
+	var previousLeftAccelX:Int32 = 0
 	var leftAccelY:Int32 = 0
-	var leftPreviousAccelY:Int32 = 0
+	var previousLeftAccelY:Int32 = 0
 	var leftAccelZ:Int32 = 0
-	var leftPreviousAccelZ:Int32 = 0
+	var previousLeftAccelZ:Int32 = 0
 
 	// battery
 	//var cableConnected = false
@@ -218,18 +244,18 @@ final class JoyConController {
 	// inertial measurement unit (imu)
 
 	var rightGyroPitch:Int32 = 0
-	var rightPreviousGyroPitch:Int32 = 0
+	var previousRightGyroPitch:Int32 = 0
 	var rightGyroYaw:Int32 = 0
-	var rightPreviousGyroYaw:Int32 = 0
+	var previousRightGyroYaw:Int32 = 0
 	var rightGyroRoll:Int32 = 0
-	var rightPreviousGyroRoll:Int32 = 0
+	var previousRightGyroRoll:Int32 = 0
 
 	var rightAccelX:Int32 = 0
-	var rightPreviousAccelX:Int32 = 0
+	var previousRightAccelX:Int32 = 0
 	var rightAccelY:Int32 = 0
-	var rightPreviousAccelY:Int32 = 0
+	var previousRightAccelY:Int32 = 0
 	var rightAccelZ:Int32 = 0
-	var rightPreviousAccelZ:Int32 = 0
+	var previousRightAccelZ:Int32 = 0
 
 	// battery
 	var batteryRightCharging = false
@@ -279,26 +305,31 @@ final class JoyConController {
 
 			self.rightDevice = device
 			IOHIDDeviceOpen(self.rightDevice!, IOOptionBits(kIOHIDOptionsTypeNone)) // or kIOHIDManagerOptionUsePersistentProperties
-			let success = self.sendReport(led1On: true)
+			let success = self.sendReport(device: self.rightDevice!, led1On: true)
 
 			if !success {
 				print("Error setting LED")
 			}
+
+			// ?? TODO send format with 0x11, before enabling accelerometer report
+			print("Enabled IMU: \(self.toggleIMU(device: self.rightDevice!, enable: true))")
+			print("Enabled Vibration: \(self.toggleVibration(device: self.rightDevice!, enable: true))")
+			print("Enabled IMU report: \(self.changeInputReportId(device: self.rightDevice!, JoyConController.INPUT_REPORT_ID_BUTTONS_GYRO))")
 
 		} else {
 
 			self.leftDevice = device
 			IOHIDDeviceOpen(self.leftDevice!, IOOptionBits(kIOHIDOptionsTypeNone)) // or kIOHIDManagerOptionUsePersistentProperties
-			let success = self.sendReport(led1On: true)
+			let success = self.sendReport(device: self.leftDevice!, led1On: true)
 
 			if !success {
 				print("Error setting LED")
 			}
 
-			// TODO send format with 0x11, before enabling accelerometer report
-			print("Enabled IMU: \(self.toggleIMU(enable: true))")
-			print("Enabled Vibration: \(self.toggleVibration(enable: true))")
-			print("Enabled IMU report: \(self.changeInputReportId(JoyConController.INPUT_REPORT_ID_BUTTONS_GYRO))")
+			// ?? TODO send format with 0x11, before enabling accelerometer report
+			print("Enabled IMU: \(self.toggleIMU(device: self.leftDevice!, enable: true))")
+			print("Enabled Vibration: \(self.toggleVibration(device: self.leftDevice!, enable: true))")
+			print("Enabled IMU report: \(self.changeInputReportId(device: self.leftDevice!, JoyConController.INPUT_REPORT_ID_BUTTONS_GYRO))")
 
 			/*
 			// Increase data rate for Bluetooth
@@ -467,9 +498,10 @@ final class JoyConController {
 
 				// print(report[1]) // increments in 3
 				// print(report[2]) // 0x8E 142
-				// print(report[3]) // 0
 
 				// MARK: left digital buttons
+
+				// report[3] is only used by right joy-con
 
 				self.leftMainButtons = report[5 + bluetoothOffset] // TODO not sure about bluetooth offset for tihs report
 
@@ -589,24 +621,30 @@ final class JoyConController {
 
 				// MARK: left inertial movement unit (imu)
 
-				// ?? The controller sends the sensor data 3 times with a little bit different values. Skip them
+				// TODO x, y, z, pitch, yaw, and roll will depend upon the joy-con being used vertically in pair, or horizontally as standalone, debug this later
 
-				// ?? gyroscope data is in rad/s
-				self.leftGyroPitch = Int32(report[20 + bluetoothOffset]) << 8 | Int32(report[19 + bluetoothOffset]) // TODO calibrate
-				self.leftGyroYaw   = Int32(report[22 + bluetoothOffset]) << 8 | Int32(report[21 + bluetoothOffset]) // TODO calibrate
-				self.leftGyroRoll  = Int32(report[24 + bluetoothOffset]) << 8 | Int32(report[23 + bluetoothOffset]) // TODO calibrate
+				// The controller sends the sensor data 3 times with a little bit different values
+				// report IDs x30, x31, x32, x33
+				// 6-Axis data. 3 frames of 2 groups of 3 Int16LE each. Group is Acc followed by Gyro.
+				// 13-21 group 1
+				// 25-36 group 2
+				// 37-48 group 3
+
+				// here I'm just getting 1 sample, maybe I should average the values? Or send a notification for each?
 
 				// ?? accelerometer data is in m/s²
 				self.leftAccelX = Int32(report[14 + bluetoothOffset]) << 8 | Int32(report[13 + bluetoothOffset]) // TODO calibrate
 				self.leftAccelY = Int32(report[16 + bluetoothOffset]) << 8 | Int32(report[15 + bluetoothOffset]) // TODO calibrate
 				self.leftAccelZ = Int32(report[18 + bluetoothOffset]) << 8 | Int32(report[17 + bluetoothOffset]) // TODO calibrate
 
+				// ?? gyroscope data is in rad/s
+				self.leftGyroPitch = Int32(report[20 + bluetoothOffset]) << 8 | Int32(report[19 + bluetoothOffset]) // TODO calibrate
+				self.leftGyroYaw   = Int32(report[22 + bluetoothOffset]) << 8 | Int32(report[21 + bluetoothOffset]) // TODO calibrate
+				self.leftGyroRoll  = Int32(report[24 + bluetoothOffset]) << 8 | Int32(report[23 + bluetoothOffset]) // TODO calibrate
+
 				/*
 				jc->accel.x = (float)(uint16_to_int16(packet[13] | (packet[14] << 8) & 0xFF00)) * jc->acc_cal_coeff[0];
-
 				jc->gyro.roll	= (float)((uint16_to_int16(packet[19] | (packet[20] << 8) & 0xFF00)) - jc->sensor_cal[1][0]) * jc->gyro_cal_coeff[0];
-				jc->gyro.pitch	= (float)((uint16_to_int16(packet[21] | (packet[22] << 8) & 0xFF00)) - jc->sensor_cal[1][1]) * jc->gyro_cal_coeff[1];
-				jc->gyro.yaw	= (float)((uint16_to_int16(packet[23] | (packet[24] << 8) & 0xFF00)) - jc->sensor_cal[1][2]) * jc->gyro_cal_coeff[2];
 
 				// offsets:
 				{
@@ -624,9 +662,50 @@ final class JoyConController {
 				}
 				*/
 
+				if self.previousLeftGyroPitch != self.leftGyroPitch
+					|| self.previousLeftGyroYaw != self.leftGyroYaw
+					|| self.previousLeftGyroRoll != self.leftGyroRoll
+					|| self.previousLeftAccelX != self.leftAccelX
+					|| self.previousLeftAccelY != self.leftAccelY
+					|| self.previousLeftAccelZ != self.leftAccelZ
+				{
 
+					self.previousLeftGyroPitch = self.leftGyroPitch
+					self.previousLeftGyroYaw   = self.leftGyroYaw
+					self.previousLeftGyroRoll  = self.leftGyroRoll
 
+					self.previousLeftAccelX = self.leftAccelX
+					self.previousLeftAccelY = self.leftAccelY
+					self.previousLeftAccelZ = self.leftAccelZ
 
+					DispatchQueue.main.async {
+						NotificationCenter.default.post(
+							name: GamepadIMUChangedNotification.Name,
+							object: GamepadIMUChangedNotification(
+								gyroPitch: self.leftGyroPitch,
+								gyroYaw:   self.leftGyroYaw,
+								gyroRoll:  self.leftGyroRoll,
+								accelX: self.leftAccelX,
+								accelY: self.leftAccelY,
+								accelZ: self.leftAccelZ
+							)
+						)
+					}
+
+				}
+
+				/*
+				12 	x70, xC0, xB0 	Vibrator input report. Decides if next vibration pattern should be sent.
+				13 (report ID x21) 	x00, x80, x90, x82 	ACK byte for subcmd reply. ACK: MSB is 1, NACK: MSB is 0. If reply is ACK and has data, byte12 & 0x7F gives as the type of data. If simple ACK or NACK, the data type portion is x00
+				14 (report ID x21) 	x02, x10, x03 	Reply-to subcommand ID. The subcommand ID is used as-is.
+				15-49 (report ID x21) 	-- 	Subcommand reply data. Max 35 bytes (excludes 2 byte subcmd ack above).
+				13-49 (report ID x23) 	-- 	NFC/IR MCU FW update input report. Max 37 bytes.
+
+				49-361 (report ID x31) 	-- 	NFC/IR data input report. Max 313 bytes.
+				*/
+
+				/*
+				// all zeroes
 				print("report[25]: \(report[25])")
 				print("report[26]: \(report[26])")
 				print("report[27]: \(report[27])")
@@ -653,6 +732,7 @@ final class JoyConController {
 				print("report[46]: \(report[46])")
 				print("report[47]: \(report[47])")
 				print("report[48]: \(report[48])")
+				*/
 
 			}
 
@@ -686,7 +766,7 @@ final class JoyConController {
 				self.rightShoulderButton = rightSecondaryButtons & 0b0100_0000 == 0b0100_0000
 				self.rightTriggerButton  = rightSecondaryButtons & 0b1000_0000 == 0b1000_0000
 
-				print(String(rightSecondaryButtons, radix: 2))
+				//print(String(rightSecondaryButtons, radix: 2))
 
 				self.plusButton          = rightSecondaryButtons & 0b0000_0010 == 0b0000_0010
 				self.homeButton          = rightSecondaryButtons & 0b0001_0000 == 0b0001_0000
@@ -803,13 +883,17 @@ final class JoyConController {
 
 				// MARK: right joycon gyro input report
 
-				// print(report[1]) // increments in 3
-				// print(report[2]) // 0x8E 142
-				// print(report[3]) // 0
+				// print(report[1]) // increments in 3 (Increments very fast. Can be used to estimate excess Bluetooth latency.)
+
+				// print(report[2])
+				/*
+				2 high nibble 	0 - 9 	Battery level. 8=full, 6=medium, 4=low, 2=critical, 0=empty. LSB=Charging.
+				2 low nibble 	x0, x1, xE 	Connection info. (con_info >> 1) & 3 - 3=JC, 0=Pro/ChrGrip. con_info & 1 - 1=Switch/USB powered.
+				*/
 
 				// MARK: right digital buttons
 
-				self.rightMainButtons = report[5 + bluetoothOffset] // TODO not sure about bluetooth offset for tihs report
+				self.rightMainButtons = report[3 + bluetoothOffset] // TODO not sure about bluetooth offset for this report
 
 				self.faceButtons = rightMainButtons & 0b0000_1111
 
@@ -825,11 +909,15 @@ final class JoyConController {
 				self.rightShoulderButton = rightMainButtons & 0b0100_0000 == 0b0100_0000
 				self.rightTriggerButton  = rightMainButtons & 0b1000_0000 == 0b1000_0000
 
-				self.rightSecondaryButtons = report[4 + bluetoothOffset]
+				self.rightSecondaryButtons = report[4 + bluetoothOffset] // I can | with the leftSecondaryButtons to get a merged status of the buttons
 
-				self.plusButton       = self.rightSecondaryButtons & 0b0000_0001 == 0b0000_0001
-				self.rightStickButton = self.rightSecondaryButtons & 0b0000_1000 == 0b0000_1000
-				self.homeButton       = self.rightSecondaryButtons & 0b0010_0000 == 0b0010_0000
+				self.plusButton       = self.rightSecondaryButtons & 0b0000_0010 == 0b0000_0010
+				self.rightStickButton = self.rightSecondaryButtons & 0b0000_0100 == 0b0000_0100
+				self.homeButton       = self.rightSecondaryButtons & 0b0001_0000 == 0b0001_0000
+
+				// charging grip 0b1000_0000
+
+				// report[5] is only used by left joy-con
 
 				if rightMainButtons != self.previousRightMainButtons
 					|| rightSecondaryButtons != self.previousRightSecondaryButtons
@@ -891,17 +979,17 @@ final class JoyConController {
 
 				}
 
-				// print("report[9]:  \(report[9])")  // always 0!?
-				// print("report[10]: \(report[10])") // always 0!?
-				// print("report[11]: \(report[11])") // always 0!?
+				// print("report[9]:  \(report[9])")  // always 0!? before specifying format 94
+				// print("report[10]: \(report[10])") // always 0!? before specifying format 72
+				// print("report[11]: \(report[11])") // always 0!? before specifying format 111
 
-				// print("report[12]: \(report[12])") // always 192!?
+				// print("report[12]: \(report[12])") // always 192!? before specifying format 9
 
 				// MARK: right analog buttons
 
 				// TODO calibrate
-				self.rightStickX = Int16(report[7] & 0b0000_1111) << 8 | Int16(report[6]) // 12 bits actually
-				self.rightStickY = Int16(report[8]) << 4 | Int16(report[7]) >> 4 // 12 bits actually
+				self.rightStickX = Int16(report[10] & 0b0000_1111) << 8 | Int16(report[9]) // 12 bits actually
+				self.rightStickY = Int16(report[11]) << 4 | Int16(report[10]) >> 4 // 12 bits actually
 
 				if self.previousRightStickX != self.rightStickX
 					|| self.previousRightStickY != self.rightStickY
@@ -927,6 +1015,62 @@ final class JoyConController {
 					self.previousRightStickY = self.rightStickY
 
 				}
+
+				/*
+				print("report[0]: \(report[0])")
+				print("report[1]: \(report[1])")
+				print("report[2]: \(report[2])")
+				print("report[3]: \(report[3])")
+				print("report[4]: \(report[4])")
+				print("report[5]: \(report[5])")
+				print("report[6]: \(report[6])")
+				print("report[7]: \(report[7])")
+				print("report[8]: \(report[8])")
+				print("report[9]: \(report[9])")
+
+				print("report[10]: \(report[10])")
+				print("report[11]: \(report[11])")
+				print("report[12]: \(report[12])")
+				print("report[13]: \(report[13])")
+				print("report[14]: \(report[14])")
+				print("report[15]: \(report[15])")
+				print("report[16]: \(report[16])")
+				print("report[17]: \(report[17])")
+				print("report[18]: \(report[18])")
+				print("report[19]: \(report[19])")
+
+				print("report[20]: \(report[20])")
+				print("report[21]: \(report[21])")
+				print("report[22]: \(report[22])")
+				print("report[23]: \(report[23])")
+				print("report[24]: \(report[24])")
+				print("report[25]: \(report[25])")
+				print("report[26]: \(report[26])")
+				print("report[27]: \(report[27])")
+				print("report[28]: \(report[28])")
+				print("report[29]: \(report[29])")
+
+				print("report[30]: \(report[30])")
+				print("report[31]: \(report[31])")
+				print("report[32]: \(report[32])")
+				print("report[33]: \(report[33])")
+				print("report[34]: \(report[34])")
+				print("report[35]: \(report[35])")
+				print("report[36]: \(report[36])")
+				print("report[37]: \(report[37])")
+				print("report[38]: \(report[38])")
+				print("report[39]: \(report[39])")
+
+				print("report[40]: \(report[40])")
+				print("report[41]: \(report[41])")
+				print("report[42]: \(report[42])")
+				print("report[43]: \(report[43])")
+				print("report[44]: \(report[44])")
+				print("report[45]: \(report[45])")
+				print("report[46]: \(report[46])")
+				print("report[47]: \(report[47])")
+				print("report[48]: \(report[48])")
+				*/
 
 			}
 
@@ -962,7 +1106,8 @@ final class JoyConController {
 
 		let o = notification.object as! JoyConChangeLedNotification
 
-		self.sendReport(
+		/*self.sendReport(
+			device: self.leftDevice!, // FIXME
 			led1On: o.led1On,
 			led2On: o.led2On,
 			led3On: o.led3On,
@@ -972,11 +1117,11 @@ final class JoyConController {
 			blinkLed3: o.blinkLed3,
 			blinkLed4: o.blinkLed4
 			// TODO home led...
-		)
+		)*/
 
 	}
 
-	func toggleVibration(enable:Bool) -> Bool {
+	func toggleVibration(device:IOHIDDevice, enable:Bool) -> Bool {
 
 		var buffer = [UInt8](repeating: 0, count: 49)
 
@@ -1002,7 +1147,7 @@ final class JoyConController {
 		buffer[11] = enable ? 0x01 : 0x00
 
 		let success = IOHIDDeviceSetReport(
-			self.leftDevice!,
+			device,
 			kIOHIDReportTypeOutput,
 			Int(buffer[0]), // Report ID
 			buffer,
@@ -1019,7 +1164,7 @@ final class JoyConController {
 
 	}
 
-	func toggleIMU(enable:Bool) -> Bool {
+	func toggleIMU(device:IOHIDDevice, enable:Bool) -> Bool {
 
 		var buffer = [UInt8](repeating: 0, count: 49)
 
@@ -1045,7 +1190,7 @@ final class JoyConController {
 		buffer[11] = enable ? 0x01 : 0x00
 
 		let toggleSuccess = IOHIDDeviceSetReport(
-			self.leftDevice!,
+			device,
 			kIOHIDReportTypeOutput,
 			Int(buffer[0]), // Report ID
 			buffer,
@@ -1062,7 +1207,7 @@ final class JoyConController {
 		So I'm resetting to my own settings. That are more similar to DualShock 4
 		*/
 
-		let settingsSuccess = self.imuSettings()
+		let settingsSuccess = self.imuSettings(device)
 
 		// TODO load calibration data from Serial Peripheral Interface (SPI)
 
@@ -1074,7 +1219,7 @@ final class JoyConController {
 
 	}
 
-	func imuSettings() -> Bool {
+	func imuSettings(_ device:IOHIDDevice) -> Bool {
 
 		var buffer = [UInt8](repeating: 0, count: 49)
 
@@ -1121,7 +1266,7 @@ final class JoyConController {
 		buffer[14] = 0x01
 
 		let success = IOHIDDeviceSetReport(
-			self.leftDevice!,
+			device,
 			kIOHIDReportTypeOutput,
 			Int(buffer[0]), // Report ID
 			buffer,
@@ -1138,7 +1283,7 @@ final class JoyConController {
 
 	}
 
-	func changeInputReportId(_ reportId:UInt8) -> Bool {
+	func changeInputReportId(device:IOHIDDevice, _ reportId:UInt8) -> Bool {
 
 		// TODO
 
@@ -1180,7 +1325,7 @@ final class JoyConController {
 		buffer[11] = reportId
 
 		let success = IOHIDDeviceSetReport(
-			self.leftDevice!,
+			device,
 			kIOHIDReportTypeOutput,
 			Int(buffer[0]), // Report ID
 			buffer,
@@ -1219,6 +1364,7 @@ final class JoyConController {
 	}
 
 	func sendReport(
+		device:IOHIDDevice,
 		led1On:Bool = false,
 		led2On:Bool = false,
 		led3On:Bool = false,
@@ -1369,7 +1515,7 @@ final class JoyConController {
 		buffer[11] = leds
 
 		let success = IOHIDDeviceSetReport(
-			self.leftDevice!,
+			device,
 			kIOHIDReportTypeOutput,
 			Int(buffer[0]), // Report ID
 			buffer,

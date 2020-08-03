@@ -35,6 +35,16 @@ class JoyConUIModel: ObservableObject {
 	var leftSideBottomButton = false
 	var rightSideBottomButton = false
 
+	var leftGyroPitch:Int32 = 0
+	var leftGyroYaw:Int32 = 0
+	var leftGyroRoll:Int32 = 0
+
+	var leftAccelX:Int32 = 0
+	var leftAccelY:Int32 = 0
+	var leftAccelZ:Int32 = 0
+
+
+
 	var homeButton = false
 
 	var rightStickX:Float = 0
@@ -54,27 +64,18 @@ class JoyConUIModel: ObservableObject {
 	var rightTriggerButton = false
 	var rightTrigger:Float = 0
 
+	var rightGyroPitch:Int32 = 0
+	var rightGyroYaw:Int32 = 0
+	var rightGyroRoll:Int32 = 0
 
-	var gyroPitchLeft:Int32 = 0
-	var gyroYawLeft:Int32 = 0
-	var gyroRollLeft:Int32 = 0
-
-	var accelXLeft:Int32 = 0
-	var accelYLeft:Int32 = 0
-	var accelZLeft:Int32 = 0
-
-	var gyroPitchRight:Int32 = 0
-	var gyroYawRight:Int32 = 0
-	var gyroRollRight:Int32 = 0
-
-	var accelXRight:Int32 = 0
-	var accelYRight:Int32 = 0
-	var accelZRight:Int32 = 0
+	var rightAccelX:Int32 = 0
+	var rightAccelY:Int32 = 0
+	var rightAccelZ:Int32 = 0
 
 	var isConnected = false
 	var isCharging = false
-	var batteryLeft:Float = 0
-	var batteryRight:Float = 0
+	var leftBattery:Float = 0
+	var rightBattery:Float = 0
 
 	let objectWillChange = ObservableObjectPublisher()
 
@@ -93,6 +94,30 @@ class JoyConUIModel: ObservableObject {
 				self,
 				selector: #selector(self.updateAnalog),
 				name: GamepadAnalogChangedNotification.Name,
+				object: nil
+			)
+
+		NotificationCenter.default
+			.addObserver(
+				self,
+				selector: #selector(self.updateIMU),
+				name: GamepadIMUChangedNotification.Name,
+				object: nil
+			)
+
+		/*NotificationCenter.default
+		.addObserver(
+			self,
+			selector: #selector(self.updateLed),
+			name: JoyConChangeLedNotification.Name,
+			object: nil
+		)*/
+
+		NotificationCenter.default
+			.addObserver(
+				self,
+				selector: #selector(self.updateBattery),
+				name: GamepadBatteryChangedNotification.Name,
 				object: nil
 			)
 
@@ -142,6 +167,36 @@ class JoyConUIModel: ObservableObject {
 		self.rightStickY = Float(o.rightStickY)
 
 		self.rightTrigger = Float(o.rightTrigger)
+
+		objectWillChange.send()
+
+	}
+
+	@objc func updateIMU(_ notification:Notification) {
+
+		let o = notification.object as! GamepadIMUChangedNotification
+
+		// TODO right joy-con
+
+		self.leftGyroPitch = o.gyroPitch
+		self.leftGyroYaw = o.gyroYaw
+		self.leftGyroRoll = o.gyroRoll
+
+		self.leftAccelX = o.accelX
+		self.leftAccelY = o.accelY
+		self.leftAccelZ = o.accelZ
+
+		objectWillChange.send()
+
+	}
+
+	@objc func updateBattery(_ notification:Notification) {
+
+		let o = notification.object as! GamepadBatteryChangedNotification
+
+		self.leftBattery = Float(o.battery) // TODO right joy-con
+		self.isConnected = o.isConnected
+		self.isCharging = o.isCharging
 
 		objectWillChange.send()
 

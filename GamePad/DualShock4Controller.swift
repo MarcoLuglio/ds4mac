@@ -206,7 +206,7 @@ final class DualShock4Controller {
 		NotificationCenter.default
 			.addObserver(
 				self,
-				selector: #selector(self.changeLed),
+				selector: #selector(self.setLed),
 				name: DualShock4ChangeLedNotification.Name,
 				object: nil
 			)
@@ -743,7 +743,7 @@ final class DualShock4Controller {
 
 	}
 
-	@objc func changeLed(_ notification:Notification) {
+	@objc func setLed(_ notification:Notification) {
 
 		let o = notification.object as! DualShock4ChangeLedNotification
 

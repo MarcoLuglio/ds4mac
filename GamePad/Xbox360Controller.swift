@@ -149,7 +149,7 @@ final class Xbox360Controller {
 		NotificationCenter.default
 			.addObserver(
 				self,
-				selector: #selector(self.changeLed),
+				selector: #selector(self.setLed),
 				name: Xbox360ChangeLedNotification.Name,
 				object: nil
 			)
@@ -333,7 +333,7 @@ final class Xbox360Controller {
 
 	}
 
-	@objc func changeLed(_ notification:Notification) {
+	@objc func setLed(_ notification:Notification) {
 		let o = notification.object as! Xbox360ChangeLedNotification
 		sendLedReport(ledPattern:o.ledPattern)
 	}

@@ -158,9 +158,9 @@ final class GamepadHIDMonitor {
 			) {
 
 			if self.joyConController == nil {
-				self.joyConController = JoyConController(device, productID: productID, transport: transport as! String/*, enableIMUReport: true*/)
+				self.joyConController = JoyConController(device:device, productID: productID, transport: transport as! String/*, enableIMUReport: true*/)
 			} else {
-				self.joyConController.setDevice(device, productID: productID, transport: transport as! String/*, enableIMUReport: true*/)
+				self.joyConController.setDevice(device:device, productID: productID, transport: transport as! String/*, enableIMUReport: true*/)
 			}
 
 		} else if vendorID == XboxOneController.VENDOR_ID_MICROSOFT

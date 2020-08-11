@@ -15,63 +15,65 @@ final class JoyConController {
 	// MARK: product ids
 
 	static let VENDOR_ID_NINTENDO:Int64 = 0x057E // 1406
-	static let CONTROLLER_ID_JOY_CON_LEFT:Int64 = 0x2006 // 8198
+
+	static let CONTROLLER_ID_JOY_CON_LEFT:Int64  = 0x2006 // 8198
 	static let CONTROLLER_ID_JOY_CON_RIGHT:Int64 = 0x2007 // 8199
-	static let CONTROLLER_ID_SWITCH_PRO:Int64 = 0x2009 // 8201
+	static let CONTROLLER_ID_SWITCH_PRO:Int64    = 0x2009 // 8201
 	static let CONTROLLER_ID_CHARGING_GRIP:Int64 = 0x200e // 8206
 	// 0x0306 Wii Remote Controller RVL-003
 	// 0x0337 Wii U GameCube Controller Adapter
 
 	// MARK: hid report ids
 
-	static let INPUT_REPORT_ID_BUTTONS:UInt8 = 0x3F // Simple HID mode. Pushes updates with every button press. Thumbstick is 8 directions only
-	static let INPUT_REPORT_ID_BUTTONS_GYRO:UInt8 = 0x30 // Standard full mode. Pushes current state @60Hz
-	static let INPUT_REPORT_ID_BUTTONS_GYRO_NFC_IR:UInt8 = 0x31 // near field communication reader and infra red camera mode. Pushes large packets @60Hz. Has all zeroes for IR/NFC data if a 11 output report with subcmd 03 00/01/02/03 was not sent before.
+	static let INPUT_REPORT_ID_SUBCOMMNAD_REPLY:UInt8 = 0x21 // 33 // Reply to hid output report with subcommand
+	static let INPUT_REPORT_ID_BUTTONS:UInt8 = 0x3F // 63 // Simple HID mode. Pushes updates with every button press. Thumbstick is 8 directions only
+	static let INPUT_REPORT_ID_BUTTONS_GYRO:UInt8 = 0x30 // 48 // Standard full mode. Pushes current state @60Hz
+	static let INPUT_REPORT_ID_BUTTONS_GYRO_NFC_IR:UInt8 = 0x31 // 49 // near field communication reader and infra red camera mode. Pushes large packets @60Hz. Has all zeroes for IR/NFC data if a 11 output report with subcmd 03 00/01/02/03 was not sent before.
 
-	static let OUTPUT_REPORT_ID_RUMBLE_SEND_SUB_TYPE:UInt8 = 0x01
+	static let OUTPUT_REPORT_ID_RUMBLE_SEND_SUB_TYPE:UInt8 = 0x01 // 1
 	// OUTPUT 0x03 NFC/IR MCU FW Update packet. // I'm not using this here
-	static let OUTPUT_REPORT_ID_RUMBLE:UInt8 = 0x10
-	static let OUTPUT_REPORT_ID_NFC_IR:UInt8 = 0x11 // Request specific data from the NFC/IR MCU. Can also send rumble. Send with subcmd 03 00/01/02/03??
+	static let OUTPUT_REPORT_ID_RUMBLE:UInt8 = 0x10 // 16
+	static let OUTPUT_REPORT_ID_NFC_IR:UInt8 = 0x11 // 17 // Request specific data from the NFC/IR MCU. Can also send rumble. Send with subcmd 03 00/01/02/03??
 
 	// MARK: hid output subreport ids
 
-	static let OUTPUT_REPORT_SUB_ID_SET_INPUT_REPORT_ID:UInt8 = 0x03
+	static let OUTPUT_REPORT_SUB_ID_SET_INPUT_REPORT_ID:UInt8 = 0x03 // 3
 
-	static let OUTPUT_REPORT_SUB_ID_SPI_FLASH_READ:UInt8 = 0x10
-	static let OUTPUT_REPORT_SUB_ID_SPI_FLASH_WRITE:UInt8 = 0x11
+	static let OUTPUT_REPORT_SUB_ID_SPI_FLASH_READ:UInt8  = 0x10 // 16
+	static let OUTPUT_REPORT_SUB_ID_SPI_FLASH_WRITE:UInt8 = 0x11 // 17
 
-	// static const u8 JC_SUBCMD_RESET_MCU		= 0x20;
-	// static const u8 JC_SUBCMD_SET_MCU_CONFIG	= 0x21;
+	// static const u8 JC_SUBCMD_RESET_MCU		= 0x20; // 32
+	// static const u8 JC_SUBCMD_SET_MCU_CONFIG	= 0x21; // 33
 
-	static let OUTPUT_REPORT_SUB_ID_TOGGLE_IR_NFC:UInt8       = 0x22 // Takes one argument:	00 Suspend, 01 Resume, 02 Resume for update
+	static let OUTPUT_REPORT_SUB_ID_TOGGLE_IR_NFC:UInt8       = 0x22 // 34 // Takes one argument:	00 Suspend, 01 Resume, 02 Resume for update
 
-	static let OUTPUT_REPORT_SUB_ID_SET_PLAYER_LIGHTS:UInt8   = 0x30
-	static let OUTPUT_REPORT_SUB_ID_GET_PLAYER_LIGHTS:UInt8   = 0x31
-	static let OUTPUT_REPORT_SUB_ID_SET_HOME_LIGHT:UInt8      = 0x38
+	static let OUTPUT_REPORT_SUB_ID_SET_PLAYER_LIGHTS:UInt8   = 0x30 // 48
+	static let OUTPUT_REPORT_SUB_ID_GET_PLAYER_LIGHTS:UInt8   = 0x31 // 49
+	static let OUTPUT_REPORT_SUB_ID_SET_HOME_LIGHT:UInt8      = 0x38 // 56
 
-	static let OUTPUT_REPORT_SUB_ID_TOGGLE_IMU:UInt8          = 0x40
-	static let OUTPUT_REPORT_SUB_ID_IMU_SETTINGS:UInt8        = 0x41
-	// 42 is write to IMU registers, 43 is read from IMU registers. But to read/write calibration data we use the SPI subcommands 0x10 and 0x11
-	// static const u8 JC_SUBCMD_WRITE_IMU_REG		= 0x42;
-	// static const u8 JC_SUBCMD_READ_IMU_REG		= 0x43;
+	static let OUTPUT_REPORT_SUB_ID_TOGGLE_IMU:UInt8          = 0x40 // 64
+	static let OUTPUT_REPORT_SUB_ID_IMU_SETTINGS:UInt8        = 0x41 // 65
+	// 0x42 is write to IMU registers, 0x43 is read from IMU registers. But to read/write calibration data we use the SPI subcommands 0x10 and 0x11
+	// static const u8 JC_SUBCMD_WRITE_IMU_REG		= 0x42; // 66
+	// static const u8 JC_SUBCMD_READ_IMU_REG		= 0x43; // 67
 
-	static let OUTPUT_REPORT_SUB_ID_TOGGLE_VIBRATION:UInt8    = 0x48
+	static let OUTPUT_REPORT_SUB_ID_TOGGLE_VIBRATION:UInt8    = 0x48 // 72
 
-	static let OUTPUT_REPORT_SUB_ID_BATTERY_VOLTAGE:UInt8     = 0x50
+	static let OUTPUT_REPORT_SUB_ID_BATTERY_VOLTAGE:UInt8     = 0x50 // 80
 
 	// MARK: spi calibration data addresses
 
-	static let IMU_FACTORY_CALIBRATION_SPI_ADDRESS:UInt32     = 0x6020;
-	static let IMU_USER_CALIBRATION_FLAG_SPI_ADDRESS:UInt32   = 0x8026;
-	static let IMU_USER_CALIBRATION_VALUES_SPI_ADDRESS:UInt32 = 0x8028;
+	static let IMU_USER_CALIBRATION_FLAG_SPI_ADDRESS:UInt16   = 0x8026; // size 2?
+	static let IMU_USER_CALIBRATION_VALUES_SPI_ADDRESS:UInt16 = 0x8028; // size 12?
+	static let IMU_FACTORY_CALIBRATION_SPI_ADDRESS:UInt16     = 0x6020; // size 12
 
-	static let LEFT_STICK_FACTORY_CALIBRATION_SPI_ADDRESS:UInt32     = 0x603d;
-	static let LEFT_STICK_USER_CALIBRATION_FLAG_SPI_ADDRESS:UInt32   = 0x8010;
-	static let LEFT_STICK_USER_CALIBRATION_VALUES_SPI_ADDRESS:UInt32 = 0x8012;
+	static let LEFT_STICK_USER_CALIBRATION_FLAG_SPI_ADDRESS:UInt16   = 0x8010; // size 2?
+	static let LEFT_STICK_USER_CALIBRATION_VALUES_SPI_ADDRESS:UInt16 = 0x8012; // size 6?
+	static let LEFT_STICK_FACTORY_CALIBRATION_SPI_ADDRESS:UInt16     = 0x603D; // size 6
 
-	static let RIGHT_STICK_FACTORY_CALIBRATION_SPI_ADDRESS:UInt32     = 0x6046;
-	static let RIGHT_STICK_USER_CALIBRATION_FLAG_SPI_ADDRESS:UInt32   = 0x801B;
-	static let RIGHT_STICK_USER_CALIBRATION_VALUES_SPI_ADDRESS:UInt32 = 0x801D;
+	static let RIGHT_STICK_USER_CALIBRATION_FLAG_SPI_ADDRESS:UInt16   = 0x801B; // size 2?
+	static let RIGHT_STICK_USER_CALIBRATION_VALUES_SPI_ADDRESS:UInt16 = 0x801D; // size 6
+	static let RIGHT_STICK_FACTORY_CALIBRATION_SPI_ADDRESS:UInt16     = 0x6046; // size 6
 
 	/*
 	// The raw analog joystick values will be mapped in terms of this magnitude
@@ -99,7 +101,7 @@ final class JoyConController {
 
 	// MARK: Misc static fields
 
-	static let MAX_STICK = 4096 // 2 ^ 12
+	static let MAX_STICK = 4096 // 2¹² or 2 ^ 12
 
 	static var outputReportIterator:UInt8 = 0
 
@@ -197,8 +199,8 @@ final class JoyConController {
 	// battery
 	//var cableConnected = false
 	var batteryLeftCharging = false
-	var batteryLeftLevel:UInt8 = 0
-	var previousBatteryLeftLevel:UInt8 = 0
+	var batteryLeftLevel:UInt16 = 0
+	var previousBatteryLeftLevel:UInt16 = 0
 
 	// misc
 
@@ -282,8 +284,8 @@ final class JoyConController {
 
 	// battery
 	var batteryRightCharging = false
-	var batteryRightLevel:UInt8 = 0
-	var previousBatteryRightLevel:UInt8 = 0
+	var batteryRightLevel:UInt16 = 0
+	var previousBatteryRightLevel:UInt16 = 0
 
 	// TODO
 	//var cableConnected = false
@@ -339,7 +341,7 @@ final class JoyConController {
 			print("Enabled Vibration: \(self.toggleVibration(device: self.rightDevice!, enable: true))")
 			print("Enabled IMU report: \(self.setInputReportId(device: self.rightDevice!, JoyConController.INPUT_REPORT_ID_BUTTONS_GYRO))")
 
-		} else {
+		} else { // left or pro
 
 			self.leftDevice = device
 			IOHIDDeviceOpen(self.leftDevice!, IOOptionBits(kIOHIDOptionsTypeNone)) // or kIOHIDManagerOptionUsePersistentProperties
@@ -350,9 +352,12 @@ final class JoyConController {
 			}
 
 			// ?? TODO send format with 0x11, before enabling accelerometer report
-			print("Enabled IMU: \(self.toggleIMU(device: self.leftDevice!, enable: true))")
-			print("Enabled Vibration: \(self.toggleVibration(device: self.leftDevice!, enable: true))")
-			print("Enabled IMU report: \(self.setInputReportId(device: self.leftDevice!, JoyConController.INPUT_REPORT_ID_BUTTONS_GYRO))")
+			print("Enabled IMU: \(self.toggleIMU(device: self.leftDevice!, enable: true))") // no report answer
+			print("Enabled Vibration: \(self.toggleVibration(device: self.leftDevice!, enable: true))") // no report answer
+			print("Enabled IMU report: \(self.setInputReportId(device: self.leftDevice!, JoyConController.INPUT_REPORT_ID_BUTTONS_GYRO))") // replied with report 0x21
+
+			print("Requested IMU calibration: \(self.getIMUCalibration(device: self.leftDevice!))") // replied with report 0x21
+			print("Requested battery: \(self.getBattery(device: device))") // ??
 
 			/*
 			// Increase data rate for Bluetooth
@@ -387,7 +392,7 @@ final class JoyConController {
 
 				self.leftMainButtons = report[1 + bluetoothOffset]
 
-				self.batteryLeftLevel = (leftMainButtons & 0b1111_0000) >> 4
+				// self.batteryLeftLevel = UInt16((leftMainButtons & 0b1111_0000) >> 4) // FIXME I don't think this is accurate
 
 				self.directionalPad = leftMainButtons & 0b0000_1111
 
@@ -757,10 +762,185 @@ final class JoyConController {
 				print("report[48]: \(report[48])")
 				*/
 
+			} else if report[0] == JoyConController.INPUT_REPORT_ID_SUBCOMMNAD_REPLY {
+
+				/*
+				spi serial pehipheral interface
+				Subcommand 0x10: SPI flash read
+
+				Little-endian int32 address, int8 size, max size is x1D. Replies with x9010 ack and echoes the request info, followed by size bytes of data.
+
+				Request:
+				[01 .. .. .. .. .. .. .. .. .. 10 80 60 00 00 18]
+											   ^ subcommand
+												  ^~~~~~~~~~~ address x6080
+															  ^ length = 0x18 bytes
+				Response: INPUT 21
+				[xx .E .. .. .. .. .. .. .. .. .. .. 0. 90 80 60 00 00 18 .. .. .. ....]
+														^ subcommand reply
+															  ^~~~~~~~~~~ address
+																	   ^ length = 0x18 bytes
+																		  ^~~~~ data
+
+				Subcommand 0x11: SPI flash Write
+
+				Little-endian int32 address, int8 size. Max size x1D data to write. Replies with x8011 ack and a uint8 status. x00 = success, x01 = write protected.
+				*/
+
+				if report[13] & 0b1000_0000 != 0b1000_0000 {
+					print("output report not acknowledged")
+					return
+				}
+
+				if report[13] == 0x90 && report[14] == 0x10 {
+
+					print("read spi report")
+
+					let spiAddress = UInt16(report[15]) | (UInt16(report[16]) << 8) // | (UInt32(report[17]) << 16) | (UInt32(report[18]) << 24) // none of the addresses I use exceeed 16 bits
+
+					switch spiAddress {
+
+					case JoyConController.IMU_USER_CALIBRATION_FLAG_SPI_ADDRESS:
+						// TODO check flag and request user or factory report
+						break
+
+					case JoyConController.IMU_USER_CALIBRATION_VALUES_SPI_ADDRESS:
+						break
+
+					case JoyConController.IMU_FACTORY_CALIBRATION_SPI_ADDRESS:
+						self.parseIMUCalibration(report: report)
+						break
+
+					case JoyConController.LEFT_STICK_USER_CALIBRATION_FLAG_SPI_ADDRESS:
+						// TODO check flag and request user or factory report
+						break
+
+					case JoyConController.LEFT_STICK_USER_CALIBRATION_VALUES_SPI_ADDRESS:
+						break
+
+					case JoyConController.LEFT_STICK_FACTORY_CALIBRATION_SPI_ADDRESS:
+						self.parseStickCalibration(report: report)
+						break
+
+					case JoyConController.RIGHT_STICK_USER_CALIBRATION_FLAG_SPI_ADDRESS:
+						// TODO check flag and request user or factory report
+						break
+
+					case JoyConController.RIGHT_STICK_USER_CALIBRATION_VALUES_SPI_ADDRESS:
+						break
+
+					case JoyConController.RIGHT_STICK_FACTORY_CALIBRATION_SPI_ADDRESS:
+						self.parseStickCalibration(report: report)
+						break
+
+					default:
+						print("Unknown 0x21 reply report")
+						print("report[13]: 0x\(String(report[13], radix: 16)) \(report[13])")
+						print("report[14]: 0x\(String(report[14], radix: 16)) \(report[14])")
+						return
+
+					}
+
+				} else if report[13] == 0xD0 && report[14] == 0x50 {
+
+					self.batteryLeftLevel = UInt16(report[16]) << 8 | UInt16(report[15]) // Internally, the values come from 1000mV - 1800mV regulated voltage samples, that are translated to 1320-1680 values.
+					print("\nleft battery: \(self.batteryLeftLevel)")
+
+					if self.previousBatteryLeftLevel != self.batteryLeftLevel {
+
+						self.previousBatteryLeftLevel = self.batteryLeftLevel
+
+						let battery = (Float64(self.batteryLeftLevel) * 256.0) / 360
+
+						DispatchQueue.main.async {
+							NotificationCenter.default.post(
+								name: GamepadBatteryChangedNotification.Name,
+								object: GamepadBatteryChangedNotification(
+									battery: UInt8(battery),
+									batteryMin: 0,
+									batteryMax: 255,
+									isConnected: false, // TODO
+									isCharging: false // TODO
+								)
+							)
+						}
+
+					}
+
+					return
+
+				}
+
+				print("\nreport 0x21 size: \(report.count)")
+
+				// address, compare with what I sent
+				print("report[1]: 0x\(String(report[1], radix: 16)) \(report[1])")
+				print("report[2]: 0x\(String(report[2], radix: 16)) \(report[2])")
+				print("report[3]: 0x\(String(report[3], radix: 16)) \(report[3])")
+				print("report[4]: 0x\(String(report[4], radix: 16)) \(report[4])")
+
+				print("report[5]: 0x\(String(report[5], radix: 16)) \(report[5])") // zero for left imu factory
+
+				// data
+				print("report[6]: 0x\(String(report[6], radix: 16)) \(report[6])")
+				print("report[7]: 0x\(String(report[7], radix: 16)) \(report[7])")
+				print("report[8]: 0x\(String(report[8], radix: 16)) \(report[8])")
+				print("report[9]: 0x\(String(report[9], radix: 16)) \(report[9])") // zero
+
+				// all zeroes for left imu factory
+				print("report[10]: 0x\(String(report[10], radix: 16)) \(report[10])")
+				print("report[11]: 0x\(String(report[11], radix: 16)) \(report[11])")
+
+				// 13 would be the subcommand reply, then 32 bits address, then length of data
+
+				// data
+				print("report[12]: 0x\(String(report[12], radix: 16)) \(report[12])")
+				print("report[13]: 0x\(String(report[13], radix: 16)) \(report[13])")
+				print("report[14]: 0x\(String(report[14], radix: 16)) \(report[14])")
+
+				// all zeroes for left imu factory
+				print("report[15]: 0x\(String(report[15], radix: 16)) \(report[15])")
+				print("report[16]: 0x\(String(report[16], radix: 16)) \(report[16])")
+				print("report[17]: 0x\(String(report[17], radix: 16)) \(report[17])")
+				print("report[18]: 0x\(String(report[18], radix: 16)) \(report[18])")
+				print("report[19]: 0x\(String(report[19], radix: 16)) \(report[19])")
+
+				print("report[20]: 0x\(String(report[20], radix: 16)) \(report[20])")
+				print("report[21]: 0x\(String(report[21], radix: 16)) \(report[21])")
+				print("report[22]: 0x\(String(report[22], radix: 16)) \(report[22])")
+				print("report[23]: 0x\(String(report[23], radix: 16)) \(report[23])")
+				print("report[24]: 0x\(String(report[24], radix: 16)) \(report[24])")
+				print("report[25]: 0x\(String(report[25], radix: 16)) \(report[25])")
+				print("report[26]: 0x\(String(report[26], radix: 16)) \(report[26])")
+				print("report[27]: 0x\(String(report[27], radix: 16)) \(report[27])")
+				print("report[28]: 0x\(String(report[28], radix: 16)) \(report[28])")
+				print("report[29]: 0x\(String(report[29], radix: 16)) \(report[29])")
+
+				print("report[30]: 0x\(String(report[30], radix: 16)) \(report[30])")
+				print("report[31]: 0x\(String(report[31], radix: 16)) \(report[31])")
+				print("report[32]: 0x\(String(report[32], radix: 16)) \(report[32])")
+				print("report[33]: 0x\(String(report[33], radix: 16)) \(report[33])")
+				print("report[34]: 0x\(String(report[34], radix: 16)) \(report[34])")
+				print("report[35]: 0x\(String(report[35], radix: 16)) \(report[35])")
+				print("report[36]: 0x\(String(report[36], radix: 16)) \(report[36])")
+				print("report[37]: 0x\(String(report[37], radix: 16)) \(report[37])")
+				print("report[38]: 0x\(String(report[38], radix: 16)) \(report[38])")
+				print("report[39]: 0x\(String(report[39], radix: 16)) \(report[39])")
+
+				print("report[40]: 0x\(String(report[40], radix: 16)) \(report[40])")
+				print("report[41]: 0x\(String(report[41], radix: 16)) \(report[41])")
+				print("report[42]: 0x\(String(report[42], radix: 16)) \(report[42])")
+				print("report[43]: 0x\(String(report[43], radix: 16)) \(report[43])")
+				print("report[44]: 0x\(String(report[44], radix: 16)) \(report[44])")
+				print("report[45]: 0x\(String(report[45], radix: 16)) \(report[45])")
+				print("report[46]: 0x\(String(report[46], radix: 16)) \(report[46])")
+				print("report[47]: 0x\(String(report[47], radix: 16)) \(report[47])")
+				print("report[48]: 0x\(String(report[48], radix: 16)) \(report[48])")
+
 			} else if report.count > 0 {
 
-				// input 21 is a response for spi subcommands pparently, treat that here
-				print("unsupported report: \(report[0])")
+				// input 21 is a response for spi subcommands apparently, treat that here
+				print("unsupported report: \(report[0]) 0x\(String(report[0], radix:16))")
 
 			}
 
@@ -777,7 +957,7 @@ final class JoyConController {
 
 				self.rightMainButtons = report[1 + bluetoothOffset]
 
-				self.batteryRightLevel = (rightMainButtons & 0b1111_0000) >> 4
+				// self.batteryRightLevel = UInt16((rightMainButtons & 0b1111_0000) >> 4) // FIXME I don't think this is accurate
 
 				self.faceButtons = rightMainButtons & 0b0000_1111
 
@@ -1100,17 +1280,79 @@ final class JoyConController {
 				print("report[48]: \(report[48])")
 				*/
 
+			} else if report[0] == JoyConController.INPUT_REPORT_ID_SUBCOMMNAD_REPLY {
+
+				print("report 0x21 size: \(report.count)")
+
+				// address, compare with what I sent
+				print("report[1]: \(report[1])")
+				print("report[2]: \(report[2])")
+				print("report[3]: \(report[3])")
+				print("report[4]: \(report[4])")
+
+				// all zeroes for right imu factory
+				print("report[5]: \(report[5])")
+				print("report[6]: \(report[6])")
+				print("report[7]: \(report[7])")
+				print("report[8]: \(report[8])")
+				print("report[9]: \(report[9])")
+
+				// data
+				print("report[10]: \(report[10])")
+				print("report[11]: \(report[11])")
+				print("report[12]: \(report[12])")
+				print("report[13]: \(report[13])")
+				print("report[14]: \(report[14])")
+
+				// all zeroes for right imu factory
+				print("report[15]: \(report[15])")
+				print("report[16]: \(report[16])")
+				print("report[17]: \(report[17])")
+				print("report[18]: \(report[18])")
+				print("report[19]: \(report[19])")
+
+				print("report[20]: \(report[20])")
+				print("report[21]: \(report[21])")
+				print("report[22]: \(report[22])")
+				print("report[23]: \(report[23])")
+				print("report[24]: \(report[24])")
+				print("report[25]: \(report[25])")
+				print("report[26]: \(report[26])")
+				print("report[27]: \(report[27])")
+				print("report[28]: \(report[28])")
+				print("report[29]: \(report[29])")
+
+				print("report[30]: \(report[30])")
+				print("report[31]: \(report[31])")
+				print("report[32]: \(report[32])")
+				print("report[33]: \(report[33])")
+				print("report[34]: \(report[34])")
+				print("report[35]: \(report[35])")
+				print("report[36]: \(report[36])")
+				print("report[37]: \(report[37])")
+				print("report[38]: \(report[38])")
+				print("report[39]: \(report[39])")
+
+				print("report[40]: \(report[40])")
+				print("report[41]: \(report[41])")
+				print("report[42]: \(report[42])")
+				print("report[43]: \(report[43])")
+				print("report[44]: \(report[44])")
+				print("report[45]: \(report[45])")
+				print("report[46]: \(report[46])")
+				print("report[47]: \(report[47])")
+				print("report[48]: \(report[48])")
+
 			} else if report.count > 0 {
 
-				// input 21 is a response for spi subcommands pparently, treat that here
-				print("unsupported report: \(report[0])")
+				// input 21 is a response for spi subcommands apparently, treat that here
+				print("unsupported report: \(report[0]) 0x\(String(report[0], radix:16))")
 
 			}
 
 			// TODO IR
 
 			// TODO NFC
-
 
 		}
 
@@ -1197,14 +1439,36 @@ final class JoyConController {
 
 	}
 
-	func getThumbstickCalibration(device:IOHIDDevice) {
+	func getStickCalibration(device:IOHIDDevice) -> Bool {
+
+		var success = false
+
+		if self.leftDevice != nil {
+			// TODO check for user calibration, and then choose between factory and user
+			// success = self.readSpiFlash(device:device, startAddress: JoyConController.LEFT_STICK_USER_CALIBRATION_FLAG_SPI_ADDRESS, size: 2) // TODO check size
+			// success = self.readSpiFlash(device:device, startAddress: JoyConController.LEFT_STICK_USER_CALIBRATION_VALUES_SPI_ADDRESS, size: 6) // TODO check size
+			success = self.readSpiFlash(device:device, startAddress: JoyConController.LEFT_STICK_FACTORY_CALIBRATION_SPI_ADDRESS, size: 6)
+		}
+
+		if self.rightDevice != nil {
+			// TODO check for user calibration, and then choose between factory and user
+			// success = self.readSpiFlash(device:device, startAddress: JoyConController.RIGHT_STICK_USER_CALIBRATION_FLAG_SPI_ADDRESS, size: 2) // TODO check size
+			// success = self.readSpiFlash(device:device, startAddress: JoyConController.RIGHT_STICK_USER_CALIBRATION_VALUES_SPI_ADDRESS, size: 6) // TODO check size
+			success = self.readSpiFlash(device:device, startAddress: JoyConController.RIGHT_STICK_FACTORY_CALIBRATION_SPI_ADDRESS, size: 6)
+		}
+
+		return success
+
+	}
+
+	func parseStickCalibration(report:Data) { // TODO check the best way to tell if this is the left or right calibration data
 
 		// TODO
 
 	}
 
 	// TODO
-	func getBattery(device:IOHIDDevice) {
+	func getBattery(device:IOHIDDevice) -> Bool {
 
 		/*
 		Subcommand 0x50: Get regulated voltage
@@ -1212,7 +1476,9 @@ final class JoyConController {
 		Replies with ACK xD0 x50 and a little-endian uint16. Raises when charging a Joy-Con.
 		Internally, the values come from 1000mV - 1800mV regulated voltage samples, that are translated to 1320-1680 values.
 		These follow a curve between 3.3V and 4.2V (tested with multimeter). So a 2.5x multiplier can get us the real battery voltage in mV.
+
 		Based on this info, we have the following table:
+
 		Range # 	Range 	Range in mV 	Reported battery
 		x0528 - x059F 	1320 - 1439 	3300 - 3599 	2 - Critical
 		x05A0 - x05DF 	1440 - 1503 	3600 - 3759 	4 - Low
@@ -1221,6 +1487,42 @@ final class JoyConController {
 
 		Tests showed charging stops at 1680 and the controller turns off at 1320.
 		*/
+
+		var buffer = [UInt8](repeating: 0, count: 49)
+
+		buffer[0] = JoyConController.OUTPUT_REPORT_ID_RUMBLE_SEND_SUB_TYPE
+		buffer[1] = JoyConController.outputReportIterator
+
+		// neutral rumble left
+		buffer[2] = 0x00
+		buffer[3] = 0x01
+		buffer[4] = 0x40
+		buffer[5] = 0x40
+
+		// neutral rumble right
+		buffer[6] = 0x00
+		buffer[7] = 0x10
+		buffer[8] = 0x40
+		buffer[9] = 0x40
+
+		// sub report type or sub command
+		buffer[10] = JoyConController.OUTPUT_REPORT_SUB_ID_BATTERY_VOLTAGE
+
+		let toggleSuccess = IOHIDDeviceSetReport(
+			device,
+			kIOHIDReportTypeOutput,
+			Int(buffer[0]), // Report ID
+			buffer,
+			buffer.count
+		);
+
+		JoyConController.outputReportIterator = JoyConController.outputReportIterator &+ 1
+
+		if toggleSuccess != kIOReturnSuccess {
+			return false
+		}
+
+		return true
 
 	}
 
@@ -1346,19 +1648,72 @@ final class JoyConController {
 	}
 
 	func getIMUCalibration(device:IOHIDDevice) -> Bool {
+
 		var success = false
 
 		// TODO check for user calibration, and then choose between factory and user
-		// success = self.readSpiFlash(device:device, startAddress: JoyConController.IMU_USER_CALIBRATION_FLAG_SPI_ADDRESS, size: 1) // TODO check size
-		// success = self.readSpiFlash(device:device, startAddress: JoyConController.IMU_USER_CALIBRATION_VALUES_SPI_ADDRESS, size: 1) // TODO check size
-		success = self.readSpiFlash(device:device, startAddress: JoyConController.IMU_FACTORY_CALIBRATION_SPI_ADDRESS, size: 1) // TODO check size
+		// success = self.readSpiFlash(device:device, startAddress: JoyConController.IMU_USER_CALIBRATION_FLAG_SPI_ADDRESS, size: 2) // TODO check size
+		// success = self.readSpiFlash(device:device, startAddress: JoyConController.IMU_USER_CALIBRATION_VALUES_SPI_ADDRESS, size: 12) // TODO check size
+		success = self.readSpiFlash(device:device, startAddress: JoyConController.IMU_FACTORY_CALIBRATION_SPI_ADDRESS, size: 12) // was 10 TODO magic constant 12, give a name...
 
 		return success
+
 	}
 
-	func parseIMUCalibration(report:[UInt8]) {
+	func parseIMUCalibration(report:Data) {
 
 		// TODO
+
+		/*
+		// report type
+		report[0]: 0x21 33
+
+		// read spi ack
+		report[13]: 0x90 144
+		report[14]: 0x10 16
+
+		echoes the request info, followed by size bytes of data.
+
+		// 32 bits address little endian
+		report[15]: 0x20 32
+		report[16]: 0x60 96
+		report[17]: 0x0 0
+		report[18]: 0x0 0
+
+		// length
+		report[19]: 0xa 12
+
+		// imu calibration data uses 12 bits!?
+
+		0 - 2 	FFB0 FEB9 00E0 	Acc XYZ origin position when completely horizontal and stick is upside
+		report[20]: 0xab 171
+		report[21]: 0xfe 254
+		report[22]: 0x11 17
+
+		3 - 5 	4000 4000 4000 	Acc XYZ sensitivity special coeff, for default sensitivity: ±8G.
+		report[23]: 0xff 255
+		report[24]: 0xee 238
+		report[25]: 0x0 0
+
+		6 - 8 	000E FFDF FFD0 	Gyro XYZ origin position when still
+		report[26]: 0x0 0
+		report[27]: 0x40 64
+		report[28]: 0x0 0
+
+		9 - 11 	343B 343B 343B 	Gyro XYZ sensitivity special coeff, for default sensitivity: ±2000dps.
+		report[29]: 0x40 64
+		report[30]: 0x0 0
+		report[31]: 0x0 0
+
+		Reference code for converting from uint16_t to int16_t for doing the above calculations:
+
+		int16_t uint16_to_int16(uint16_t a) {
+			int16_t b;
+			char* aPointer = (char*)&a, *bPointer = (char*)&b;
+			memcpy(bPointer, aPointer, sizeof(a));
+			return b;
+		}
+		*/
 
 	}
 
@@ -1369,40 +1724,14 @@ final class JoyConController {
 	static const s16 DFLT_ACCEL_SCALE = 16384;
 	static const s16 DFLT_GYRO_OFFSET /*= 0*/;
 	static const s16 DFLT_GYRO_SCALE  = 13371;
-	static int joycon_request_imu_calibration(struct joycon_ctlr *ctlr)
-	{
-		u16 imu_cal_addr = JC_IMU_CAL_FCT_DATA_ADDR;
-		u8 *raw_cal;
-		int ret;
-		int i;
 
-		/* check if user calibration exists */
-		if (!joycon_check_for_cal_magic(ctlr, JC_IMU_CAL_USR_MAGIC_ADDR)) {
-			imu_cal_addr = JC_IMU_CAL_USR_DATA_ADDR;
-			hid_info(ctlr->hdev, "using user cal for IMU\n");
-		} else {
-			hid_info(ctlr->hdev, "using factory cal for IMU\n");
+		for (i = 0; i < 3; i++) {
+			ctlr->accel_cal.offset[i] = DFLT_ACCEL_OFFSET;
+			ctlr->accel_cal.scale[i] = DFLT_ACCEL_SCALE;
+			ctlr->gyro_cal.offset[i] = DFLT_GYRO_OFFSET;
+			ctlr->gyro_cal.scale[i] = DFLT_GYRO_SCALE;
 		}
 
-		/* request IMU calibration data */
-		hid_dbg(ctlr->hdev, "requesting IMU cal data\n");
-		ret = joycon_request_spi_flash_read(ctlr, imu_cal_addr,
-							JC_IMU_CAL_DATA_SIZE, &raw_cal);
-		if (ret) {
-			hid_warn(ctlr->hdev,
-				 "Failed to read IMU cal, using defaults; ret=%d\n",
-				 ret);
-
-			for (i = 0; i < 3; i++) {
-				ctlr->accel_cal.offset[i] = DFLT_ACCEL_OFFSET;
-				ctlr->accel_cal.scale[i] = DFLT_ACCEL_SCALE;
-				ctlr->gyro_cal.offset[i] = DFLT_GYRO_OFFSET;
-				ctlr->gyro_cal.scale[i] = DFLT_GYRO_SCALE;
-			}
-			return ret;
-		}
-
-		/* IMU calibration parsing */
 		for (i = 0; i < 3; i++) {
 			int j = i * 2;
 
@@ -1414,59 +1743,12 @@ final class JoyConController {
 							((s16)raw_cal[j + 13] << 8);
 			ctlr->gyro_cal.scale[i] = raw_cal[j + 18] |
 							((s16)raw_cal[j + 19] << 8);
-		}
-
-		hid_dbg(ctlr->hdev, "IMU calibration:\n"
-					"a_o[0]=%d a_o[1]=%d a_o[2]=%d\n"
-					"a_s[0]=%d a_s[1]=%d a_s[2]=%d\n"
-					"g_o[0]=%d g_o[1]=%d g_o[2]=%d\n"
-					"g_s[0]=%d g_s[1]=%d g_s[2]=%d\n",
-					ctlr->accel_cal.offset[0],
-					ctlr->accel_cal.offset[1],
-					ctlr->accel_cal.offset[2],
-					ctlr->accel_cal.scale[0],
-					ctlr->accel_cal.scale[1],
-					ctlr->accel_cal.scale[2],
-					ctlr->gyro_cal.offset[0],
-					ctlr->gyro_cal.offset[1],
-					ctlr->gyro_cal.offset[2],
-					ctlr->gyro_cal.scale[0],
-					ctlr->gyro_cal.scale[1],
-					ctlr->gyro_cal.scale[2]);
-
-		return 0;
-	}
 
 
-
-
-
-	/* Magic value denoting presence of user calibration */
+	// Magic value denoting presence of user calibration
 	static const u16 JC_CAL_USR_MAGIC_0		= 0xB2;
 	static const u16 JC_CAL_USR_MAGIC_1		= 0xA1;
 	static const u8 JC_CAL_USR_MAGIC_SIZE		= 2;
-
-	/* SPI storage addresses of user calibration data */
-	static const u16 JC_CAL_USR_LEFT_MAGIC_ADDR	= 0x8010;
-	static const u16 JC_CAL_USR_LEFT_DATA_ADDR	= 0x8012;
-	static const u16 JC_CAL_USR_LEFT_DATA_END	= 0x801A;
-	static const u16 JC_CAL_USR_RIGHT_MAGIC_ADDR	= 0x801B;
-	static const u16 JC_CAL_USR_RIGHT_DATA_ADDR	= 0x801D;
-	#define JC_CAL_STICK_DATA_SIZE \ (JC_CAL_USR_LEFT_DATA_END - JC_CAL_USR_LEFT_DATA_ADDR + 1)
-
-	/* SPI storage addresses of factory calibration data */
-	static const u16 JC_CAL_FCT_DATA_LEFT_ADDR	= 0x603d;
-	static const u16 JC_CAL_FCT_DATA_RIGHT_ADDR	= 0x6046;
-
-	/* SPI storage addresses of IMU factory calibration data */
-	static const u16 JC_IMU_CAL_FCT_DATA_ADDR	= 0x6020;
-	static const u16 JC_IMU_CAL_FCT_DATA_END	= 0x6037;
-	#define JC_IMU_CAL_DATA_SIZE \ (JC_IMU_CAL_FCT_DATA_END - JC_IMU_CAL_FCT_DATA_ADDR + 1)
-	/* SPI storage addresses of IMU user calibration data */
-	static const u16 JC_IMU_CAL_USR_MAGIC_ADDR	= 0x8026;
-	static const u16 JC_IMU_CAL_USR_DATA_ADDR	= 0x8028;
-
-
 
 
 
@@ -1560,9 +1842,14 @@ final class JoyConController {
 
 	}
 
-	func readSpiFlash(device:IOHIDDevice, startAddress:UInt32, size:UInt8) -> Bool {
+	func readSpiFlash(device:IOHIDDevice, startAddress:UInt16, size:UInt8) -> Bool {
 
-		var buffer = [UInt8](repeating: 0, count: Int(size))
+		if size > 29 {
+			print("Unsupported theoretycally. TODO throw error?")
+			return false
+		}
+
+		var buffer = [UInt8](repeating: 0, count: Int(49))
 
 		buffer[0] = JoyConController.OUTPUT_REPORT_ID_RUMBLE_SEND_SUB_TYPE
 		buffer[1] = JoyConController.outputReportIterator
@@ -1582,11 +1869,12 @@ final class JoyConController {
 		// sub report type or sub command
 		buffer[10] = JoyConController.OUTPUT_REPORT_SUB_ID_SPI_FLASH_READ
 
-		// 4 bytes for an UInt32 address. Trying to avoid using pointers here to get UInt32 bytes...
-		buffer[11] = UInt8(clamping: 0x000000FF & startAddress)
-		buffer[12] = UInt8(clamping: 0x000000FF & (startAddress >> 8))
-		buffer[13] = UInt8(clamping: 0x000000FF & (startAddress >> 16))
-		buffer[14] = UInt8(clamping: 0x000000FF & (startAddress >> 24))
+		// 4 bytes for an UInt32 address, but none of the values I use exceeed 16 bits
+		// Trying to avoid using pointers here to get the bytes...
+		buffer[11] = 0 // UInt8(clamping: 0x000000FF & startAddress)
+		buffer[12] = 0 // UInt8(clamping: 0x000000FF & (startAddress >> 8))
+		buffer[13] = UInt8(clamping: 0x00FF & startAddress) // UInt8(clamping: 0x000000FF & (startAddress >> 16))
+		buffer[14] = UInt8(clamping: 0x00FF & (startAddress >> 8)) // UInt8(clamping: 0x000000FF & (startAddress >> 24))
 
 		// 1 byte for an UInt8 size
 		buffer[15] = size
@@ -1601,94 +1889,18 @@ final class JoyConController {
 
 		JoyConController.outputReportIterator = JoyConController.outputReportIterator &+ 1
 
-		/*
-		TODO how to read the buffer? Will it be returned along with the input reports? Can it be read as a feature report? Should I read it right after with get report input?
-
-		var dualshock4CalibrationDataReport = [UInt8](repeating: 0, count: 41)
-		var dualshock4CalibrationDataReportLength = dualshock4CalibrationDataReport.count
-
-		let dualshock4CalibrationDataReportPointer = UnsafeMutablePointer(mutating: dualshock4CalibrationDataReport)
-		let dualshock4CalibrationDataReportLengthPointer = UnsafeMutablePointer<Int>.allocate(capacity: 1)
-		dualshock4CalibrationDataReportLengthPointer.pointee = dualshock4CalibrationDataReportLength
-
-		IOHIDDeviceGetReport(
-			device,
-			kIOHIDReportTypeFeature,
-			self.isBluetooth ? 0x05 : 0x02, // TODO test bluetooth
-			dualshock4CalibrationDataReportPointer,
-			dualshock4CalibrationDataReportLengthPointer
-		)
-		*/
-
 		if success != kIOReturnSuccess {
-			return false // return empty buffer? nil?
+			return false
 		}
 
-		return true // TODO return filled buffer? 'Cause I think it will be returned as an input report...
+		return true
 
 
-		/*
-		spi serial pehipheral interface
-		Subcommand 0x10: SPI flash read
-
-		Little-endian int32 address, int8 size, max size is x1D. Replies with x9010 ack and echoes the request info, followed by size bytes of data.
-
-		Request:
-		[01 .. .. .. .. .. .. .. .. .. 10 80 60 00 00 18]
-									   ^ subcommand
-										  ^~~~~~~~~~~ address x6080
-													  ^ length = 0x18 bytes
-		Response: INPUT 21
-		[xx .E .. .. .. .. .. .. .. .. .. .. 0. 90 80 60 00 00 18 .. .. .. ....]
-												^ subcommand reply
-													  ^~~~~~~~~~~ address
-															   ^ length = 0x18 bytes
-																  ^~~~~ data
-
-		Subcommand 0x11: SPI flash Write
-
-		Little-endian int32 address, int8 size. Max size x1D data to write. Replies with x8011 ack and a uint8 status. x00 = success, x01 = write protected.
-		*/
 
 
 
 
 		/*
-		static int joycon_request_spi_flash_read(struct joycon_ctlr *ctlr,
-							 u32 start_addr, u8 size, u8 **reply)
-		{
-			struct joycon_subcmd_request *req;
-			struct joycon_input_report *report;
-			u8 buffer[sizeof(*req) + 5] = { 0 };
-			u8 *data;
-			int ret;
-
-			req = (struct joycon_subcmd_request *)buffer;
-			req->subcmd_id = JC_SUBCMD_SPI_FLASH_READ;
-			data = req->data;
-			data[0] = 0xFF & start_addr;
-			data[1] = 0xFF & (start_addr >> 8);
-			data[2] = 0xFF & (start_addr >> 16);
-			data[3] = 0xFF & (start_addr >> 24);
-			data[4] = size;
-
-			hid_dbg(ctlr->hdev, "requesting SPI flash data\n");
-			ret = joycon_send_subcmd(ctlr, req, 5, HZ);
-			report = (struct joycon_input_report *)ctlr->input_buf;
-			/* The read data starts at the 6th byte */
-			*reply = &report->subcmd_reply.data[5];
-
-			return ret;
-		}
-
-		/*
-		u8 subcmd;
-		union {
-			struct {
-				u32 offset;
-				u8 size;
-			} spi_data;
-		*/
 
 		int get_spi_data(u32 offset, const u16 read_len, u8 *test_buf) {
 
@@ -1730,77 +1942,6 @@ final class JoyConController {
 
 			return 0;
 		}
-
-		private byte[] ReadSPI(byte addr1, byte addr2, uint len, bool print = false) {
-            byte[] buf = { addr2, addr1, 0x00, 0x00, (byte)len };
-            byte[] read_buf = new byte[len];
-            byte[] buf_ = new byte[len + 20];
-
-            for (int i = 0; i < 100; ++i) {
-                buf_ = Subcommand(0x10, buf, 5, false);
-                if (buf_[15] == addr2 && buf_[16] == addr1) {
-                    break;
-                }
-            }
-            Array.Copy(buf_, 20, read_buf, 0, len);
-            if (print) PrintArray(read_buf, DebugType.COMMS, len);
-            return read_buf;
-        }
-
-
-
-
-
-
-		private void dump_calibration_data()
-		{
-			byte[] buf_ = ReadSPI(0x80, (isLeft ? (byte)0x12 : (byte)0x1d), 9); // get user calibration data if possible
-			bool found = false;
-			for (int i = 0; i < 9; ++i)
-			{
-				if (buf_[i] != 0xff)
-				{
-					Debug.Log("Using user stick calibration data.");
-					found = true;
-					break;
-				}
-			}
-			if (!found)
-			{
-				Debug.Log("Using factory stick calibration data.");
-				buf_ = ReadSPI(0x60, (isLeft ? (byte)0x3d : (byte)0x46), 9); // get user calibration data if possible
-			}
-			stick_cal[isLeft ? 0 : 2] = (UInt16)((buf_[1] << 8) & 0xF00 | buf_[0]); // X Axis Max above center
-			stick_cal[isLeft ? 1 : 3] = (UInt16)((buf_[2] << 4) | (buf_[1] >> 4));  // Y Axis Max above center
-			stick_cal[isLeft ? 2 : 4] = (UInt16)((buf_[4] << 8) & 0xF00 | buf_[3]); // X Axis Center
-			stick_cal[isLeft ? 3 : 5] = (UInt16)((buf_[5] << 4) | (buf_[4] >> 4));  // Y Axis Center
-			stick_cal[isLeft ? 4 : 0] = (UInt16)((buf_[7] << 8) & 0xF00 | buf_[6]); // X Axis Min below center
-			stick_cal[isLeft ? 5 : 1] = (UInt16)((buf_[8] << 4) | (buf_[7] >> 4));  // Y Axis Min below center
-
-			PrintArray(stick_cal, len: 6, start: 0, format: "Stick calibration data: {0:S}");
-
-			buf_ = ReadSPI(0x60, (isLeft ? (byte)0x86 : (byte)0x98), 16);
-			deadzone = (UInt16)((buf_[4] << 8) & 0xF00 | buf_[3]);
-
-			buf_ = ReadSPI(0x80, 0x34, 10);
-			gyr_neutral[0] = (Int16)(buf_[0] | ((buf_[1] << 8) & 0xff00));
-			gyr_neutral[1] = (Int16)(buf_[2] | ((buf_[3] << 8) & 0xff00));
-			gyr_neutral[2] = (Int16)(buf_[4] | ((buf_[5] << 8) & 0xff00));
-			PrintArray(gyr_neutral, len: 3, d: DebugType.IMU, format: "User gyro neutral position: {0:S}");
-
-			// This is an extremely messy way of checking to see whether there is user stick calibration data present, but I've seen conflicting user calibration data on blank Joy-Cons. Worth another look eventually.
-			if (gyr_neutral[0] + gyr_neutral[1] + gyr_neutral[2] == -3 || Math.Abs(gyr_neutral[0]) > 100 || Math.Abs(gyr_neutral[1]) > 100 || Math.Abs(gyr_neutral[2]) > 100)
-			{
-				buf_ = ReadSPI(0x60, 0x29, 10);
-				gyr_neutral[0] = (Int16)(buf_[3] | ((buf_[4] << 8) & 0xff00));
-				gyr_neutral[1] = (Int16)(buf_[5] | ((buf_[6] << 8) & 0xff00));
-				gyr_neutral[2] = (Int16)(buf_[7] | ((buf_[8] << 8) & 0xff00));
-				PrintArray(gyr_neutral, len: 3, d: DebugType.IMU, format: "Factory gyro neutral position: {0:S}");
-			}
-		}
-
-
-
 
 
 
@@ -1908,7 +2049,6 @@ final class JoyConController {
             }
             HIDapi.hid_set_nonblocking(handle, 1);
         }
-
 		*/
 
 	}

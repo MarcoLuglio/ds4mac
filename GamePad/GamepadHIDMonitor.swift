@@ -19,12 +19,13 @@ import IOKit.hid
 //import ForceFeedback
 
 
+
 final class GamepadHIDMonitor {
 
 	var joyConController:JoyConController!
 	//var dualSenseController:DualSenseController!
 	var dualShock4Controller:DualShock4Controller!
-	//var xboxSeriesXController:XboxSeriesXController!
+	//var xboxSeriesXController:XboxSeriesXSController!
 	var xboxOneController:XboxOneController!
 	var xbox360Controller:Xbox360Controller!
 
@@ -38,12 +39,12 @@ final class GamepadHIDMonitor {
 
 		let hidManager = IOHIDManagerCreate(kCFAllocatorDefault, IOOptionBits(kIOHIDOptionsTypeNone)) // or kIOHIDManagerOptionUsePersistentProperties
 
-		// reference to self (GamePadMonitor) that can be passed to c functions, essentially a pointer to void
+		// reference to self (GamePadMonitor) that can be passed to c functions, essentially a pointer to void, meaning it can point to any type
 		let hidContext = unsafeBitCast(self, to: UnsafeMutableRawPointer.self)
 
 		// CFArray and NSArray are compatible
 		// Creating an CFArray requires pointers, so I'm using an NSArray
-		// C function that uses this requires CFArray
+		// C function that uses this array requires CFArray
 		let deviceCriteria:NSArray = [
 			/*[
 				kIOHIDDeviceUsagePageKey: kHIDPage_GenericDesktop,
@@ -131,7 +132,7 @@ final class GamepadHIDMonitor {
 
 	func hidDeviceAddedCallback(_ result:IOReturn, sender:UnsafeMutableRawPointer, device:IOHIDDevice) {
 
-		// reference to self (GamePadMonitor) that can be passed to c functions, essentially a pointer to void
+		// reference to self (GamePadMonitor) that can be passed to c functions, essentially a pointer to void, meaning it can point to any type
 		// let hidContext = unsafeBitCast(self, to: UnsafeMutableRawPointer.self) // not using this here
 
 		let locationID = IOHIDDeviceGetProperty(device, kIOHIDLocationIDKey as CFString)
@@ -193,7 +194,7 @@ final class GamepadHIDMonitor {
 
 	func hidDeviceRemovedCallback(_ result:IOReturn, sender:UnsafeMutableRawPointer, device:IOHIDDevice) {
 
-		// reference to self (GamePadMonitor) that can be passed to c functions, essentially a pointer to void
+		// reference to self (GamePadMonitor) that can be passed to c functions, essentially a pointer to void, meaning it can point to any type
 		// let hidContext = unsafeBitCast(self, to: UnsafeMutableRawPointer.self)
 
 		// TODO not sure what to do here
@@ -203,7 +204,7 @@ final class GamepadHIDMonitor {
 	/// gamepad input report callback
 	func inputReportCallback(result:IOReturn, sender:UnsafeMutableRawPointer, reportType:IOHIDReportType, reportID:UInt32, report:Data) {
 
-		// report type will always be 0 (input), because this callback was only registered for this type of reports
+		// reportType will always be 0 (input), because this callback was only registered for this type of reports
 
 		let device = unsafeBitCast(sender, to: IOHIDDevice.self)
 

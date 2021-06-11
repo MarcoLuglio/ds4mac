@@ -19,6 +19,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	var gamePadHIDThread:Thread!
 
 	func applicationDidFinishLaunching(_ aNotification: Notification) {
+
 		// Create the SwiftUI view that provides the window contents.
 		let contentView = ContentView()
 
@@ -59,6 +60,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		cp.setAction(#selector(self.colorDidChange))
 		cp.makeKeyAndOrderFront(self)
 		cp.isContinuous = true
+		
 	}
 
 	@objc func colorDidChange(sender:Any) {

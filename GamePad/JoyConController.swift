@@ -661,14 +661,14 @@ final class JoyConController {
 				// here I'm just getting 1 sample, maybe I should average the values? Or send a notification for each?
 
 				// ?? accelerometer data is in m/s²
-				self.leftAccelX = Int32(report[14 + bluetoothOffset]) << 8 | Int32(report[13 + bluetoothOffset]) // TODO calibrate
-				self.leftAccelY = Int32(report[16 + bluetoothOffset]) << 8 | Int32(report[15 + bluetoothOffset]) // TODO calibrate
-				self.leftAccelZ = Int32(report[18 + bluetoothOffset]) << 8 | Int32(report[17 + bluetoothOffset]) // TODO calibrate
+				self.leftAccelX = Int32(Int16(report[14 + bluetoothOffset]) << 8 | Int16(report[13 + bluetoothOffset])) // TODO calibrate
+				self.leftAccelY = Int32(Int16(report[16 + bluetoothOffset]) << 8 | Int16(report[15 + bluetoothOffset])) // TODO calibrate
+				self.leftAccelZ = Int32(Int16(report[18 + bluetoothOffset]) << 8 | Int16(report[17 + bluetoothOffset])) // TODO calibrate
 
 				// ?? gyroscope data is in rad/s
-				self.leftGyroPitch = Int32(report[20 + bluetoothOffset]) << 8 | Int32(report[19 + bluetoothOffset]) // TODO calibrate
-				self.leftGyroYaw   = Int32(report[22 + bluetoothOffset]) << 8 | Int32(report[21 + bluetoothOffset]) // TODO calibrate
-				self.leftGyroRoll  = Int32(report[24 + bluetoothOffset]) << 8 | Int32(report[23 + bluetoothOffset]) // TODO calibrate
+				self.leftGyroPitch = Int32(Int16(report[20 + bluetoothOffset]) << 8 | Int16(report[19 + bluetoothOffset])) // TODO calibrate
+				self.leftGyroYaw   = Int32(Int16(report[22 + bluetoothOffset]) << 8 | Int16(report[21 + bluetoothOffset])) // TODO calibrate
+				self.leftGyroRoll  = Int32(Int16(report[24 + bluetoothOffset]) << 8 | Int16(report[23 + bluetoothOffset])) // TODO calibrate
 
 				/*
 				jc->accel.x = (float)(uint16_to_int16(packet[13] | (packet[14] << 8) & 0xFF00)) * jc->acc_cal_coeff[0];
@@ -1398,7 +1398,8 @@ final class JoyConController {
 
 	func toggleVibration(device:IOHIDDevice, enable:Bool) -> Bool {
 
-		var buffer = [UInt8](repeating: 0, count: 49)
+		let joyConToggleVibrationReportLength = 49
+		var buffer = [UInt8](repeating: 0, count: joyConToggleVibrationReportLength)
 
 		buffer[0] = JoyConController.OUTPUT_REPORT_ID_RUMBLE_SEND_SUB_TYPE
 		buffer[1] = JoyConController.outputReportIterator
@@ -1488,7 +1489,8 @@ final class JoyConController {
 		Tests showed charging stops at 1680 and the controller turns off at 1320.
 		*/
 
-		var buffer = [UInt8](repeating: 0, count: 49)
+		let joyConBatteryVoltageReportLength = 49
+		var buffer = [UInt8](repeating: 0, count: joyConBatteryVoltageReportLength)
 
 		buffer[0] = JoyConController.OUTPUT_REPORT_ID_RUMBLE_SEND_SUB_TYPE
 		buffer[1] = JoyConController.outputReportIterator
@@ -1530,7 +1532,8 @@ final class JoyConController {
 
 	func toggleIMU(device:IOHIDDevice, enable:Bool) -> Bool {
 
-		var buffer = [UInt8](repeating: 0, count: 49)
+		let joyConToggleIMUReportLength = 49
+		var buffer = [UInt8](repeating: 0, count: joyConToggleIMUReportLength)
 
 		buffer[0] = JoyConController.OUTPUT_REPORT_ID_RUMBLE_SEND_SUB_TYPE
 		buffer[1] = JoyConController.outputReportIterator
@@ -1553,10 +1556,12 @@ final class JoyConController {
 		// sub report type parameter 1
 		buffer[11] = enable ? 0x01 : 0x00
 
+		let reportId = Int(buffer[0])
+
 		let toggleSuccess = IOHIDDeviceSetReport(
 			device,
 			kIOHIDReportTypeOutput,
-			Int(buffer[0]), // Report ID
+			reportId,
 			buffer,
 			buffer.count
 		);
@@ -1585,7 +1590,8 @@ final class JoyConController {
 
 	func imuSettings(device:IOHIDDevice) -> Bool {
 
-		var buffer = [UInt8](repeating: 0, count: 49)
+		let joyConIMUSettingsReportLength = 49
+		var buffer = [UInt8](repeating: 0, count: joyConIMUSettingsReportLength)
 
 		buffer[0] = JoyConController.OUTPUT_REPORT_ID_RUMBLE_SEND_SUB_TYPE
 		buffer[1] = JoyConController.outputReportIterator
@@ -1629,10 +1635,12 @@ final class JoyConController {
 		// 01 100Hz (default)
 		buffer[14] = 0x01
 
+		let reportId = Int(buffer[0])
+
 		let success = IOHIDDeviceSetReport(
 			device,
 			kIOHIDReportTypeOutput,
-			Int(buffer[0]), // Report ID
+			reportId,
 			buffer,
 			buffer.count
 		);
@@ -1801,7 +1809,8 @@ final class JoyConController {
 		x35 	Unknown mode.
 		*/
 
-		var buffer = [UInt8](repeating: 0, count: 49)
+		let joyConSetInputReportReportLength = 49
+		var buffer = [UInt8](repeating: 0, count: joyConSetInputReportReportLength)
 
 		buffer[0] = JoyConController.OUTPUT_REPORT_ID_RUMBLE_SEND_SUB_TYPE
 		buffer[1] = JoyConController.outputReportIterator
@@ -1824,10 +1833,12 @@ final class JoyConController {
 		// sub report type parameter 1
 		buffer[11] = inputReportId
 
+		let reportId = Int(buffer[0])
+
 		let success = IOHIDDeviceSetReport(
 			device,
 			kIOHIDReportTypeOutput,
-			Int(buffer[0]), // Report ID
+			reportId,
 			buffer,
 			buffer.count
 		);
@@ -1849,7 +1860,8 @@ final class JoyConController {
 			return false
 		}
 
-		var buffer = [UInt8](repeating: 0, count: Int(49))
+		let joyConSpiFlashReadReportLength = 49
+		var buffer = [UInt8](repeating: 0, count: joyConSpiFlashReadReportLength)
 
 		buffer[0] = JoyConController.OUTPUT_REPORT_ID_RUMBLE_SEND_SUB_TYPE
 		buffer[1] = JoyConController.outputReportIterator
@@ -1879,10 +1891,12 @@ final class JoyConController {
 		// 1 byte for an UInt8 size
 		buffer[15] = size
 
+		let reportId = Int(buffer[0])
+
 		let success = IOHIDDeviceSetReport(
 			device,
 			kIOHIDReportTypeOutput,
-			Int(buffer[0]), // Report ID
+			reportId,
 			buffer,
 			buffer.count
 		);
@@ -2142,7 +2156,8 @@ final class JoyConController {
 		x24 High/Low 	Fading/LED Duration Multipliers for MC 15
 		*/
 
-		var buffer = [UInt8](repeating: 0, count: 49)
+		let joyConSetPlayerLightsReportLength = 49
+		var buffer = [UInt8](repeating: 0, count: joyConSetPlayerLightsReportLength)
 
 		buffer[0] = JoyConController.OUTPUT_REPORT_ID_RUMBLE_SEND_SUB_TYPE
 		buffer[1] = JoyConController.outputReportIterator
@@ -2204,10 +2219,12 @@ final class JoyConController {
 		// sub report type parameter 1
 		buffer[11] = leds
 
+		let reportId = Int(buffer[0])
+
 		let success = IOHIDDeviceSetReport(
 			device,
 			kIOHIDReportTypeOutput,
-			Int(buffer[0]), // Report ID
+			reportId,
 			buffer,
 			buffer.count
 		);

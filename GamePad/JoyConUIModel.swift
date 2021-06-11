@@ -39,9 +39,9 @@ class JoyConUIModel: ObservableObject {
 	var leftGyroYaw:Int32 = 0
 	var leftGyroRoll:Int32 = 0
 
-	var leftAccelX:Int32 = 0
-	var leftAccelY:Int32 = 0
-	var leftAccelZ:Int32 = 0
+	var leftAccelX:Float32 = 0
+	var leftAccelY:Float32 = 0
+	var leftAccelZ:Float32 = 0
 
 
 
@@ -68,9 +68,9 @@ class JoyConUIModel: ObservableObject {
 	var rightGyroYaw:Int32 = 0
 	var rightGyroRoll:Int32 = 0
 
-	var rightAccelX:Int32 = 0
-	var rightAccelY:Int32 = 0
-	var rightAccelZ:Int32 = 0
+	var rightAccelX:Float32 = 0
+	var rightAccelY:Float32 = 0
+	var rightAccelZ:Float32 = 0
 
 	var isConnected = false
 	var isCharging = false

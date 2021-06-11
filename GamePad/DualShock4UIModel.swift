@@ -59,9 +59,9 @@ class DualShock4UIModel: ObservableObject {
 	var gyroYaw:Int32 = 0
 	var gyroRoll:Int32 = 0
 
-	var accelX:Int32 = 0
-	var accelY:Int32 = 0
-	var accelZ:Int32 = 0
+	var accelX:Float32 = 0
+	var accelY:Float32 = 0
+	var accelZ:Float32 = 0
 
 	var red:Double = 0
 	var green:Double = 0

@@ -189,12 +189,12 @@ final class JoyConController {
 	var leftGyroRoll:Int32 = 0
 	var previousLeftGyroRoll:Int32 = 0
 
-	var leftAccelX:Int32 = 0
-	var previousLeftAccelX:Int32 = 0
-	var leftAccelY:Int32 = 0
-	var previousLeftAccelY:Int32 = 0
-	var leftAccelZ:Int32 = 0
-	var previousLeftAccelZ:Int32 = 0
+	var leftAccelX:Float32 = 0
+	var previousLeftAccelX:Float32 = 0
+	var leftAccelY:Float32 = 0
+	var previousLeftAccelY:Float32 = 0
+	var leftAccelZ:Float32 = 0
+	var previousLeftAccelZ:Float32 = 0
 
 	// battery
 	//var cableConnected = false
@@ -275,12 +275,12 @@ final class JoyConController {
 	var rightGyroRoll:Int32 = 0
 	var previousRightGyroRoll:Int32 = 0
 
-	var rightAccelX:Int32 = 0
-	var previousRightAccelX:Int32 = 0
-	var rightAccelY:Int32 = 0
-	var previousRightAccelY:Int32 = 0
-	var rightAccelZ:Int32 = 0
-	var previousRightAccelZ:Int32 = 0
+	var rightAccelX:Float32 = 0
+	var previousRightAccelX:Float32 = 0
+	var rightAccelY:Float32 = 0
+	var previousRightAccelY:Float32 = 0
+	var rightAccelZ:Float32 = 0
+	var previousRightAccelZ:Float32 = 0
 
 	// battery
 	var batteryRightCharging = false
@@ -661,9 +661,10 @@ final class JoyConController {
 				// here I'm just getting 1 sample, maybe I should average the values? Or send a notification for each?
 
 				// ?? accelerometer data is in m/s²
-				self.leftAccelX = Int32(Int16(report[14 + bluetoothOffset]) << 8 | Int16(report[13 + bluetoothOffset])) // TODO calibrate
-				self.leftAccelY = Int32(Int16(report[16 + bluetoothOffset]) << 8 | Int16(report[15 + bluetoothOffset])) // TODO calibrate
-				self.leftAccelZ = Int32(Int16(report[18 + bluetoothOffset]) << 8 | Int16(report[17 + bluetoothOffset])) // TODO calibrate
+				// FIXME finish implementation
+				var rawLeftAccelX = Int32(Int16(report[14 + bluetoothOffset]) << 8 | Int16(report[13 + bluetoothOffset])) // TODO calibrate
+				var rawLeftAccelY = Int32(Int16(report[16 + bluetoothOffset]) << 8 | Int16(report[15 + bluetoothOffset])) // TODO calibrate
+				var rawLeftAccelZ = Int32(Int16(report[18 + bluetoothOffset]) << 8 | Int16(report[17 + bluetoothOffset])) // TODO calibrate
 
 				// ?? gyroscope data is in rad/s
 				self.leftGyroPitch = Int32(Int16(report[20 + bluetoothOffset]) << 8 | Int16(report[19 + bluetoothOffset])) // TODO calibrate

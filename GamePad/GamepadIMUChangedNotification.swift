@@ -17,17 +17,17 @@ final class GamepadIMUChangedNotification {
 	let gyroPitch:Int32
 	let gyroYaw:Int32
 	let gyroRoll:Int32
-	let accelX:Int32
-	let accelY:Int32
-	let accelZ:Int32
+	let accelX:Float32
+	let accelY:Float32
+	let accelZ:Float32
 
 	init(
 		gyroPitch:Int32,
 		gyroYaw:Int32,
 		gyroRoll:Int32,
-		accelX:Int32,
-		accelY:Int32,
-		accelZ:Int32
+		accelX:Float32,
+		accelY:Float32,
+		accelZ:Float32
 	) {
 
 		self.gyroPitch = gyroPitch

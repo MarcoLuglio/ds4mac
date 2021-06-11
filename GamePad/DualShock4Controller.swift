@@ -188,12 +188,12 @@ final class DualShock4Controller {
 	var previousGyroRoll:Int32 = 0
 
 	// TODO change to Int16
-	var accelX:Int32 = 0
-	var previousAccelX:Int32 = 0
-	var accelY:Int32 = 0
-	var previousAccelY:Int32 = 0
-	var accelZ:Int32 = 0
-	var previousAccelZ:Int32 = 0
+	var accelX:Float32 = 0
+	var previousAccelX:Float32 = 0
+	var accelY:Float32 = 0
+	var previousAccelY:Float32 = 0
+	var accelZ:Float32 = 0
+	var previousAccelZ:Float32 = 0
 
 	//var rotationZ:Float32 = 0
 
@@ -533,9 +533,9 @@ final class DualShock4Controller {
 		self.gyroRoll =  Int32(Int16(report[18 + bluetoothOffset]) << 8 | Int16(report[17 + bluetoothOffset]))
 
 
-		self.accelX = Int32(Int16(report[20 + bluetoothOffset]) << 8 | Int16(report[19 + bluetoothOffset])) // changes when we roll or yaw (tips of wing go up or down, nose of plane goes left or right)
-		self.accelY = Int32(Int16(report[22 + bluetoothOffset]) << 8 | Int16(report[21 + bluetoothOffset])) // changes when we pitch or roll (nose of plane goes up or down, tips of wing go up or down)
-		self.accelZ = Int32(Int16(report[24 + bluetoothOffset]) << 8 | Int16(report[23 + bluetoothOffset])) // changes when we pitch or yaw (nose of plane goes up, down, left or right)
+		var rawAccelX = Int32(Int16(report[20 + bluetoothOffset]) << 8 | Int16(report[19 + bluetoothOffset])) // changes when we roll or yaw (tips of wing go up or down, nose of plane goes left or right)
+		var rawAccelY = Int32(Int16(report[22 + bluetoothOffset]) << 8 | Int16(report[21 + bluetoothOffset])) // changes when we pitch or roll (nose of plane goes up or down, tips of wing go up or down)
+		var rawAccelZ = Int32(Int16(report[24 + bluetoothOffset]) << 8 | Int16(report[23 + bluetoothOffset])) // changes when we pitch or yaw (nose of plane goes up, down, left or right)
 
 
 		/*
@@ -592,6 +592,9 @@ final class DualShock4Controller {
 			pitch: &self.gyroPitch,
 			yaw: &self.gyroYaw,
 			roll: &self.gyroRoll,
+			rawAccelX: &rawAccelX,
+			rawAccelY: &rawAccelY,
+			rawAccelZ: &rawAccelZ,
 			accelX: &self.accelX,
 			accelY: &self.accelY,
 			accelZ: &self.accelZ
@@ -885,8 +888,8 @@ final class DualShock4Controller {
 	LSB = least significant bit
 
 	(A):
-	± 2 g 1024 LSB/g (default for DualShock 4)
-	± 4 g 512 LSB/g
+	± 2 g 1024 LSB/g
+	± 4 g 512 LSB/g (default for DualShock 4?)
 	± 8 g 256 LSB/g
 	± 16 g 128 LSB/g
 
@@ -1092,7 +1095,7 @@ final class DualShock4Controller {
 		self.calibration[Calibration.GyroPitchIndex].rawPositive1GValue = pitchPlus
 		self.calibration[Calibration.GyroPitchIndex].rawNegative1GValue = pitchMinus
 
-		// TODO is this inverted? Or are all values inverted? This is the only where the plus values is bigger than the minus value
+		// TODO is this inverted? yaw is the only where the plus values is bigger than the minus value
 		self.calibration[Calibration.GyroYawIndex].rawPositive1GValue   = yawPlus
 		self.calibration[Calibration.GyroYawIndex].rawNegative1GValue   = yawMinus
 
@@ -1114,11 +1117,6 @@ final class DualShock4Controller {
 
 		let accelYPlus  = Int32(Int16(calibrationReport[28] << 8) | Int16(calibrationReport[27]))
 		let accelYMinus = Int32(Int16(calibrationReport[30] << 8) | Int16(calibrationReport[29]))
-
-		let accelYPlus16  = Int32(Int16(calibrationReport[28] << 8) | Int16(calibrationReport[27]))
-		let accelYMinus16 = Int32(Int16(calibrationReport[30] << 8) | Int16(calibrationReport[29]))
-
-		print("accelXPlus16 \(accelYPlus16)")
 
 		let accelZPlus  = Int32(Int16(calibrationReport[32] << 8) | Int16(calibrationReport[31]))
 		let accelZMinus = Int32(Int16(calibrationReport[34] << 8) | Int16(calibrationReport[33]))
@@ -1143,7 +1141,8 @@ final class DualShock4Controller {
 
 	func applyCalibration(
 		pitch:inout Int32, yaw:inout Int32, roll:inout Int32,
-		accelX:inout Int32, accelY:inout Int32, accelZ:inout Int32
+		rawAccelX:inout Int32, rawAccelY:inout Int32, rawAccelZ:inout Int32,
+		accelX:inout Float32, accelY:inout Float32, accelZ:inout Float32
 	) {
 
 		/*pitch = DualShock4Controller.applyGyroCalibration(
@@ -1171,19 +1170,19 @@ final class DualShock4Controller {
 		// TODO transform the bytes reading into G values?
 
 		accelX = DualShock4Controller.applyAccelCalibration(
-			accelX,
+			rawAccelX,
 			sensorRawPositive1GValue: self.calibration[Calibration.AccelXIndex].rawPositive1GValue!,
 			sensorRawNegative1GValue: self.calibration[Calibration.AccelXIndex].rawNegative1GValue!
 		)
 
 		accelY = DualShock4Controller.applyAccelCalibration(
-			accelY,
+			rawAccelY,
 			sensorRawPositive1GValue: self.calibration[Calibration.AccelYIndex].rawPositive1GValue!,
 			sensorRawNegative1GValue: self.calibration[Calibration.AccelYIndex].rawNegative1GValue!
 		)
 
 		accelZ = DualShock4Controller.applyAccelCalibration(
-			accelZ,
+			rawAccelZ,
 			sensorRawPositive1GValue: self.calibration[Calibration.AccelZIndex].rawPositive1GValue!,
 			sensorRawNegative1GValue: self.calibration[Calibration.AccelZIndex].rawNegative1GValue!
 		)
@@ -1295,8 +1294,9 @@ final class DualShock4Controller {
 	/// - Parameter sensorRawValue: Current raw bytes reading of the sensor
 	/// - Parameter sensorRawPositive1GValue: Raw bytes reading of the sensor at 1G (normal gravity) according to factory calibration parameters obtained from the calibration feature report.
 	/// - Parameter sensorRawNegative1GValue: Raw bytes reading of the sensor at -1G (upside down gravity) according to factory calibration parameters obtained from the calibration feature report.
-	/// - Returns: Calibrated bytes reading of the sensor value
-	static func applyAccelCalibration(_ sensorRawValue:Int32, sensorRawPositive1GValue:Int32, sensorRawNegative1GValue:Int32) -> Int32 {
+	/// - Parameter gravityResolution: How many bytes is 1G
+	/// - Returns: Calibrated Gs reading of the sensor
+	static func applyAccelCalibration(_ sensorRawValue:Int32, sensorRawPositive1GValue:Int32, sensorRawNegative1GValue:Int32, gravityResolution:Int32 = 8192) -> Float32 {
 
 		/*
 
@@ -1328,11 +1328,21 @@ final class DualShock4Controller {
 		Then we get:
 		calibrated = raw * gain + bias
 
+
+		accelXPlus 87
+		accelXMinus 169
+		accelYPlus 218
+		accelYMinus 38
+		accelZPlus 207
+		accelZMinus 49
+
+
 		*/
 
-		var calibratedValue:Int32 = 0 // TODO I don't need this to be an integer
-		let sensorRange = sensorRawPositive1GValue - sensorRawNegative1GValue
-		calibratedValue = (2 * (sensorRawValue - sensorRawNegative1GValue) / sensorRange) - 1 // using the non precomputed gain constant version (at least for now)
+		var calibratedValue:Float32 = 0 // TODO I don't need this to be an integer
+		let sensorCenter = (sensorRawPositive1GValue - sensorRawNegative1GValue) / 2
+		calibratedValue = Float32(sensorRawValue + sensorCenter)
+		calibratedValue /= gravityResolution
 
 		return calibratedValue
 

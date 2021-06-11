@@ -407,9 +407,9 @@ struct DualShock4Tab: View {
 				}
 
 				VStack {
-					Text("Accel x:  \(self.dualShock4.accelX)").frame(width: 150, height: 30, alignment: Alignment.leading)
-					Text("Accel y:  \(self.dualShock4.accelY)").frame(width: 150, height: 30, alignment: Alignment.leading)
-					Text("Accel z:  \(self.dualShock4.accelZ)").frame(width: 150, height: 30, alignment: Alignment.leading)
+					Text(String(format: "Accel x: %.2f", self.dualShock4.accelX)).frame(width: 150, height: 30, alignment: Alignment.leading)
+					Text(String(format: "Accel y: %.2f", self.dualShock4.accelY)).frame(width: 150, height: 30, alignment: Alignment.leading)
+					Text(String(format: "Accel z: %.2f", self.dualShock4.accelZ)).frame(width: 150, height: 30, alignment: Alignment.leading)
 				}
 
 			}

@@ -39,54 +39,71 @@ final class DualShock4Controller {
 	var previousReportTime:Int32 = 0
 	var reportTimeInterval:Int32 = 0
 
+	// MARK: - face buttons
+
 	/// contains triangle, circle, cross, square and directional pad buttons
 	var mainButtons:UInt8 = 0
 	var previousMainButtons:UInt8 = 0
 
-	// top button
+	/// top (triangle, north) button
 	var triangleButton = false
 	var previousTriangleButton = false
 
-	// right button
+	/// right (circle, east) button
 	var circleButton = false
 	var previousCircleButton = false
 
-	// bottom button
+	/// bottom (cross, south) button
 	var crossButton = false
 	var previousCrossButton = false
 
-	// left button
+	/// left (square, west) button
 	var squareButton = false
 	var previousSquareButton = false
 
+	/// directional pad (up, down, left and right) buttons
 	var directionalPad:UInt8 = 0
 	var previousDirectionalPad:UInt8 = 0
+
+	// MARK: - secondary buttons
 
 	/// contains the shoulder buttons, triggers (digital input), thumbstick buttons, share and options buttons
 	var secondaryButtons:UInt8 = 0
 	var previousSecondaryButtons:UInt8 = 0
 
-	// shoulder buttons
+	// MARK: shoulder buttons
+
+	///left shoulder button
 	var l1 = false
 	var previousL1 = false
+
+	/// right shoulder button
 	var r1 = false
 	var previousR1 = false
+
 	/// digital reading for left trigger
 	/// for the analog reading see leftTrigger
 	var l2 = false
 	var previousL2 = false
+
 	/// digital reading for right trigger
 	/// for the analog reading see rightTrigger
 	var r2 = false
 	var previousR2 = false
 
-	// thumbstick buttons
+	// MARK: thumbstick buttons
+
+	/// left thumbstick button
+	/// for the analog reading see leftStickX and leftStickY
 	var l3 = false
 	var previousL3 = false
+
+	/// right thumbstick button
+	/// for the analog reading see rightStickX and rightStickY
 	var r3 = false
 	var previousR3 = false
 
-	// other buttons
+	// MARK: other buttons
 
 	var shareButton = false
 	var previousShareButton = false
@@ -97,23 +114,27 @@ final class DualShock4Controller {
 	var psButton = false
 	var previousPsButton = false
 
-	// analog buttons
+	// MARK: - analog buttons
 
 	var leftStickX:UInt8 = 0 // TODO transform to Int16 because of xbox? or do this in the notification?
 	var previousLeftStickX:UInt8 = 0
+
 	var leftStickY:UInt8 = 0
 	var previousLeftStickY:UInt8 = 0
+
 	var rightStickX:UInt8 = 0
 	var previousRightStickX:UInt8 = 0
+
 	var rightStickY:UInt8 = 0
 	var previousRightStickY:UInt8 = 0
 
 	var leftTrigger:UInt8 = 0
 	var previousLeftTrigger:UInt8 = 0
+
 	var rightTrigger:UInt8 = 0
 	var previousRightTrigger:UInt8 = 0
 
-	// touchpad
+	// MARK: - touchpad
 
 	var touchpadButton = false
 	var previousTouchpadButton = false
@@ -149,15 +170,24 @@ final class DualShock4Controller {
 
 	// TODO create the other 3 touch samples
 
-	// inertial measurement unit (imu)
+	// MARK: - inertial measurement unit (imu)
 
+	/// pitch is when the nose of a plane goes up or down
+	/// think of a dolphin swimming
 	var gyroPitch:Int32 = 0
 	var previousGyroPitch:Int32 = 0
+
+	/// yaw is when the nose of a plane goes left or right
+	/// think of a shark swimming
 	var gyroYaw:Int32 = 0
 	var previousGyroYaw:Int32 = 0
+
+	/// roll is when the tips of the wings of a plane go up or down
+	/// think of a penguin walking
 	var gyroRoll:Int32 = 0
 	var previousGyroRoll:Int32 = 0
 
+	// TODO change to Int16
 	var accelX:Int32 = 0
 	var previousAccelX:Int32 = 0
 	var accelY:Int32 = 0
@@ -167,14 +197,14 @@ final class DualShock4Controller {
 
 	//var rotationZ:Float32 = 0
 
-	// battery
+	// MARK: - battery
 
 	var cableConnected = false
 	var batteryCharging = false
 	var batteryLevel:UInt8 = 0 // 0 to 10 on USB, 0 - 9 on Bluetooth
 	var previousBatteryLevel:UInt8 = 0
 
-	// misc
+	// MARK: - misc
 
 	var reportIterator:UInt8 = 0
 	var previousReportIterator:UInt8 = 0
@@ -240,7 +270,7 @@ final class DualShock4Controller {
 
 	}
 
-	// MARK: - Input reports
+	// MARK: - input (controller -> computer) reports
 
 	/*public private(set) var gyroZ:Float32 {
 
@@ -431,9 +461,6 @@ final class DualShock4Controller {
 		#define DS4_BT_DEFAULT_POLL_INTERVAL_MS 4
 		#define DS4_BT_MAX_POLL_INTERVAL_MS 62
 
-
-
-
 		static void dualshock4_send_output_report(struct sony_sc *sc)
 		{
 			struct hid_device *hdev = sc->hdev;
@@ -498,14 +525,14 @@ final class DualShock4Controller {
 
 		*/
 
-		self.gyroPitch = Int32(report[14 + bluetoothOffset]) << 8 | Int32(report[13 + bluetoothOffset])
-		self.gyroYaw =   Int32(report[16 + bluetoothOffset]) << 8 | Int32(report[15 + bluetoothOffset])
-		self.gyroRoll =  Int32(report[18 + bluetoothOffset]) << 8 | Int32(report[17 + bluetoothOffset])
+		self.gyroPitch = Int32(Int16(report[14 + bluetoothOffset]) << 8 | Int16(report[13 + bluetoothOffset]))
+		self.gyroYaw =   Int32(Int16(report[16 + bluetoothOffset]) << 8 | Int16(report[15 + bluetoothOffset]))
+		self.gyroRoll =  Int32(Int16(report[18 + bluetoothOffset]) << 8 | Int16(report[17 + bluetoothOffset]))
 
 
-		self.accelX = Int32(report[20 + bluetoothOffset]) << 8 | Int32(report[19 + bluetoothOffset]) // changes when we roll
-		self.accelY = Int32(report[22 + bluetoothOffset]) << 8 | Int32(report[21 + bluetoothOffset]) // changes when we pitch or roll
-		self.accelZ = Int32(report[24 + bluetoothOffset]) << 8 | Int32(report[23 + bluetoothOffset]) // changes when we pitch
+		self.accelX = Int32(Int16(report[20 + bluetoothOffset]) << 8 | Int16(report[19 + bluetoothOffset])) // changes when we roll or yaw (tips of wing go up or down, nose of plane goes left or right)
+		self.accelY = Int32(Int16(report[22 + bluetoothOffset]) << 8 | Int16(report[21 + bluetoothOffset])) // changes when we pitch or roll (nose of plane goes up or down, tips of wing go up or down)
+		self.accelZ = Int32(Int16(report[24 + bluetoothOffset]) << 8 | Int16(report[23 + bluetoothOffset])) // changes when we pitch or yaw (nose of plane goes up, down, left or right)
 
 
 		/*
@@ -551,27 +578,27 @@ final class DualShock4Controller {
 
 		*/
 
-		if self.accelY > self.previousAccelY
+		/*if self.accelY > self.previousAccelY
 			//&& self.accelY < 50_000
 		{
 			self.previousAccelY = self.accelY
 			//print(self.previousAccelY) // PAREI AQUI
-		}
+		}*/
 
-		/*self.applyCalibration(
+		self.applyCalibration(
 			pitch: &self.gyroPitch,
 			yaw: &self.gyroYaw,
 			roll: &self.gyroRoll,
 			accelX: &self.accelX,
 			accelY: &self.accelY,
 			accelZ: &self.accelZ
-		)*/
+		)
 
 		if self.previousGyroPitch != self.gyroPitch
 			|| self.previousGyroYaw != self.gyroYaw
 			|| self.previousGyroRoll != self.gyroRoll
 			|| self.previousAccelX != self.accelX
-			//|| self.previousAccelY != self.accelY
+			|| self.previousAccelY != self.accelY
 			|| self.previousAccelZ != self.accelZ
 		{
 
@@ -580,7 +607,7 @@ final class DualShock4Controller {
 			self.previousGyroRoll  = self.gyroRoll
 
 			self.previousAccelX = self.accelX
-			//self.previousAccelY = self.accelY
+			self.previousAccelY = self.accelY
 			self.previousAccelZ = self.accelZ
 
 			DispatchQueue.main.async {
@@ -727,7 +754,7 @@ final class DualShock4Controller {
 
 	}
 
-	// MARK: - Output reports
+	// MARK: - output (computer -> controller) reports
 
 	@objc func changeRumble(_ notification:Notification) {
 
@@ -743,6 +770,7 @@ final class DualShock4Controller {
 
 	}
 
+	/// Changes the LED color of the controller
 	@objc func setLed(_ notification:Notification) {
 
 		let o = notification.object as! DualShock4ChangeLedNotification
@@ -757,20 +785,17 @@ final class DualShock4Controller {
 
 	}
 
-	/// How to document parameters?
+	/// Sends a report from the computer to the controller
 	/// - Parameter leftHeavySlowRumble: Intensity of the heavy motor
 	/// - Parameter rightLightFastRumble: Intensity of the light motor
 	/// - Parameter red: Red component of the controller led
 	/// - Parameter green: Green component of the controller led
 	/// - Parameter blue: Blue component of the controller led
-	/// - Parameter flashOn: Duration in a cycle which the led remains on
-	/// - Parameter flashOff: Duration in a cycle which the led remains off
+	/// - Parameter flashOn: Duration in a cycle which the led remains on (in what units??). Use 0 (default value) to reset.
+	/// - Parameter flashOff: Duration in a cycle which the led remains off (in what units??). Use 0 (default value) to reset.
 	func sendReport(leftHeavySlowRumble:UInt8, rightLightFastRumble:UInt8, red:UInt8, green:UInt8, blue:UInt8, flashOn:UInt8 = 0, flashOff:UInt8 = 0) {
 
 		// let toggleMotor:UInt8 = 0xf0 // 0xf0 disable 0xf3 enable or 0b00001111 // enable unknown, flash, color, rumble
-
-		// let flashOn:UInt8 = 0x00 // flash on duration (in what units??)
-		// let flashOff:UInt8 = 0x00 // flash off duration (in what units??)
 
 		let bluetoothOffset = self.isBluetooth ? 2 : 0
 
@@ -779,19 +804,18 @@ final class DualShock4Controller {
 		if self.isBluetooth {
 			// TODO check this with docs and other projects
 			dualshock4ControllerOutputReport = [UInt8](repeating: 0, count: 74)
-			dualshock4ControllerOutputReport[0] = 0x15 // 0x11
-			dualshock4ControllerOutputReport[1] = 0x0 //(0xC0 | btPollRate) // (0x80 | btPollRate) // input report rate // FIXME check this
+			dualshock4ControllerOutputReport[0] = 0x15 // 0x11 //  + bluetoothOffset?
+			dualshock4ControllerOutputReport[1] = 0x0 // (0xC0 | btPollRate) // (0x80 | btPollRate) // input report rate // FIXME check this //  + bluetoothOffset?
 			// enable rumble (0x01), lightbar (0x02), flash (0x04) // TODO check this too
 			dualshock4ControllerOutputReport[2] = 0xA0
 		} else {
 			dualshock4ControllerOutputReport = [UInt8](repeating: 0, count: 11)
 			dualshock4ControllerOutputReport[0] = 0x05
+			dualshock4ControllerOutputReport[1 + bluetoothOffset] = 0xf7 // 0b11110111
+			dualshock4ControllerOutputReport[2 + bluetoothOffset] = 0x04
 		}
 
-
 		// enable rumble (0x01), lightbar (0x02), flash (0x04) 0b00000111
-		dualshock4ControllerOutputReport[1 + bluetoothOffset] = 0xf7 // 0b11110111
-		dualshock4ControllerOutputReport[2 + bluetoothOffset] = 0x04
 		dualshock4ControllerOutputReport[4 + bluetoothOffset] = rightLightFastRumble
 		dualshock4ControllerOutputReport[5 + bluetoothOffset] = leftHeavySlowRumble
 		dualshock4ControllerOutputReport[6 + bluetoothOffset] = red
@@ -808,17 +832,19 @@ final class DualShock4Controller {
 
 		// print("size of report: \(dualshock4ControllerOutputReport.count)")
 
+		let reportId = 0x01
+
 		IOHIDDeviceSetReport(
 			device,
 			kIOHIDReportTypeOutput,
-			0x01, // report id
+			reportId,
 			dualshock4ControllerOutputReport,
 			dualshock4ControllerOutputReport.count
 		)
 
 	}
 
-	// MARK: - Gryroscope calibration
+	// MARK: - inertial measurement unit (imu) calibration
 
 	/*
 	DualShock 4 uses Bosch bmi055 imu:
@@ -829,8 +855,8 @@ final class DualShock4Controller {
 
 	Digital resolution
 	------------------
-	Accelerometer (A): 12 bit
-	Gyroscope (G): 16bit
+	Accelerometer (A): 12 bits
+	Gyroscope (G): 16 bits
 
 
 	Resolution
@@ -899,60 +925,66 @@ final class DualShock4Controller {
 
 
 
+	LSB = Least Significant bit, which is the last bit on the right (for little endian)
+
+	(A): 0,98 mg (milli Gs) so G / 10000
 	mg = milli Gs (just like milli liters)
 	1mG = 0.001 G's of acceleration, so 1000mG = 1G
-	LSB = Least Significant bit, which is the last bit on the right (for little endian)
-	The raw values from the accelerometer are  multiplied by the sensitive level to get the value in G
+	The raw values from the accelerometer are  multiplied by the sensitivity level to get the value in G
 	If the range is ±2, this would be a total of 4g. Or 4,000 milli Gs
-	The output is 12 bits. 12 bits equals 8192.
-	This means we can get 8192 different readings for the range between -2 and +2. (or -2,000 milli Gs and +2,000 milli Gs)
-	4,000 MilliGs / 8192 = 0.48828125
-	Each time the LSB changes by one, the value changes by 0.48828125
+	The output is 12 bits. 12 bits equals 4096.
+	This means we can get 4096 different readings for the range between -2 and +2. (or -2,000 milli Gs and +2,000 milli Gs)
+	The spec sheet for the sensor mentions number of LSBs is 1024 for ±2G so again, 4096
+	Each time the LSB changes by one, the value changes by 0.98mG
 
-	However, the spec sheet for the sensor mentions LSB is 1024 for ±2G so???
+	(G): 0.004°/s
+	The raw values from the gyro are  multiplied by the sensitivity level to get the value in °/s
+	One possible range is ±125° in a second
+	The output is 16 bits. 16 bits equals 65536.
+	This means we can get 65536 different readings inside ±125° in a second.
+	The spec sheet for the sensor mentions number of LSBs is 262.4 for ±125° in a second so 65600 wich is pretty close to 65536
+	Each time the LSB changes by one, the value changes by 0,003801º/s or 0.004°/s as the spec says
 
-
-	PSMoveService uses raw - drift * scale + offset or raw * gain + bias
-
+	But the DS4 reports have a different scale apparently. See all comments below
 
 	*/
 
 	/// Max G value (±2 to ±16 G) uses 12 bits
-	static let ACC_DIGITAL_RESOLUTION:Int32 = 8192
+	static let ACC_DIGITAL_RESOLUTION:Int32 = 8192 // TODO 12 bits should be 4096... but the report uses around ±8192 which would be 15 bits
 
 	/// Max °/s uses 16 bits
-	static let GYRO_RES_IN_DEG_SEC:Int32 = 16 // means 1 degree/second is 16 (4 bits) 0b0000 ??
+	static let GYRO_RES_IN_DEG_SEC:Int32 = 16 // means 1°/s is 16 (4 bits) 0b0000 ??
 
 	func requestCalibrationDataReport() {
 
 		/*
 		Note form Linux hid driver:
 
-		The default behavior of the Dualshock 4 is to send reports using
-		report type 1 when running over Bluetooth. However, when feature
-		report 2 is requested during the controller initialization it starts
-		sending input reports in report 17. Since report 17 is undefined
-		in the default HID descriptor, the HID layer won't generate events.
-		While it is possible (and this was done before) to fixup the HID
-		descriptor to add this mapping, it was better to do this manually.
-		The reason is there were various pieces software both open and closed
-		source, relying on the descriptors to be the same across various
-		operating systems. If the descriptors wouldn't match some
-		applications e.g. games on Wine would not be able to function due
-		to different descriptors, which such applications are not parsing.
+		The default behavior of the Dualshock 4 is to send reports using report type 1 when running over Bluetooth.
+		However, when feature report 2 is requested during the controller initialization it starts sending input reports in report 17.
+		Since report 17 is undefined in the default HID descriptor, the HID layer won't generate events.
+		While it is possible (and this was done before) to fixup the HID descriptor to add this mapping, it was better to do this manually.
+		The reason is there were various pieces software both open and closed source, relying on the descriptors to be the same across various operating systems.
+		If the descriptors wouldn't match some applications e.g. games on Wine would not be able to function due to different descriptors,
+		which such applications are not parsing.
 		*/
 
-		var dualshock4CalibrationDataReport = [UInt8](repeating: 0, count: 41)
+		let dualshock4CalibrationDataReportMaxLength = 41
+		var dualshock4CalibrationDataReport = [UInt8](repeating: 0, count: dualshock4CalibrationDataReportMaxLength)
 		var dualshock4CalibrationDataReportLength = dualshock4CalibrationDataReport.count
 
 		let dualshock4CalibrationDataReportPointer = UnsafeMutablePointer(mutating: dualshock4CalibrationDataReport)
 		let dualshock4CalibrationDataReportLengthPointer = UnsafeMutablePointer<Int>.allocate(capacity: 1)
 		dualshock4CalibrationDataReportLengthPointer.pointee = dualshock4CalibrationDataReportLength
 
+		let bluetoothReportId = 0x05
+		let usbReportId = 0x02
+		let reportId = self.isBluetooth ? bluetoothReportId : usbReportId
+
 		IOHIDDeviceGetReport(
 			device,
 			kIOHIDReportTypeFeature,
-			self.isBluetooth ? 0x05 : 0x02, // TODO test bluetooth
+			reportId,
 			dualshock4CalibrationDataReportPointer,
 			dualshock4CalibrationDataReportLengthPointer
 		)
@@ -1024,6 +1056,7 @@ final class DualShock4Controller {
 			pitchPlus  = Int32(calibrationReport[8]  << 8) | Int32(calibrationReport[7])
 			yawPlus    = Int32(calibrationReport[10] << 8) | Int32(calibrationReport[9])
 			rollPlus   = Int32(calibrationReport[12] << 8) | Int32(calibrationReport[11])
+
 			pitchMinus = Int32(calibrationReport[14] << 8) | Int32(calibrationReport[13])
 			yawMinus   = Int32(calibrationReport[16] << 8) | Int32(calibrationReport[15])
 			rollMinus  = Int32(calibrationReport[18] << 8) | Int32(calibrationReport[17])
@@ -1032,12 +1065,21 @@ final class DualShock4Controller {
 
 			pitchPlus  = Int32(calibrationReport[8]  << 8) | Int32(calibrationReport[7])
 			pitchMinus = Int32(calibrationReport[10] << 8) | Int32(calibrationReport[9])
+
 			yawPlus    = Int32(calibrationReport[12] << 8) | Int32(calibrationReport[11])
 			yawMinus   = Int32(calibrationReport[14] << 8) | Int32(calibrationReport[13])
+
 			rollPlus   = Int32(calibrationReport[16] << 8) | Int32(calibrationReport[15])
 			rollMinus  = Int32(calibrationReport[18] << 8) | Int32(calibrationReport[17])
 
 		}
+
+		print("pitchPlus \(pitchPlus)")
+		print("pitchMinus \(pitchMinus)")
+		print("yawPlus \(yawPlus)")
+		print("yawMinus \(yawMinus)")
+		print("rollPlus \(rollPlus)")
+		print("rollMinus \(rollMinus)")
 
 		self.calibration[Calibration.GyroPitchIndex].rawPositive1GValue = pitchPlus
 		self.calibration[Calibration.GyroPitchIndex].rawNegative1GValue = pitchMinus
@@ -1068,6 +1110,13 @@ final class DualShock4Controller {
 		let accelZPlus  = Int32(calibrationReport[32] << 8) | Int32(calibrationReport[31])
 		let accelZMinus = Int32(calibrationReport[34] << 8) | Int32(calibrationReport[33])
 
+		print("accelXPlus \(accelXPlus)")
+		print("accelXMinus \(accelXMinus)")
+		print("accelYPlus \(accelYPlus)")
+		print("accelYMinus \(accelYMinus)")
+		print("accelZPlus \(accelZPlus)")
+		print("accelZMinus \(accelZMinus)")
+
 		self.calibration[Calibration.AccelXIndex].rawPositive1GValue = accelXPlus
 		self.calibration[Calibration.AccelXIndex].rawNegative1GValue = accelXMinus
 
@@ -1084,7 +1133,7 @@ final class DualShock4Controller {
 		accelX:inout Int32, accelY:inout Int32, accelZ:inout Int32
 	) {
 
-		pitch = DualShock4Controller.applyGyroCalibration(
+		/*pitch = DualShock4Controller.applyGyroCalibration(
 			pitch,
 			self.calibration[Calibration.GyroPitchIndex].gyroBias!,
 			self.gyroSpeed2x,
@@ -1104,13 +1153,14 @@ final class DualShock4Controller {
 			self.calibration[Calibration.GyroRollIndex].gyroBias!,
 			self.gyroSpeed2x,
 			sensorRange: self.calibration[Calibration.GyroRollIndex].rawPositive1GValue! - self.calibration[Calibration.GyroRollIndex].rawNegative1GValue!
-		)
+		)*/
+
+		// TODO transform the bytes reading into G values?
 
 		accelX = DualShock4Controller.applyAccelCalibration(
 			accelX,
 			sensorRawPositive1GValue: self.calibration[Calibration.AccelXIndex].rawPositive1GValue!,
 			sensorRawNegative1GValue: self.calibration[Calibration.AccelXIndex].rawNegative1GValue!
-			// sensorResolution: DualShock4Controller.ACC_DIGITAL_RESOLUTION
 		)
 
 		accelY = DualShock4Controller.applyAccelCalibration(
@@ -1132,6 +1182,8 @@ final class DualShock4Controller {
 		/*
 
 		From PSMove: https://github.com/psmoveservice/psmoveapi/blob/master/src/psmove_calibration.c
+
+		PSMoveService uses raw - drift * scale + offset or raw * gain + bias
 
 		Calculation of gyroscope mapping (in radians per second):
 
@@ -1226,6 +1278,11 @@ final class DualShock4Controller {
 
 	}
 
+	/// Returns a calibrated bytes reading of the raw sensor reading according to factory calibration parameters
+	/// - Parameter sensorRawValue: Current raw bytes reading of the sensor
+	/// - Parameter sensorRawPositive1GValue: Raw bytes reading of the sensor at 1G (normal gravity) according to factory calibration parameters obtained from the calibration feature report.
+	/// - Parameter sensorRawNegative1GValue: Raw bytes reading of the sensor at -1G (upside down gravity) according to factory calibration parameters obtained from the calibration feature report.
+	/// - Returns: Calibrated bytes reading of the sensor value
 	static func applyAccelCalibration(_ sensorRawValue:Int32, sensorRawPositive1GValue:Int32, sensorRawNegative1GValue:Int32) -> Int32 {
 
 		/*
@@ -1261,13 +1318,15 @@ final class DualShock4Controller {
 		*/
 
 		var calibratedValue:Int32 = 0 // TODO I don't need this to be an integer
-		calibratedValue = (2 * (sensorRawValue - sensorRawNegative1GValue) / (sensorRawPositive1GValue - sensorRawNegative1GValue)) - 1 // using the non precomputed constant version (at least for now)
+		let sensorRange = sensorRawPositive1GValue - sensorRawNegative1GValue
+		calibratedValue = (2 * (sensorRawValue - sensorRawNegative1GValue) / sensorRange) - 1 // using the non precomputed gain constant version (at least for now)
 
 		return calibratedValue
 
 		/*
-		sensorBias (accelXPlus - ((accelXPlus - accelXMinus) / 2))
-		sensorRange: self.calibration[Calibration.AccelYIndex].rawPositive1GValue! - self.calibration[Calibration.AccelYIndex].rawNegative1GValue!
+		sensorRange = sensorRawPositive1GValue - sensorRawNegative1GValue
+		sensorCenter = sensorRange / 2
+		sensorBias = sensorRawPositive1GValue - sensorCenter
 
 		// breaking up expression because swift compiler complains...
 		let sensorRawOffset = Int32(sensorRawValue - sensorBias)
@@ -1295,6 +1354,10 @@ final class DualShock4Controller {
 
 }
 
+
+// MARK: - auxiliary
+
+// TODO can this be a struct?
 class Calibration {
 
 	static let GyroPitchIndex:Int = 0

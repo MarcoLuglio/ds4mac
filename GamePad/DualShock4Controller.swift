@@ -209,6 +209,8 @@ final class DualShock4Controller {
 	var reportIterator:UInt8 = 0
 	var previousReportIterator:UInt8 = 0
 
+	// MARK: - init
+
 	init(_ device:IOHIDDevice, productID:Int64, transport:String, enableIMUReport:Bool) {
 
 		self.id = DualShock4Controller.nextId
@@ -402,6 +404,7 @@ final class DualShock4Controller {
 		}
 
 		// MARK: analog buttons
+
 		// origin left top
 		self.leftStickX   = report[1 + bluetoothOffset] // 0 left
 		self.leftStickY   = report[2 + bluetoothOffset] // 0 up
@@ -446,7 +449,7 @@ final class DualShock4Controller {
 		// MARK: timestamp
 
 		self.previousReportTime = self.reportTime
-		self.reportTime = Int32(report[11 + bluetoothOffset]) << 8 | Int32(report[10 + bluetoothOffset]) // this is little endian
+		self.reportTime = Int32(Int16(report[11 + bluetoothOffset]) << 8 | Int16(report[10 + bluetoothOffset])) // this is little endian
 		self.reportTimeInterval = self.reportTime - self.previousReportTime
 		if self.reportTimeInterval < 0 {
 			self.reportTimeInterval += UINT16_MAX
@@ -756,6 +759,8 @@ final class DualShock4Controller {
 
 	// MARK: - output (computer -> controller) reports
 
+	/// Changes the vibration of the motors on the controller
+	/// - Parameter notification: DualShock4ChangeRumbleNotification grand central dispatch notification
 	@objc func changeRumble(_ notification:Notification) {
 
 		let o = notification.object as! DualShock4ChangeRumbleNotification
@@ -771,6 +776,7 @@ final class DualShock4Controller {
 	}
 
 	/// Changes the LED color of the controller
+	/// - Parameter notification: DualShock4ChangeLedNotification grand central dispatch notification
 	@objc func setLed(_ notification:Notification) {
 
 		let o = notification.object as! DualShock4ChangeLedNotification
@@ -803,13 +809,15 @@ final class DualShock4Controller {
 
 		if self.isBluetooth {
 			// TODO check this with docs and other projects
-			dualshock4ControllerOutputReport = [UInt8](repeating: 0, count: 74)
+			let dualshock4OutputReportLength = 74
+			dualshock4ControllerOutputReport = [UInt8](repeating: 0, count: dualshock4OutputReportLength)
 			dualshock4ControllerOutputReport[0] = 0x15 // 0x11 //  + bluetoothOffset?
 			dualshock4ControllerOutputReport[1] = 0x0 // (0xC0 | btPollRate) // (0x80 | btPollRate) // input report rate // FIXME check this //  + bluetoothOffset?
 			// enable rumble (0x01), lightbar (0x02), flash (0x04) // TODO check this too
 			dualshock4ControllerOutputReport[2] = 0xA0
 		} else {
-			dualshock4ControllerOutputReport = [UInt8](repeating: 0, count: 11)
+			let dualshock4OutputReportLength = 11
+			dualshock4ControllerOutputReport = [UInt8](repeating: 0, count: dualshock4OutputReportLength)
 			dualshock4ControllerOutputReport[0] = 0x05
 			dualshock4ControllerOutputReport[1 + bluetoothOffset] = 0xf7 // 0b11110111
 			dualshock4ControllerOutputReport[2 + bluetoothOffset] = 0x04
@@ -832,12 +840,12 @@ final class DualShock4Controller {
 
 		// print("size of report: \(dualshock4ControllerOutputReport.count)")
 
-		let reportId = 0x01
+		let outputReportId = 0x01
 
 		IOHIDDeviceSetReport(
 			device,
 			kIOHIDReportTypeOutput,
-			reportId,
+			outputReportId,
 			dualshock4ControllerOutputReport,
 			dualshock4ControllerOutputReport.count
 		)
@@ -859,8 +867,8 @@ final class DualShock4Controller {
 	Gyroscope (G): 16 bits
 
 
-	Resolution
-	----------
+	Resolution (each bit is at max equal to)
+	----------------------------------------
 	(A): 0,98 mg (milli Gs) so G / 10000
 	(G): 0.004°/s
 
@@ -877,7 +885,7 @@ final class DualShock4Controller {
 	LSB = least significant bit
 
 	(A):
-	± 2 g 1024 LSB/g
+	± 2 g 1024 LSB/g (default for DualShock 4)
 	± 4 g 512 LSB/g
 	± 8 g 256 LSB/g
 	± 16 g 128 LSB/g
@@ -887,7 +895,7 @@ final class DualShock4Controller {
 	± 250°/s: 131.2 LSB/°/s
 	± 500°/s: 65.6 LSB/°/s
 	± 1000°/s: 32.8 LSB/°/s
-	± 2000°/s: 16.4 LSB/°/s
+	± 2000°/s: 16.4 LSB/°/s  (default for DualShock 4?)
 
 
 	Zero offset (typ., over life-time)
@@ -977,21 +985,21 @@ final class DualShock4Controller {
 		let dualshock4CalibrationDataReportLengthPointer = UnsafeMutablePointer<Int>.allocate(capacity: 1)
 		dualshock4CalibrationDataReportLengthPointer.pointee = dualshock4CalibrationDataReportLength
 
-		let bluetoothReportId = 0x05
-		let usbReportId = 0x02
-		let reportId = self.isBluetooth ? bluetoothReportId : usbReportId
+		let bluetoothCalibrationReportId = 0x05
+		let usbCalibrationReportId = 0x02
+		let calibrationReportId = self.isBluetooth ? bluetoothCalibrationReportId : usbCalibrationReportId
 
 		IOHIDDeviceGetReport(
 			device,
 			kIOHIDReportTypeFeature,
-			reportId,
+			calibrationReportId,
 			dualshock4CalibrationDataReportPointer,
 			dualshock4CalibrationDataReportLengthPointer
 		)
 
 		// TODO validar CRC aqui
 
-		self.parseCalibrationFeatureReport(calibrationReport: &dualshock4CalibrationDataReport, fromUSB: self.isBluetooth)
+		self.parseCalibrationDataReport(calibrationReport: &dualshock4CalibrationDataReport, fromUSB: self.isBluetooth)
 
 		/*
 		// for debug reference:
@@ -1040,7 +1048,7 @@ final class DualShock4Controller {
 
 	}
 
-	func parseCalibrationFeatureReport(calibrationReport:inout [UInt8], fromUSB:Bool) {
+	func parseCalibrationDataReport(calibrationReport:inout [UInt8], fromUSB:Bool) {
 
 		// gyroscopes
 
@@ -1053,24 +1061,24 @@ final class DualShock4Controller {
 
 		if !fromUSB {
 
-			pitchPlus  = Int32(calibrationReport[8]  << 8) | Int32(calibrationReport[7])
-			yawPlus    = Int32(calibrationReport[10] << 8) | Int32(calibrationReport[9])
-			rollPlus   = Int32(calibrationReport[12] << 8) | Int32(calibrationReport[11])
+			pitchPlus  = Int32(Int16(calibrationReport[8]  << 8) | Int16(calibrationReport[7]))
+			yawPlus    = Int32(Int16(calibrationReport[10] << 8) | Int16(calibrationReport[9]))
+			rollPlus   = Int32(Int16(calibrationReport[12] << 8) | Int16(calibrationReport[11]))
 
-			pitchMinus = Int32(calibrationReport[14] << 8) | Int32(calibrationReport[13])
-			yawMinus   = Int32(calibrationReport[16] << 8) | Int32(calibrationReport[15])
-			rollMinus  = Int32(calibrationReport[18] << 8) | Int32(calibrationReport[17])
+			pitchMinus = Int32(Int16(calibrationReport[14] << 8) | Int16(calibrationReport[13]))
+			yawMinus   = Int32(Int16(calibrationReport[16] << 8) | Int16(calibrationReport[15]))
+			rollMinus  = Int32(Int16(calibrationReport[18] << 8) | Int16(calibrationReport[17]))
 
 		} else {
 
-			pitchPlus  = Int32(calibrationReport[8]  << 8) | Int32(calibrationReport[7])
-			pitchMinus = Int32(calibrationReport[10] << 8) | Int32(calibrationReport[9])
+			pitchPlus  = Int32(Int16(calibrationReport[8]  << 8) | Int16(calibrationReport[7]))
+			pitchMinus = Int32(Int16(calibrationReport[10] << 8) | Int16(calibrationReport[9]))
 
-			yawPlus    = Int32(calibrationReport[12] << 8) | Int32(calibrationReport[11])
-			yawMinus   = Int32(calibrationReport[14] << 8) | Int32(calibrationReport[13])
+			yawPlus    = Int32(Int16(calibrationReport[12] << 8) | Int16(calibrationReport[11]))
+			yawMinus   = Int32(Int16(calibrationReport[14] << 8) | Int16(calibrationReport[13]))
 
-			rollPlus   = Int32(calibrationReport[16] << 8) | Int32(calibrationReport[15])
-			rollMinus  = Int32(calibrationReport[18] << 8) | Int32(calibrationReport[17])
+			rollPlus   = Int32(Int16(calibrationReport[16] << 8) | Int16(calibrationReport[15]))
+			rollMinus  = Int32(Int16(calibrationReport[18] << 8) | Int16(calibrationReport[17]))
 
 		}
 
@@ -1091,24 +1099,29 @@ final class DualShock4Controller {
 		self.calibration[Calibration.GyroRollIndex].rawPositive1GValue  = rollPlus
 		self.calibration[Calibration.GyroRollIndex].rawNegative1GValue  = rollMinus
 
-		self.calibration[Calibration.GyroPitchIndex].gyroBias = Int32(calibrationReport[2] << 8) | Int32(calibrationReport[1])
-		self.calibration[Calibration.GyroYawIndex].gyroBias   = Int32(calibrationReport[4] << 8) | Int32(calibrationReport[3])
-		self.calibration[Calibration.GyroRollIndex].gyroBias  = Int32(calibrationReport[6] << 8) | Int32(calibrationReport[5])
+		self.calibration[Calibration.GyroPitchIndex].gyroBias = Int32(Int16(calibrationReport[2] << 8) | Int16(calibrationReport[1]))
+		self.calibration[Calibration.GyroYawIndex].gyroBias   = Int32(Int16(calibrationReport[4] << 8) | Int16(calibrationReport[3]))
+		self.calibration[Calibration.GyroRollIndex].gyroBias  = Int32(Int16(calibrationReport[6] << 8) | Int16(calibrationReport[5]))
 
-		self.gyroSpeedPlus  = Int32(calibrationReport[20] << 8) | Int32(calibrationReport[19])
-		self.gyroSpeedMinus = Int32(calibrationReport[22] << 8) | Int32(calibrationReport[21])
+		self.gyroSpeedPlus  = Int32(Int16(calibrationReport[20] << 8) | Int16(calibrationReport[19]))
+		self.gyroSpeedMinus = Int32(Int16(calibrationReport[22] << 8) | Int16(calibrationReport[21]))
 
 		// accelerometers
 
 		// TODO is this inverted? plus x is smaller than minus x
-		let accelXPlus  = Int32(calibrationReport[24] << 8) | Int32(calibrationReport[23])
-		let accelXMinus = Int32(calibrationReport[26] << 8) | Int32(calibrationReport[25])
+		let accelXPlus  = Int32(Int16(calibrationReport[24] << 8) | Int16(calibrationReport[23]))
+		let accelXMinus = Int32(Int16(calibrationReport[26] << 8) | Int16(calibrationReport[25]))
 
-		let accelYPlus  = Int32(calibrationReport[28] << 8) | Int32(calibrationReport[27])
-		let accelYMinus = Int32(calibrationReport[30] << 8) | Int32(calibrationReport[29])
+		let accelYPlus  = Int32(Int16(calibrationReport[28] << 8) | Int16(calibrationReport[27]))
+		let accelYMinus = Int32(Int16(calibrationReport[30] << 8) | Int16(calibrationReport[29]))
 
-		let accelZPlus  = Int32(calibrationReport[32] << 8) | Int32(calibrationReport[31])
-		let accelZMinus = Int32(calibrationReport[34] << 8) | Int32(calibrationReport[33])
+		let accelYPlus16  = Int32(Int16(calibrationReport[28] << 8) | Int16(calibrationReport[27]))
+		let accelYMinus16 = Int32(Int16(calibrationReport[30] << 8) | Int16(calibrationReport[29]))
+
+		print("accelXPlus16 \(accelYPlus16)")
+
+		let accelZPlus  = Int32(Int16(calibrationReport[32] << 8) | Int16(calibrationReport[31]))
+		let accelZMinus = Int32(Int16(calibrationReport[34] << 8) | Int16(calibrationReport[33]))
 
 		print("accelXPlus \(accelXPlus)")
 		print("accelXMinus \(accelXMinus)")

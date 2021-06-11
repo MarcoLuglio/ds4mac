@@ -57,13 +57,16 @@ final class XboxOneController {
 	var previousXButton = false
 
 	// shoulder buttons ("bumper" buttons officially)
+
 	var leftShoulderButton = false
 	var previousLeftShoulderButton = false
+
 	var rightShoulderButton = false
 	var previousRightShoulderButton = false
 	
 	var leftTriggerButton = false // adding for compatibility, the report only has analog data
 	var previousLeftTriggerButton = false
+
 	var rightTriggerButton = false  // adding for compatibility, the report only has analog data
 	var previousRightTriggerButton = false
 
@@ -72,10 +75,13 @@ final class XboxOneController {
 
 	var topButton = false
 	var previousTopButton = false
+
 	var rightButton = false
 	var previousRightButton = false
+
 	var downButton = false
 	var previousDownButton = false
+
 	var leftButton = false
 	var previousLeftButton = false
 
@@ -84,8 +90,10 @@ final class XboxOneController {
 	var previousSecondaryButtons:UInt8 = 0
 
 	// thumbstick buttons
+
 	var leftStickButton = false
 	var previousLeftStickButton = false
+
 	var rightStickButton = false
 	var previousRightStickButton = false
 
@@ -106,6 +114,7 @@ final class XboxOneController {
 	var previousLeftStickX:UInt16 = 0
 	var leftStickY:UInt16 = 0
 	var previousLeftStickY:UInt16 = 0
+
 	var rightStickX:UInt16 = 0
 	var previousRightStickX:UInt16 = 0
 	var rightStickY:UInt16 = 0
@@ -113,6 +122,7 @@ final class XboxOneController {
 	
 	var leftTrigger:UInt16 = 0
 	var previousLeftTrigger:UInt16 = 0
+	
 	var rightTrigger:UInt16 = 0
 	var previousRightTrigger:UInt16 = 0
 

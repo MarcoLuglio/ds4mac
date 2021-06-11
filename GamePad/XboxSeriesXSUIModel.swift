@@ -1,5 +1,5 @@
 //
-//  Xbox360UIModel.swift
+//  XboxSeriesXSUIModel.swift
 //  GamePad
 //
 //  Created by Marco Luglio on 15/06/20.
@@ -11,7 +11,7 @@ import Combine
 
 
 
-class XboxSeriesXUIModel: ObservableObject {
+class XboxSeriesXSUIModel: ObservableObject {
 
 	var leftTrigger:Float = 0
 	var leftTriggerButton = false

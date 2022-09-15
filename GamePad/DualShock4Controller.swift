@@ -107,7 +107,7 @@ final class DualShock4Controller {
 
 	var shareButton = false
 	var previousShareButton = false
-	
+
 	var optionsButton = false
 	var previousOptionsButton = false
 
@@ -575,7 +575,7 @@ final class DualShock4Controller {
 		calibratedValue = Int32((sensorRawOffset * 2 * sensorResolution32) / sensorRange32)
 		return calibratedValue
 
-		
+
 		self.calibration[Calibration.AccelYIndex].rawPositive1GValue
 		self.calibration[Calibration.AccelYIndex].rawNegative1GValue
 
@@ -811,10 +811,19 @@ final class DualShock4Controller {
 			// TODO check this with docs and other projects
 			let dualshock4OutputReportLength = 74
 			dualshock4ControllerOutputReport = [UInt8](repeating: 0, count: dualshock4OutputReportLength)
-			dualshock4ControllerOutputReport[0] = 0x15 // 0x11 //  + bluetoothOffset?
-			dualshock4ControllerOutputReport[1] = 0x0 // (0xC0 | btPollRate) // (0x80 | btPollRate) // input report rate // FIXME check this //  + bluetoothOffset?
-			// enable rumble (0x01), lightbar (0x02), flash (0x04) // TODO check this too
-			dualshock4ControllerOutputReport[2] = 0xA0
+			dualshock4ControllerOutputReport[0] = 0x11 // 0x11 //  + bluetoothOffset?
+			dualshock4ControllerOutputReport[1] = 0xC0 // (0xC0 | btPollRate) // (0x80 | btPollRate) // input report rate // FIXME check this //  + bluetoothOffset?
+			dualshock4ControllerOutputReport[2] = 0x20 // 0xA0 or 0x20
+
+			// Headphone volume L (0x10), Headphone volume R (0x20), Mic volume (0x40), Speaker volume (0x80)
+			// enable rumble (0x01), lightbar (0x02), flash (0x04). Default: 0x07
+			dualshock4ControllerOutputReport[3] = 0xF7 // 0x07
+			dualshock4ControllerOutputReport[4] = 0x04
+
+			dualshock4ControllerOutputReport[21] = 0x43  // volume left
+			dualshock4ControllerOutputReport[22] = 0x43  // volume right
+			dualshock4ControllerOutputReport[24] = 0x4d  // volume speaker
+			dualshock4ControllerOutputReport[25] = 0x85  // unknown
 		} else {
 			let dualshock4OutputReportLength = 11
 			dualshock4ControllerOutputReport = [UInt8](repeating: 0, count: dualshock4OutputReportLength)
@@ -833,23 +842,24 @@ final class DualShock4Controller {
 		dualshock4ControllerOutputReport[10 + bluetoothOffset] = flashOff
 
 		if self.isBluetooth {
-			// TODO calculate CRC32 here
-			/*let dualshock4ControllerInputReportBluetoothCRC = CRC32.checksum(bytes: dualshock4ControllerInputReportBluetooth)
-			dualshock4ControllerInputReportBluetooth.append(contentsOf: dualshock4ControllerInputReportBluetoothCRC)*/
+			var outputBTCrc32Head:[UInt8] = [0xA2]
+			let seed = Crc32.compute(buffer: &outputBTCrc32Head)
+			let outputReportCRC = ~Crc32.compute(buffer: &dualshock4ControllerOutputReport, seed:seed)
+			let crcArray = withUnsafeBytes(of: outputReportCRC.littleEndian, Array.init)
+
+			dualshock4ControllerOutputReport.append(contentsOf: crcArray)
 		}
 
-		// print("size of report: \(dualshock4ControllerOutputReport.count)")
 
-		let outputReportId = 0x01
+		let outputReportId = CFIndex(dualshock4ControllerOutputReport[0]) // 0x01
 
-		IOHIDDeviceSetReport(
+		let success = IOHIDDeviceSetReport(
 			device,
 			kIOHIDReportTypeOutput,
 			outputReportId,
 			dualshock4ControllerOutputReport,
 			dualshock4ControllerOutputReport.count
-		)
-
+		) == kIOReturnSuccess
 	}
 
 	// MARK: - inertial measurement unit (imu) calibration

@@ -36,16 +36,12 @@ final class Crc32 {
 		}
 
 		var crc32 = seed
-
 		var crcTableIndex:Int = 0
-		var dataByte:UInt8
 		for i in 0..<newBufferLength {
-			dataByte = buffer[i]
-			// crcTableIndex = (crc32 ^ dataByte) & 0xFF) // FIXME
-			crc32 = (crc32 >> 8) ^ Crc32.crcTable[crcTableIndex]
+			let dataByte = buffer[i]
+			crcTableIndex = Int(UInt8(crc32 & 0xFF) ^ dataByte)
+			crc32 = Crc32.crcTable[crcTableIndex] ^ (crc32 >> 8)
 		}
-
-		//crc32 = crc32 ^ seed; // TODO not sure if it is XOR seed of always 0xffffffff or ~, I'll do what the linux implementation does, which is to not flip anything.
 
 		return crc32;
 

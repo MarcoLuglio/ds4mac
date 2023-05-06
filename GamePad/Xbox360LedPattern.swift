@@ -2,7 +2,7 @@
 //  Xbox360LedPattern.swift
 //  GamePad
 //
-//  Created by Marco Luglio on 13/06/20.
+//  Created by Marco Luglio on 13/jun/20.
 //  Copyright © 2020 Marco Luglio. All rights reserved.
 //
 

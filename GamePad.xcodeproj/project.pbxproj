@@ -7,132 +7,134 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A9063B14249572DC00B0E0ED /* Xbox360ChangeRumbleNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9063B13249572DC00B0E0ED /* Xbox360ChangeRumbleNotification.swift */; };
-		A9063B162495732200B0E0ED /* Xbox360ChangeLedNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9063B152495732200B0E0ED /* Xbox360ChangeLedNotification.swift */; };
-		A9063B182495766700B0E0ED /* Xbox360LedPattern.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9063B172495766700B0E0ED /* Xbox360LedPattern.swift */; };
-		A90DC849248C4E67003CD258 /* JoyConController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90DC848248C4E67003CD258 /* JoyConController.swift */; };
-		A90EBFAA24BEB6C000C8DEAE /* GamepadIMUChangedNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90EBFA924BEB6C000C8DEAE /* GamepadIMUChangedNotification.swift */; };
-		A917BFD824984D2C00992913 /* XboxSeriesXSUIModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A917BFD724984D2C00992913 /* XboxSeriesXSUIModel.swift */; };
-		A97A418D249C6F3000250DB7 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = A97A418C249C6F0700250DB7 /* libz.tbd */; };
-		A97E75C92482E78000FAA13A /* Xbox360Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97E75C82482E78000FAA13A /* Xbox360Controller.swift */; };
-		A97E75CB2482E7A200FAA13A /* DualShock4Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97E75CA2482E7A200FAA13A /* DualShock4Controller.swift */; };
-		A9879C1F248481C200AB4DE9 /* CRC32.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9879C1E248481C200AB4DE9 /* CRC32.swift */; };
-		A9879C212485833000AB4DE9 /* GamepadButtonChangedNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9879C202485833000AB4DE9 /* GamepadButtonChangedNotification.swift */; };
-		A9879C23248592B600AB4DE9 /* DualShock4TouchpadChangedNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9879C22248592B600AB4DE9 /* DualShock4TouchpadChangedNotification.swift */; };
-		A9888F9B24904BDD0084EA3C /* DualShock4UIModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9888F9A24904BDD0084EA3C /* DualShock4UIModel.swift */; };
-		A9888FA0249063580084EA3C /* GamepadAnalogChangedNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9888F9F249063580084EA3C /* GamepadAnalogChangedNotification.swift */; };
-		A99249CA2673C4E400573097 /* DualShock4Tab.swift in Sources */ = {isa = PBXBuildFile; fileRef = A99249C92673C4E400573097 /* DualShock4Tab.swift */; };
-		A99249CC2673C54E00573097 /* JoyConTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = A99249CB2673C54E00573097 /* JoyConTab.swift */; };
-		A99249CE2673C8EF00573097 /* XboxSeriesXSTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = A99249CD2673C8EF00573097 /* XboxSeriesXSTab.swift */; };
-		A993A102249E82070059EADA /* XboxOneController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A993A101249E82060059EADA /* XboxOneController.swift */; };
-		A993A104249E8A640059EADA /* XboxOneChangeRumbleNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A993A103249E8A640059EADA /* XboxOneChangeRumbleNotification.swift */; };
-		A993A107249EB9E50059EADA /* JoyConChangeRumbleNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A993A105249EB9E50059EADA /* JoyConChangeRumbleNotification.swift */; };
-		A993A108249EB9E50059EADA /* JoyConChangeLedNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A993A106249EB9E50059EADA /* JoyConChangeLedNotification.swift */; };
-		A993A10A249ECE3A0059EADA /* JoyConDirection.swift in Sources */ = {isa = PBXBuildFile; fileRef = A993A109249ECE3A0059EADA /* JoyConDirection.swift */; };
-		A9A27CBF249F12E000EFC9D5 /* JoyConUIModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9A27CBE249F12E000EFC9D5 /* JoyConUIModel.swift */; };
-		A9C3193724C7660400666C56 /* XboxOneDirection.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9C3193624C7660400666C56 /* XboxOneDirection.swift */; };
-		A9C66D34249417B900DB799F /* GamepadBatteryChangedNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9C66D33249417B900DB799F /* GamepadBatteryChangedNotification.swift */; };
-		A9C66D3624944AF000DB799F /* DualShock4ChangeLedNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9C66D3524944AF000DB799F /* DualShock4ChangeLedNotification.swift */; };
-		A9C66D382494529C00DB799F /* DualShock4ChangeRumbleNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9C66D372494529C00DB799F /* DualShock4ChangeRumbleNotification.swift */; };
-		A9D72F7B248202350000A89F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9D72F7A248202350000A89F /* AppDelegate.swift */; };
-		A9D72F7D248202350000A89F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9D72F7C248202350000A89F /* ContentView.swift */; };
-		A9D72F7F248202360000A89F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A9D72F7E248202360000A89F /* Assets.xcassets */; };
-		A9D72F82248202360000A89F /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A9D72F81248202360000A89F /* Preview Assets.xcassets */; };
-		A9D72F85248202360000A89F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A9D72F83248202360000A89F /* Main.storyboard */; };
-		A9D72F91248202360000A89F /* GamePadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9D72F90248202360000A89F /* GamePadTests.swift */; };
-		A9D72F9C248202360000A89F /* GamePadUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9D72F9B248202360000A89F /* GamePadUITests.swift */; };
-		A9D72FAA248204080000A89F /* GamepadHIDMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9D72FA9248204080000A89F /* GamepadHIDMonitor.swift */; };
-		A9D72FAD2482046A0000A89F /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9D72FAC2482046A0000A89F /* IOKit.framework */; };
-		A9D72FAF248204FE0000A89F /* GameController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9D72FAE248204FE0000A89F /* GameController.framework */; };
-		A9E414F224C4006000FE6420 /* DualShock4Direction.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9E414F124C4006000FE6420 /* DualShock4Direction.swift */; };
-		A9FBA15224BBC39F009B7CEE /* Coords2d.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9FBA15124BBC39F009B7CEE /* Coords2d.swift */; };
+		A91AF8B22A05A845000C89C9 /* XboxEliteSeries2UIModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A91AF8B12A05A845000C89C9 /* XboxEliteSeries2UIModel.swift */; };
+		A91AF8B42A05A948000C89C9 /* DualSenseUIModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A91AF8B32A05A948000C89C9 /* DualSenseUIModel.swift */; };
+		A91AF8B62A05AB8E000C89C9 /* NintendoProUIModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A91AF8B52A05AB8E000C89C9 /* NintendoProUIModel.swift */; };
+		A91AF8B92A05BB45000C89C9 /* XboxEliteController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A91AF8B72A05BB45000C89C9 /* XboxEliteController.swift */; };
+		A91AF8BA2A05BB45000C89C9 /* DualSenseController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A91AF8B82A05BB45000C89C9 /* DualSenseController.swift */; };
+		A992495F2673A6CB00573097 /* GamePadApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A992495E2673A6CB00573097 /* GamePadApp.swift */; };
+		A99249632673A6CC00573097 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A99249622673A6CC00573097 /* Assets.xcassets */; };
+		A99249662673A6CC00573097 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A99249652673A6CC00573097 /* Preview Assets.xcassets */; };
+		A99249722673A6CC00573097 /* GamePadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A99249712673A6CC00573097 /* GamePadTests.swift */; };
+		A992497D2673A6CC00573097 /* GamePadUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A992497C2673A6CC00573097 /* GamePadUITests.swift */; };
+		A99249902673AAED00573097 /* DualShock4UIModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A992498B2673AAEC00573097 /* DualShock4UIModel.swift */; };
+		A99249912673AAED00573097 /* XboxSeriesXSUIModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A992498C2673AAEC00573097 /* XboxSeriesXSUIModel.swift */; };
+		A99249922673AAED00573097 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A992498D2673AAEC00573097 /* ContentView.swift */; };
+		A99249932673AAED00573097 /* Coords2d.swift in Sources */ = {isa = PBXBuildFile; fileRef = A992498E2673AAEC00573097 /* Coords2d.swift */; };
+		A99249942673AAED00573097 /* JoyConUIModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A992498F2673AAEC00573097 /* JoyConUIModel.swift */; };
+		A99249AB2673AB0E00573097 /* GamepadIMUChangedNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A99249952673AB0E00573097 /* GamepadIMUChangedNotification.swift */; };
+		A99249AC2673AB0E00573097 /* DualShock4Direction.swift in Sources */ = {isa = PBXBuildFile; fileRef = A99249962673AB0E00573097 /* DualShock4Direction.swift */; };
+		A99249AD2673AB0E00573097 /* DualShock4TouchpadChangedNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A99249972673AB0E00573097 /* DualShock4TouchpadChangedNotification.swift */; };
+		A99249AE2673AB0E00573097 /* GamepadButtonChangedNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A99249982673AB0E00573097 /* GamepadButtonChangedNotification.swift */; };
+		A99249AF2673AB0E00573097 /* GamepadHIDMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A99249992673AB0E00573097 /* GamepadHIDMonitor.swift */; };
+		A99249B02673AB0E00573097 /* Xbox360LedPattern.swift in Sources */ = {isa = PBXBuildFile; fileRef = A992499A2673AB0E00573097 /* Xbox360LedPattern.swift */; };
+		A99249B12673AB0E00573097 /* JoyConChangeRumbleNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A992499B2673AB0E00573097 /* JoyConChangeRumbleNotification.swift */; };
+		A99249B22673AB0E00573097 /* DualShock4ChangeLedNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A992499C2673AB0E00573097 /* DualShock4ChangeLedNotification.swift */; };
+		A99249B32673AB0E00573097 /* DualShock4ChangeRumbleNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A992499D2673AB0E00573097 /* DualShock4ChangeRumbleNotification.swift */; };
+		A99249B42673AB0E00573097 /* CRC32.swift in Sources */ = {isa = PBXBuildFile; fileRef = A992499E2673AB0E00573097 /* CRC32.swift */; };
+		A99249B52673AB0E00573097 /* JoyConDirection.swift in Sources */ = {isa = PBXBuildFile; fileRef = A992499F2673AB0E00573097 /* JoyConDirection.swift */; };
+		A99249B62673AB0E00573097 /* Xbox360ChangeLedNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A99249A02673AB0E00573097 /* Xbox360ChangeLedNotification.swift */; };
+		A99249B72673AB0E00573097 /* Xbox360ChangeRumbleNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A99249A12673AB0E00573097 /* Xbox360ChangeRumbleNotification.swift */; };
+		A99249B82673AB0E00573097 /* XboxOneChangeRumbleNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A99249A22673AB0E00573097 /* XboxOneChangeRumbleNotification.swift */; };
+		A99249B92673AB0E00573097 /* GamepadBatteryChangedNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A99249A32673AB0E00573097 /* GamepadBatteryChangedNotification.swift */; };
+		A99249BA2673AB0E00573097 /* GamepadAnalogChangedNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A99249A42673AB0E00573097 /* GamepadAnalogChangedNotification.swift */; };
+		A99249BB2673AB0E00573097 /* XboxOneController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A99249A52673AB0E00573097 /* XboxOneController.swift */; };
+		A99249BC2673AB0E00573097 /* XboxOneDirection.swift in Sources */ = {isa = PBXBuildFile; fileRef = A99249A62673AB0E00573097 /* XboxOneDirection.swift */; };
+		A99249BD2673AB0E00573097 /* JoyConChangeLedNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A99249A72673AB0E00573097 /* JoyConChangeLedNotification.swift */; };
+		A99249BE2673AB0E00573097 /* DualShock4Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = A99249A82673AB0E00573097 /* DualShock4Controller.swift */; };
+		A99249BF2673AB0E00573097 /* Xbox360Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = A99249A92673AB0E00573097 /* Xbox360Controller.swift */; };
+		A99249C02673AB0E00573097 /* JoyConController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A99249AA2673AB0E00573097 /* JoyConController.swift */; };
+		A99249C32673AD1200573097 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A99249C22673AD1200573097 /* IOKit.framework */; };
+		A99249C52673AD2100573097 /* GameController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A99249C42673AD2100573097 /* GameController.framework */; };
+		A99249C72673AD3A00573097 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = A99249C62673AD2E00573097 /* libz.tbd */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		A9D72F8D248202360000A89F /* PBXContainerItemProxy */ = {
+		A992496E2673A6CC00573097 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = A9D72F6F248202350000A89F /* Project object */;
+			containerPortal = A99249532673A6CA00573097 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = A9D72F76248202350000A89F;
+			remoteGlobalIDString = A992495A2673A6CB00573097;
 			remoteInfo = GamePad;
 		};
-		A9D72F98248202360000A89F /* PBXContainerItemProxy */ = {
+		A99249792673A6CC00573097 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = A9D72F6F248202350000A89F /* Project object */;
+			containerPortal = A99249532673A6CA00573097 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = A9D72F76248202350000A89F;
+			remoteGlobalIDString = A992495A2673A6CB00573097;
 			remoteInfo = GamePad;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		A9063B13249572DC00B0E0ED /* Xbox360ChangeRumbleNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Xbox360ChangeRumbleNotification.swift; sourceTree = "<group>"; };
-		A9063B152495732200B0E0ED /* Xbox360ChangeLedNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Xbox360ChangeLedNotification.swift; sourceTree = "<group>"; };
-		A9063B172495766700B0E0ED /* Xbox360LedPattern.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Xbox360LedPattern.swift; sourceTree = "<group>"; };
-		A90DC848248C4E67003CD258 /* JoyConController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyConController.swift; sourceTree = "<group>"; };
-		A90EBFA924BEB6C000C8DEAE /* GamepadIMUChangedNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamepadIMUChangedNotification.swift; sourceTree = "<group>"; };
-		A917BFD724984D2C00992913 /* XboxSeriesXSUIModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XboxSeriesXSUIModel.swift; sourceTree = "<group>"; };
-		A97A418C249C6F0700250DB7 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
-		A97E75C82482E78000FAA13A /* Xbox360Controller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Xbox360Controller.swift; sourceTree = "<group>"; };
-		A97E75CA2482E7A200FAA13A /* DualShock4Controller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DualShock4Controller.swift; sourceTree = "<group>"; };
-		A9879C1E248481C200AB4DE9 /* CRC32.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CRC32.swift; sourceTree = "<group>"; };
-		A9879C202485833000AB4DE9 /* GamepadButtonChangedNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamepadButtonChangedNotification.swift; sourceTree = "<group>"; };
-		A9879C22248592B600AB4DE9 /* DualShock4TouchpadChangedNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DualShock4TouchpadChangedNotification.swift; sourceTree = "<group>"; };
-		A9888F9A24904BDD0084EA3C /* DualShock4UIModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DualShock4UIModel.swift; sourceTree = "<group>"; };
-		A9888F9F249063580084EA3C /* GamepadAnalogChangedNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamepadAnalogChangedNotification.swift; sourceTree = "<group>"; };
-		A99249C92673C4E400573097 /* DualShock4Tab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DualShock4Tab.swift; sourceTree = "<group>"; };
-		A99249CB2673C54E00573097 /* JoyConTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyConTab.swift; sourceTree = "<group>"; };
-		A99249CD2673C8EF00573097 /* XboxSeriesXSTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XboxSeriesXSTab.swift; sourceTree = "<group>"; };
-		A993A101249E82060059EADA /* XboxOneController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XboxOneController.swift; sourceTree = "<group>"; };
-		A993A103249E8A640059EADA /* XboxOneChangeRumbleNotification.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XboxOneChangeRumbleNotification.swift; sourceTree = "<group>"; };
-		A993A105249EB9E50059EADA /* JoyConChangeRumbleNotification.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JoyConChangeRumbleNotification.swift; sourceTree = "<group>"; };
-		A993A106249EB9E50059EADA /* JoyConChangeLedNotification.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JoyConChangeLedNotification.swift; sourceTree = "<group>"; };
-		A993A109249ECE3A0059EADA /* JoyConDirection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyConDirection.swift; sourceTree = "<group>"; };
-		A9A27CBE249F12E000EFC9D5 /* JoyConUIModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JoyConUIModel.swift; sourceTree = "<group>"; };
-		A9C3193624C7660400666C56 /* XboxOneDirection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XboxOneDirection.swift; sourceTree = "<group>"; };
-		A9C66D33249417B900DB799F /* GamepadBatteryChangedNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamepadBatteryChangedNotification.swift; sourceTree = "<group>"; };
-		A9C66D3524944AF000DB799F /* DualShock4ChangeLedNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DualShock4ChangeLedNotification.swift; sourceTree = "<group>"; };
-		A9C66D372494529C00DB799F /* DualShock4ChangeRumbleNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DualShock4ChangeRumbleNotification.swift; sourceTree = "<group>"; };
-		A9D72F77248202350000A89F /* GamePad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GamePad.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		A9D72F7A248202350000A89F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		A9D72F7C248202350000A89F /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		A9D72F7E248202360000A89F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		A9D72F81248202360000A89F /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		A9D72F84248202360000A89F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		A9D72F86248202360000A89F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		A9D72F87248202360000A89F /* GamePad.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = GamePad.entitlements; sourceTree = "<group>"; };
-		A9D72F8C248202360000A89F /* GamePadTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GamePadTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		A9D72F90248202360000A89F /* GamePadTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamePadTests.swift; sourceTree = "<group>"; };
-		A9D72F92248202360000A89F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		A9D72F97248202360000A89F /* GamePadUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GamePadUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		A9D72F9B248202360000A89F /* GamePadUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamePadUITests.swift; sourceTree = "<group>"; };
-		A9D72F9D248202360000A89F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		A9D72FA9248204080000A89F /* GamepadHIDMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamepadHIDMonitor.swift; sourceTree = "<group>"; };
-		A9D72FAC2482046A0000A89F /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
-		A9D72FAE248204FE0000A89F /* GameController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameController.framework; path = System/Library/Frameworks/GameController.framework; sourceTree = SDKROOT; };
-		A9E414F124C4006000FE6420 /* DualShock4Direction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DualShock4Direction.swift; sourceTree = "<group>"; };
-		A9FBA15124BBC39F009B7CEE /* Coords2d.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coords2d.swift; sourceTree = "<group>"; };
+		A91AF8B12A05A845000C89C9 /* XboxEliteSeries2UIModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XboxEliteSeries2UIModel.swift; sourceTree = "<group>"; };
+		A91AF8B32A05A948000C89C9 /* DualSenseUIModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DualSenseUIModel.swift; sourceTree = "<group>"; };
+		A91AF8B52A05AB8E000C89C9 /* NintendoProUIModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NintendoProUIModel.swift; sourceTree = "<group>"; };
+		A91AF8B72A05BB45000C89C9 /* XboxEliteController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XboxEliteController.swift; sourceTree = "<group>"; };
+		A91AF8B82A05BB45000C89C9 /* DualSenseController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DualSenseController.swift; sourceTree = "<group>"; };
+		A992495B2673A6CB00573097 /* GamePad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GamePad.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A992495E2673A6CB00573097 /* GamePadApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamePadApp.swift; sourceTree = "<group>"; };
+		A99249622673A6CC00573097 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A99249652673A6CC00573097 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		A99249672673A6CC00573097 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A99249682673A6CC00573097 /* GamePad.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = GamePad.entitlements; sourceTree = "<group>"; };
+		A992496D2673A6CC00573097 /* GamePadTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GamePadTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A99249712673A6CC00573097 /* GamePadTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamePadTests.swift; sourceTree = "<group>"; };
+		A99249732673A6CC00573097 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A99249782673A6CC00573097 /* GamePadUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GamePadUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A992497C2673A6CC00573097 /* GamePadUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamePadUITests.swift; sourceTree = "<group>"; };
+		A992497E2673A6CC00573097 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A992498B2673AAEC00573097 /* DualShock4UIModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DualShock4UIModel.swift; sourceTree = "<group>"; };
+		A992498C2673AAEC00573097 /* XboxSeriesXSUIModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XboxSeriesXSUIModel.swift; sourceTree = "<group>"; };
+		A992498D2673AAEC00573097 /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		A992498E2673AAEC00573097 /* Coords2d.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Coords2d.swift; sourceTree = "<group>"; };
+		A992498F2673AAEC00573097 /* JoyConUIModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JoyConUIModel.swift; sourceTree = "<group>"; };
+		A99249952673AB0E00573097 /* GamepadIMUChangedNotification.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GamepadIMUChangedNotification.swift; sourceTree = "<group>"; };
+		A99249962673AB0E00573097 /* DualShock4Direction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DualShock4Direction.swift; sourceTree = "<group>"; };
+		A99249972673AB0E00573097 /* DualShock4TouchpadChangedNotification.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DualShock4TouchpadChangedNotification.swift; sourceTree = "<group>"; };
+		A99249982673AB0E00573097 /* GamepadButtonChangedNotification.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GamepadButtonChangedNotification.swift; sourceTree = "<group>"; };
+		A99249992673AB0E00573097 /* GamepadHIDMonitor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GamepadHIDMonitor.swift; sourceTree = "<group>"; };
+		A992499A2673AB0E00573097 /* Xbox360LedPattern.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Xbox360LedPattern.swift; sourceTree = "<group>"; };
+		A992499B2673AB0E00573097 /* JoyConChangeRumbleNotification.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JoyConChangeRumbleNotification.swift; sourceTree = "<group>"; };
+		A992499C2673AB0E00573097 /* DualShock4ChangeLedNotification.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DualShock4ChangeLedNotification.swift; sourceTree = "<group>"; };
+		A992499D2673AB0E00573097 /* DualShock4ChangeRumbleNotification.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DualShock4ChangeRumbleNotification.swift; sourceTree = "<group>"; };
+		A992499E2673AB0E00573097 /* CRC32.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CRC32.swift; sourceTree = "<group>"; };
+		A992499F2673AB0E00573097 /* JoyConDirection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JoyConDirection.swift; sourceTree = "<group>"; };
+		A99249A02673AB0E00573097 /* Xbox360ChangeLedNotification.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Xbox360ChangeLedNotification.swift; sourceTree = "<group>"; };
+		A99249A12673AB0E00573097 /* Xbox360ChangeRumbleNotification.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Xbox360ChangeRumbleNotification.swift; sourceTree = "<group>"; };
+		A99249A22673AB0E00573097 /* XboxOneChangeRumbleNotification.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XboxOneChangeRumbleNotification.swift; sourceTree = "<group>"; };
+		A99249A32673AB0E00573097 /* GamepadBatteryChangedNotification.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GamepadBatteryChangedNotification.swift; sourceTree = "<group>"; };
+		A99249A42673AB0E00573097 /* GamepadAnalogChangedNotification.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GamepadAnalogChangedNotification.swift; sourceTree = "<group>"; };
+		A99249A52673AB0E00573097 /* XboxOneController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XboxOneController.swift; sourceTree = "<group>"; };
+		A99249A62673AB0E00573097 /* XboxOneDirection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XboxOneDirection.swift; sourceTree = "<group>"; };
+		A99249A72673AB0E00573097 /* JoyConChangeLedNotification.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JoyConChangeLedNotification.swift; sourceTree = "<group>"; };
+		A99249A82673AB0E00573097 /* DualShock4Controller.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DualShock4Controller.swift; sourceTree = "<group>"; };
+		A99249A92673AB0E00573097 /* Xbox360Controller.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Xbox360Controller.swift; sourceTree = "<group>"; };
+		A99249AA2673AB0E00573097 /* JoyConController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JoyConController.swift; sourceTree = "<group>"; };
+		A99249C22673AD1200573097 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
+		A99249C42673AD2100573097 /* GameController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameController.framework; path = System/Library/Frameworks/GameController.framework; sourceTree = SDKROOT; };
+		A99249C62673AD2E00573097 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		A9D72F74248202350000A89F /* Frameworks */ = {
+		A99249582673A6CB00573097 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A9D72FAF248204FE0000A89F /* GameController.framework in Frameworks */,
-				A97A418D249C6F3000250DB7 /* libz.tbd in Frameworks */,
-				A9D72FAD2482046A0000A89F /* IOKit.framework in Frameworks */,
+				A99249C52673AD2100573097 /* GameController.framework in Frameworks */,
+				A99249C72673AD3A00573097 /* libz.tbd in Frameworks */,
+				A99249C32673AD1200573097 /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		A9D72F89248202360000A89F /* Frameworks */ = {
+		A992496A2673A6CC00573097 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		A9D72F94248202360000A89F /* Frameworks */ = {
+		A99249752673A6CC00573097 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -142,132 +144,133 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		A9888F9C24904BFF0084EA3C /* UI */ = {
+		A99249522673A6CA00573097 = {
 			isa = PBXGroup;
 			children = (
-				A9D72F7C248202350000A89F /* ContentView.swift */,
-				A9FBA15124BBC39F009B7CEE /* Coords2d.swift */,
-				A99249C92673C4E400573097 /* DualShock4Tab.swift */,
-				A9888F9A24904BDD0084EA3C /* DualShock4UIModel.swift */,
-				A99249CB2673C54E00573097 /* JoyConTab.swift */,
-				A9A27CBE249F12E000EFC9D5 /* JoyConUIModel.swift */,
-				A99249CD2673C8EF00573097 /* XboxSeriesXSTab.swift */,
-				A917BFD724984D2C00992913 /* XboxSeriesXSUIModel.swift */,
-			);
-			name = UI;
-			sourceTree = "<group>";
-		};
-		A9888FA1249063AC0084EA3C /* Notifications */ = {
-			isa = PBXGroup;
-			children = (
-				A9888F9F249063580084EA3C /* GamepadAnalogChangedNotification.swift */,
-				A9C66D33249417B900DB799F /* GamepadBatteryChangedNotification.swift */,
-				A9879C202485833000AB4DE9 /* GamepadButtonChangedNotification.swift */,
-				A90EBFA924BEB6C000C8DEAE /* GamepadIMUChangedNotification.swift */,
-				A993A106249EB9E50059EADA /* JoyConChangeLedNotification.swift */,
-				A993A105249EB9E50059EADA /* JoyConChangeRumbleNotification.swift */,
-				A9C66D3524944AF000DB799F /* DualShock4ChangeLedNotification.swift */,
-				A9C66D372494529C00DB799F /* DualShock4ChangeRumbleNotification.swift */,
-				A9879C22248592B600AB4DE9 /* DualShock4TouchpadChangedNotification.swift */,
-				A9063B13249572DC00B0E0ED /* Xbox360ChangeRumbleNotification.swift */,
-				A9063B152495732200B0E0ED /* Xbox360ChangeLedNotification.swift */,
-				A993A103249E8A640059EADA /* XboxOneChangeRumbleNotification.swift */,
-			);
-			name = Notifications;
-			sourceTree = "<group>";
-		};
-		A9D72F6E248202350000A89F = {
-			isa = PBXGroup;
-			children = (
-				A9D72F79248202350000A89F /* GamePad */,
-				A9D72F8F248202360000A89F /* GamePadTests */,
-				A9D72F9A248202360000A89F /* GamePadUITests */,
-				A9D72F78248202350000A89F /* Products */,
-				A9D72FAB2482046A0000A89F /* Frameworks */,
+				A992495D2673A6CB00573097 /* GamePad */,
+				A99249702673A6CC00573097 /* GamePadTests */,
+				A992497B2673A6CC00573097 /* GamePadUITests */,
+				A992495C2673A6CB00573097 /* Products */,
+				A99249C12673AD1200573097 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
-		A9D72F78248202350000A89F /* Products */ = {
+		A992495C2673A6CB00573097 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A9D72F77248202350000A89F /* GamePad.app */,
-				A9D72F8C248202360000A89F /* GamePadTests.xctest */,
-				A9D72F97248202360000A89F /* GamePadUITests.xctest */,
+				A992495B2673A6CB00573097 /* GamePad.app */,
+				A992496D2673A6CC00573097 /* GamePadTests.xctest */,
+				A99249782673A6CC00573097 /* GamePadUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		A9D72F79248202350000A89F /* GamePad */ = {
+		A992495D2673A6CB00573097 /* GamePad */ = {
 			isa = PBXGroup;
 			children = (
-				A9888F9C24904BFF0084EA3C /* UI */,
-				A9D72F7A248202350000A89F /* AppDelegate.swift */,
-				A9D72F7E248202360000A89F /* Assets.xcassets */,
-				A9D72F83248202360000A89F /* Main.storyboard */,
-				A9D72F86248202360000A89F /* Info.plist */,
-				A9D72F87248202360000A89F /* GamePad.entitlements */,
-				A9D72F80248202360000A89F /* Preview Content */,
-				A9888FA1249063AC0084EA3C /* Notifications */,
-				A9879C1E248481C200AB4DE9 /* CRC32.swift */,
-				A9D72FA9248204080000A89F /* GamepadHIDMonitor.swift */,
-				A90DC848248C4E67003CD258 /* JoyConController.swift */,
-				A993A109249ECE3A0059EADA /* JoyConDirection.swift */,
-				A97E75CA2482E7A200FAA13A /* DualShock4Controller.swift */,
-				A9E414F124C4006000FE6420 /* DualShock4Direction.swift */,
-				A993A101249E82060059EADA /* XboxOneController.swift */,
-				A9C3193624C7660400666C56 /* XboxOneDirection.swift */,
-				A97E75C82482E78000FAA13A /* Xbox360Controller.swift */,
-				A9063B172495766700B0E0ED /* Xbox360LedPattern.swift */,
+				A99249C82673C3C400573097 /* Notifications */,
+				A992498A2673AA9300573097 /* UI */,
+				A992499E2673AB0E00573097 /* CRC32.swift */,
+				A91AF8B82A05BB45000C89C9 /* DualSenseController.swift */,
+				A99249A82673AB0E00573097 /* DualShock4Controller.swift */,
+				A99249962673AB0E00573097 /* DualShock4Direction.swift */,
+				A99249992673AB0E00573097 /* GamepadHIDMonitor.swift */,
+				A99249AA2673AB0E00573097 /* JoyConController.swift */,
+				A992499F2673AB0E00573097 /* JoyConDirection.swift */,
+				A99249A92673AB0E00573097 /* Xbox360Controller.swift */,
+				A992499A2673AB0E00573097 /* Xbox360LedPattern.swift */,
+				A91AF8B72A05BB45000C89C9 /* XboxEliteController.swift */,
+				A99249A52673AB0E00573097 /* XboxOneController.swift */,
+				A99249A62673AB0E00573097 /* XboxOneDirection.swift */,
+				A99249622673A6CC00573097 /* Assets.xcassets */,
+				A99249672673A6CC00573097 /* Info.plist */,
+				A99249682673A6CC00573097 /* GamePad.entitlements */,
+				A99249642673A6CC00573097 /* Preview Content */,
 			);
 			path = GamePad;
 			sourceTree = "<group>";
 		};
-		A9D72F80248202360000A89F /* Preview Content */ = {
+		A99249642673A6CC00573097 /* Preview Content */ = {
 			isa = PBXGroup;
 			children = (
-				A9D72F81248202360000A89F /* Preview Assets.xcassets */,
+				A99249652673A6CC00573097 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
-		A9D72F8F248202360000A89F /* GamePadTests */ = {
+		A99249702673A6CC00573097 /* GamePadTests */ = {
 			isa = PBXGroup;
 			children = (
-				A9D72F90248202360000A89F /* GamePadTests.swift */,
-				A9D72F92248202360000A89F /* Info.plist */,
+				A99249712673A6CC00573097 /* GamePadTests.swift */,
+				A99249732673A6CC00573097 /* Info.plist */,
 			);
 			path = GamePadTests;
 			sourceTree = "<group>";
 		};
-		A9D72F9A248202360000A89F /* GamePadUITests */ = {
+		A992497B2673A6CC00573097 /* GamePadUITests */ = {
 			isa = PBXGroup;
 			children = (
-				A9D72F9B248202360000A89F /* GamePadUITests.swift */,
-				A9D72F9D248202360000A89F /* Info.plist */,
+				A992497C2673A6CC00573097 /* GamePadUITests.swift */,
+				A992497E2673A6CC00573097 /* Info.plist */,
 			);
 			path = GamePadUITests;
 			sourceTree = "<group>";
 		};
-		A9D72FAB2482046A0000A89F /* Frameworks */ = {
+		A992498A2673AA9300573097 /* UI */ = {
 			isa = PBXGroup;
 			children = (
-				A97A418C249C6F0700250DB7 /* libz.tbd */,
-				A9D72FAE248204FE0000A89F /* GameController.framework */,
-				A9D72FAC2482046A0000A89F /* IOKit.framework */,
+				A992498D2673AAEC00573097 /* ContentView.swift */,
+				A992498E2673AAEC00573097 /* Coords2d.swift */,
+				A91AF8B32A05A948000C89C9 /* DualSenseUIModel.swift */,
+				A992498B2673AAEC00573097 /* DualShock4UIModel.swift */,
+				A992495E2673A6CB00573097 /* GamePadApp.swift */,
+				A91AF8B52A05AB8E000C89C9 /* NintendoProUIModel.swift */,
+				A992498F2673AAEC00573097 /* JoyConUIModel.swift */,
+				A91AF8B12A05A845000C89C9 /* XboxEliteSeries2UIModel.swift */,
+				A992498C2673AAEC00573097 /* XboxSeriesXSUIModel.swift */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		A99249C12673AD1200573097 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				A99249C62673AD2E00573097 /* libz.tbd */,
+				A99249C42673AD2100573097 /* GameController.framework */,
+				A99249C22673AD1200573097 /* IOKit.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		A99249C82673C3C400573097 /* Notifications */ = {
+			isa = PBXGroup;
+			children = (
+				A992499C2673AB0E00573097 /* DualShock4ChangeLedNotification.swift */,
+				A992499D2673AB0E00573097 /* DualShock4ChangeRumbleNotification.swift */,
+				A99249972673AB0E00573097 /* DualShock4TouchpadChangedNotification.swift */,
+				A99249A42673AB0E00573097 /* GamepadAnalogChangedNotification.swift */,
+				A99249A32673AB0E00573097 /* GamepadBatteryChangedNotification.swift */,
+				A99249982673AB0E00573097 /* GamepadButtonChangedNotification.swift */,
+				A99249952673AB0E00573097 /* GamepadIMUChangedNotification.swift */,
+				A99249A72673AB0E00573097 /* JoyConChangeLedNotification.swift */,
+				A992499B2673AB0E00573097 /* JoyConChangeRumbleNotification.swift */,
+				A99249A02673AB0E00573097 /* Xbox360ChangeLedNotification.swift */,
+				A99249A12673AB0E00573097 /* Xbox360ChangeRumbleNotification.swift */,
+				A99249A22673AB0E00573097 /* XboxOneChangeRumbleNotification.swift */,
+			);
+			path = Notifications;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		A9D72F76248202350000A89F /* GamePad */ = {
+		A992495A2673A6CB00573097 /* GamePad */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A9D72FA0248202360000A89F /* Build configuration list for PBXNativeTarget "GamePad" */;
+			buildConfigurationList = A99249812673A6CC00573097 /* Build configuration list for PBXNativeTarget "GamePad" */;
 			buildPhases = (
-				A9D72F73248202350000A89F /* Sources */,
-				A9D72F74248202350000A89F /* Frameworks */,
-				A9D72F75248202350000A89F /* Resources */,
+				A99249572673A6CB00573097 /* Sources */,
+				A99249582673A6CB00573097 /* Frameworks */,
+				A99249592673A6CB00573097 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -275,70 +278,68 @@
 			);
 			name = GamePad;
 			productName = GamePad;
-			productReference = A9D72F77248202350000A89F /* GamePad.app */;
+			productReference = A992495B2673A6CB00573097 /* GamePad.app */;
 			productType = "com.apple.product-type.application";
 		};
-		A9D72F8B248202360000A89F /* GamePadTests */ = {
+		A992496C2673A6CC00573097 /* GamePadTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A9D72FA3248202360000A89F /* Build configuration list for PBXNativeTarget "GamePadTests" */;
+			buildConfigurationList = A99249842673A6CC00573097 /* Build configuration list for PBXNativeTarget "GamePadTests" */;
 			buildPhases = (
-				A9D72F88248202360000A89F /* Sources */,
-				A9D72F89248202360000A89F /* Frameworks */,
-				A9D72F8A248202360000A89F /* Resources */,
+				A99249692673A6CC00573097 /* Sources */,
+				A992496A2673A6CC00573097 /* Frameworks */,
+				A992496B2673A6CC00573097 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				A9D72F8E248202360000A89F /* PBXTargetDependency */,
+				A992496F2673A6CC00573097 /* PBXTargetDependency */,
 			);
 			name = GamePadTests;
 			productName = GamePadTests;
-			productReference = A9D72F8C248202360000A89F /* GamePadTests.xctest */;
+			productReference = A992496D2673A6CC00573097 /* GamePadTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		A9D72F96248202360000A89F /* GamePadUITests */ = {
+		A99249772673A6CC00573097 /* GamePadUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A9D72FA6248202360000A89F /* Build configuration list for PBXNativeTarget "GamePadUITests" */;
+			buildConfigurationList = A99249872673A6CC00573097 /* Build configuration list for PBXNativeTarget "GamePadUITests" */;
 			buildPhases = (
-				A9D72F93248202360000A89F /* Sources */,
-				A9D72F94248202360000A89F /* Frameworks */,
-				A9D72F95248202360000A89F /* Resources */,
+				A99249742673A6CC00573097 /* Sources */,
+				A99249752673A6CC00573097 /* Frameworks */,
+				A99249762673A6CC00573097 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				A9D72F99248202360000A89F /* PBXTargetDependency */,
+				A992497A2673A6CC00573097 /* PBXTargetDependency */,
 			);
 			name = GamePadUITests;
 			productName = GamePadUITests;
-			productReference = A9D72F97248202360000A89F /* GamePadUITests.xctest */;
+			productReference = A99249782673A6CC00573097 /* GamePadUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		A9D72F6F248202350000A89F /* Project object */ = {
+		A99249532673A6CA00573097 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1150;
+				LastSwiftUpdateCheck = 1250;
 				LastUpgradeCheck = 1250;
-				ORGANIZATIONNAME = "Marco Luglio";
 				TargetAttributes = {
-					A9D72F76248202350000A89F = {
-						CreatedOnToolsVersion = 11.5;
-						LastSwiftMigration = 1160;
+					A992495A2673A6CB00573097 = {
+						CreatedOnToolsVersion = 12.5;
 					};
-					A9D72F8B248202360000A89F = {
-						CreatedOnToolsVersion = 11.5;
-						TestTargetID = A9D72F76248202350000A89F;
+					A992496C2673A6CC00573097 = {
+						CreatedOnToolsVersion = 12.5;
+						TestTargetID = A992495A2673A6CB00573097;
 					};
-					A9D72F96248202360000A89F = {
-						CreatedOnToolsVersion = 11.5;
-						TestTargetID = A9D72F76248202350000A89F;
+					A99249772673A6CC00573097 = {
+						CreatedOnToolsVersion = 12.5;
+						TestTargetID = A992495A2673A6CB00573097;
 					};
 				};
 			};
-			buildConfigurationList = A9D72F72248202350000A89F /* Build configuration list for PBXProject "Gamepad" */;
+			buildConfigurationList = A99249562673A6CA00573097 /* Build configuration list for PBXProject "GamePad" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -346,37 +347,36 @@
 				en,
 				Base,
 			);
-			mainGroup = A9D72F6E248202350000A89F;
-			productRefGroup = A9D72F78248202350000A89F /* Products */;
+			mainGroup = A99249522673A6CA00573097;
+			productRefGroup = A992495C2673A6CB00573097 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				A9D72F76248202350000A89F /* GamePad */,
-				A9D72F8B248202360000A89F /* GamePadTests */,
-				A9D72F96248202360000A89F /* GamePadUITests */,
+				A992495A2673A6CB00573097 /* GamePad */,
+				A992496C2673A6CC00573097 /* GamePadTests */,
+				A99249772673A6CC00573097 /* GamePadUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		A9D72F75248202350000A89F /* Resources */ = {
+		A99249592673A6CB00573097 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A9D72F85248202360000A89F /* Main.storyboard in Resources */,
-				A9D72F82248202360000A89F /* Preview Assets.xcassets in Resources */,
-				A9D72F7F248202360000A89F /* Assets.xcassets in Resources */,
+				A99249662673A6CC00573097 /* Preview Assets.xcassets in Resources */,
+				A99249632673A6CC00573097 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		A9D72F8A248202360000A89F /* Resources */ = {
+		A992496B2673A6CC00573097 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		A9D72F95248202360000A89F /* Resources */ = {
+		A99249762673A6CC00573097 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -386,88 +386,79 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		A9D72F73248202350000A89F /* Sources */ = {
+		A99249572673A6CB00573097 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A97E75C92482E78000FAA13A /* Xbox360Controller.swift in Sources */,
-				A9888F9B24904BDD0084EA3C /* DualShock4UIModel.swift in Sources */,
-				A99249CA2673C4E400573097 /* DualShock4Tab.swift in Sources */,
-				A9E414F224C4006000FE6420 /* DualShock4Direction.swift in Sources */,
-				A9879C212485833000AB4DE9 /* GamepadButtonChangedNotification.swift in Sources */,
-				A993A107249EB9E50059EADA /* JoyConChangeRumbleNotification.swift in Sources */,
-				A9C66D382494529C00DB799F /* DualShock4ChangeRumbleNotification.swift in Sources */,
-				A993A10A249ECE3A0059EADA /* JoyConDirection.swift in Sources */,
-				A917BFD824984D2C00992913 /* XboxSeriesXSUIModel.swift in Sources */,
-				A9A27CBF249F12E000EFC9D5 /* JoyConUIModel.swift in Sources */,
-				A9879C1F248481C200AB4DE9 /* CRC32.swift in Sources */,
-				A99249CC2673C54E00573097 /* JoyConTab.swift in Sources */,
-				A993A102249E82070059EADA /* XboxOneController.swift in Sources */,
-				A9FBA15224BBC39F009B7CEE /* Coords2d.swift in Sources */,
-				A9879C23248592B600AB4DE9 /* DualShock4TouchpadChangedNotification.swift in Sources */,
-				A9C66D34249417B900DB799F /* GamepadBatteryChangedNotification.swift in Sources */,
-				A993A108249EB9E50059EADA /* JoyConChangeLedNotification.swift in Sources */,
-				A90EBFAA24BEB6C000C8DEAE /* GamepadIMUChangedNotification.swift in Sources */,
-				A9D72FAA248204080000A89F /* GamepadHIDMonitor.swift in Sources */,
-				A9C3193724C7660400666C56 /* XboxOneDirection.swift in Sources */,
-				A9063B182495766700B0E0ED /* Xbox360LedPattern.swift in Sources */,
-				A97E75CB2482E7A200FAA13A /* DualShock4Controller.swift in Sources */,
-				A9D72F7D248202350000A89F /* ContentView.swift in Sources */,
-				A90DC849248C4E67003CD258 /* JoyConController.swift in Sources */,
-				A9063B14249572DC00B0E0ED /* Xbox360ChangeRumbleNotification.swift in Sources */,
-				A9D72F7B248202350000A89F /* AppDelegate.swift in Sources */,
-				A9063B162495732200B0E0ED /* Xbox360ChangeLedNotification.swift in Sources */,
-				A9C66D3624944AF000DB799F /* DualShock4ChangeLedNotification.swift in Sources */,
-				A99249CE2673C8EF00573097 /* XboxSeriesXSTab.swift in Sources */,
-				A9888FA0249063580084EA3C /* GamepadAnalogChangedNotification.swift in Sources */,
-				A993A104249E8A640059EADA /* XboxOneChangeRumbleNotification.swift in Sources */,
+				A99249B62673AB0E00573097 /* Xbox360ChangeLedNotification.swift in Sources */,
+				A99249BB2673AB0E00573097 /* XboxOneController.swift in Sources */,
+				A91AF8B62A05AB8E000C89C9 /* NintendoProUIModel.swift in Sources */,
+				A99249B02673AB0E00573097 /* Xbox360LedPattern.swift in Sources */,
+				A99249B52673AB0E00573097 /* JoyConDirection.swift in Sources */,
+				A99249B42673AB0E00573097 /* CRC32.swift in Sources */,
+				A99249AC2673AB0E00573097 /* DualShock4Direction.swift in Sources */,
+				A99249B92673AB0E00573097 /* GamepadBatteryChangedNotification.swift in Sources */,
+				A99249B22673AB0E00573097 /* DualShock4ChangeLedNotification.swift in Sources */,
+				A91AF8B22A05A845000C89C9 /* XboxEliteSeries2UIModel.swift in Sources */,
+				A99249B82673AB0E00573097 /* XboxOneChangeRumbleNotification.swift in Sources */,
+				A99249BC2673AB0E00573097 /* XboxOneDirection.swift in Sources */,
+				A91AF8B92A05BB45000C89C9 /* XboxEliteController.swift in Sources */,
+				A99249B72673AB0E00573097 /* Xbox360ChangeRumbleNotification.swift in Sources */,
+				A99249902673AAED00573097 /* DualShock4UIModel.swift in Sources */,
+				A99249BD2673AB0E00573097 /* JoyConChangeLedNotification.swift in Sources */,
+				A99249BE2673AB0E00573097 /* DualShock4Controller.swift in Sources */,
+				A99249C02673AB0E00573097 /* JoyConController.swift in Sources */,
+				A99249B12673AB0E00573097 /* JoyConChangeRumbleNotification.swift in Sources */,
+				A99249AB2673AB0E00573097 /* GamepadIMUChangedNotification.swift in Sources */,
+				A99249BF2673AB0E00573097 /* Xbox360Controller.swift in Sources */,
+				A91AF8BA2A05BB45000C89C9 /* DualSenseController.swift in Sources */,
+				A99249922673AAED00573097 /* ContentView.swift in Sources */,
+				A91AF8B42A05A948000C89C9 /* DualSenseUIModel.swift in Sources */,
+				A99249BA2673AB0E00573097 /* GamepadAnalogChangedNotification.swift in Sources */,
+				A99249AD2673AB0E00573097 /* DualShock4TouchpadChangedNotification.swift in Sources */,
+				A99249B32673AB0E00573097 /* DualShock4ChangeRumbleNotification.swift in Sources */,
+				A99249AE2673AB0E00573097 /* GamepadButtonChangedNotification.swift in Sources */,
+				A99249942673AAED00573097 /* JoyConUIModel.swift in Sources */,
+				A99249912673AAED00573097 /* XboxSeriesXSUIModel.swift in Sources */,
+				A992495F2673A6CB00573097 /* GamePadApp.swift in Sources */,
+				A99249AF2673AB0E00573097 /* GamepadHIDMonitor.swift in Sources */,
+				A99249932673AAED00573097 /* Coords2d.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		A9D72F88248202360000A89F /* Sources */ = {
+		A99249692673A6CC00573097 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A9D72F91248202360000A89F /* GamePadTests.swift in Sources */,
+				A99249722673A6CC00573097 /* GamePadTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		A9D72F93248202360000A89F /* Sources */ = {
+		A99249742673A6CC00573097 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A9D72F9C248202360000A89F /* GamePadUITests.swift in Sources */,
+				A992497D2673A6CC00573097 /* GamePadUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		A9D72F8E248202360000A89F /* PBXTargetDependency */ = {
+		A992496F2673A6CC00573097 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = A9D72F76248202350000A89F /* GamePad */;
-			targetProxy = A9D72F8D248202360000A89F /* PBXContainerItemProxy */;
+			target = A992495A2673A6CB00573097 /* GamePad */;
+			targetProxy = A992496E2673A6CC00573097 /* PBXContainerItemProxy */;
 		};
-		A9D72F99248202360000A89F /* PBXTargetDependency */ = {
+		A992497A2673A6CC00573097 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = A9D72F76248202350000A89F /* GamePad */;
-			targetProxy = A9D72F98248202360000A89F /* PBXContainerItemProxy */;
+			target = A992495A2673A6CB00573097 /* GamePad */;
+			targetProxy = A99249792673A6CC00573097 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
-/* Begin PBXVariantGroup section */
-		A9D72F83248202360000A89F /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				A9D72F84248202360000A89F /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
-
 /* Begin XCBuildConfiguration section */
-		A9D72F9E248202360000A89F /* Debug */ = {
+		A992497F2673A6CC00573097 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -518,7 +509,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MACOSX_DEPLOYMENT_TARGET = 11.3;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -528,7 +519,7 @@
 			};
 			name = Debug;
 		};
-		A9D72F9F248202360000A89F /* Release */ = {
+		A99249802673A6CC00573097 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -573,7 +564,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MACOSX_DEPLOYMENT_TARGET = 11.3;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
@@ -582,13 +573,14 @@
 			};
 			name = Release;
 		};
-		A9D72FA1248202360000A89F /* Debug */ = {
+		A99249822673A6CC00573097 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CLANG_ENABLE_MODULES = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CODE_SIGN_ENTITLEMENTS = GamePad/GamePad.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"GamePad/Preview Content\"";
@@ -596,29 +588,26 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = GamePad/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				PRODUCT_BUNDLE_IDENTIFIER = marcodejulho.GamePad;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = luceo.GamePad;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_INSTALL_OBJC_HEADER = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "";
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_PRECOMPILE_BRIDGING_HEADER = YES;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
-		A9D72FA2248202360000A89F /* Release */ = {
+		A99249832673A6CC00573097 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CLANG_ENABLE_MODULES = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CODE_SIGN_ENTITLEMENTS = GamePad/GamePad.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"GamePad/Preview Content\"";
@@ -626,22 +615,19 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = GamePad/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				PRODUCT_BUNDLE_IDENTIFIER = marcodejulho.GamePad;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = luceo.GamePad;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_INSTALL_OBJC_HEADER = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "";
-				SWIFT_PRECOMPILE_BRIDGING_HEADER = YES;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
-		A9D72FA4248202360000A89F /* Debug */ = {
+		A99249852673A6CC00573097 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
@@ -655,15 +641,15 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				PRODUCT_BUNDLE_IDENTIFIER = marcodejulho.GamePadTests;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = luceo.GamePadTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/GamePad.app/Contents/MacOS/GamePad";
 			};
 			name = Debug;
 		};
-		A9D72FA5248202360000A89F /* Release */ = {
+		A99249862673A6CC00573097 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
@@ -677,15 +663,15 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				PRODUCT_BUNDLE_IDENTIFIER = marcodejulho.GamePadTests;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = luceo.GamePadTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/GamePad.app/Contents/MacOS/GamePad";
 			};
 			name = Release;
 		};
-		A9D72FA7248202360000A89F /* Debug */ = {
+		A99249882673A6CC00573097 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
@@ -698,14 +684,15 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = marcodejulho.GamePadUITests;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = luceo.GamePadUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TEST_TARGET_NAME = GamePad;
 			};
 			name = Debug;
 		};
-		A9D72FA8248202360000A89F /* Release */ = {
+		A99249892673A6CC00573097 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
@@ -718,7 +705,8 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = marcodejulho.GamePadUITests;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = luceo.GamePadUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TEST_TARGET_NAME = GamePad;
@@ -728,43 +716,43 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A9D72F72248202350000A89F /* Build configuration list for PBXProject "Gamepad" */ = {
+		A99249562673A6CA00573097 /* Build configuration list for PBXProject "GamePad" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A9D72F9E248202360000A89F /* Debug */,
-				A9D72F9F248202360000A89F /* Release */,
+				A992497F2673A6CC00573097 /* Debug */,
+				A99249802673A6CC00573097 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A9D72FA0248202360000A89F /* Build configuration list for PBXNativeTarget "GamePad" */ = {
+		A99249812673A6CC00573097 /* Build configuration list for PBXNativeTarget "GamePad" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A9D72FA1248202360000A89F /* Debug */,
-				A9D72FA2248202360000A89F /* Release */,
+				A99249822673A6CC00573097 /* Debug */,
+				A99249832673A6CC00573097 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A9D72FA3248202360000A89F /* Build configuration list for PBXNativeTarget "GamePadTests" */ = {
+		A99249842673A6CC00573097 /* Build configuration list for PBXNativeTarget "GamePadTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A9D72FA4248202360000A89F /* Debug */,
-				A9D72FA5248202360000A89F /* Release */,
+				A99249852673A6CC00573097 /* Debug */,
+				A99249862673A6CC00573097 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A9D72FA6248202360000A89F /* Build configuration list for PBXNativeTarget "GamePadUITests" */ = {
+		A99249872673A6CC00573097 /* Build configuration list for PBXNativeTarget "GamePadUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A9D72FA7248202360000A89F /* Debug */,
-				A9D72FA8248202360000A89F /* Release */,
+				A99249882673A6CC00573097 /* Debug */,
+				A99249892673A6CC00573097 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = A9D72F6F248202350000A89F /* Project object */;
+	rootObject = A99249532673A6CA00573097 /* Project object */;
 }

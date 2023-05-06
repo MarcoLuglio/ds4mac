@@ -2,7 +2,7 @@
 //  JoyConController.swift
 //  GamePad
 //
-//  Created by Marco Luglio on 06/06/20.
+//  Created by Marco Luglio on 06/jun/20.
 //  Copyright © 2020 Marco Luglio. All rights reserved.
 //
 
@@ -136,15 +136,13 @@ final class JoyConController {
 	var leftButton = false
 	var previousLeftButton = false
 
-	// TODO The S* buttons can be the equivalent of the Xbox Elite back paddles
-
 	/// SL button on left joy-con
-	var leftSideTopButton = false
-	var previousLeftSideTopButton = false
+	var backLeftTopButton = false
+	var previousBackLeftTopButton = false
 
 	/// SR on left joy-con
-	var leftSideBottomButton = false
-	var previousLeftSideBottomButton = false
+	var backLeftBottomButton = false
+	var previousBackLeftBottomButton = false
 
 	/// contains left shoulder, left trigger, minus, capture and stick buttons
 	var leftSecondaryButtons:UInt8 = 0
@@ -180,12 +178,20 @@ final class JoyConController {
 	var leftStickY:Int16 = 0
 	var previousLeftStickY:Int16 = 0
 
-	// inertial measurement unit (imu)
+	// MARK: - inertial measurement unit (imu)
 
+	/// pitch is when the nose of a plane goes up or down
+	/// think of a dolphin swimming
 	var leftGyroPitch:Int32 = 0
 	var previousLeftGyroPitch:Int32 = 0
+
+	/// yaw is when the nose of a plane goes left or right
+	/// think of a shark swimming
 	var leftGyroYaw:Int32 = 0
 	var previousLeftGyroYaw:Int32 = 0
+
+	/// roll is when the tips of the wings of a plane go up or down
+	/// think of a penguin walking
 	var leftGyroRoll:Int32 = 0
 	var previousLeftGyroRoll:Int32 = 0
 
@@ -225,12 +231,12 @@ final class JoyConController {
 	var previousYButton = false
 
 	/// SR button on right joy-con
-	var rightSideTopButton = false
-	var previousRightSideTopButton = false
+	var backRightTopButton = false
+	var previousBackRightTopButton = false
 
 	/// SL on right joy-con
-	var rightSideBottomButton = false
-	var previousRightSideBottomButton = false
+	var backRightBottomButton = false
+	var previousBackRightBottomButton = false
 
 	/// contains left shoulder, left trigger, minus, capture and stick buttons
 	var rightSecondaryButtons:UInt8 = 0
@@ -266,21 +272,29 @@ final class JoyConController {
 	var rightStickY:Int16 = 0
 	var previousRightStickY:Int16 = 0
 
-	// inertial measurement unit (imu)
+	// MARK: - inertial measurement unit (imu)
 
+	/// pitch is when the nose of a plane goes up or down
+	/// think of a dolphin swimming
 	var rightGyroPitch:Int32 = 0
 	var previousRightGyroPitch:Int32 = 0
+
+	/// yaw is when the nose of a plane goes left or right
+	/// think of a shark swimming
 	var rightGyroYaw:Int32 = 0
 	var previousRightGyroYaw:Int32 = 0
+
+	/// roll is when the tips of the wings of a plane go up or down
+	/// think of a penguin walking
 	var rightGyroRoll:Int32 = 0
 	var previousRightGyroRoll:Int32 = 0
 
-	var rightAccelX:Float32 = 0
-	var previousRightAccelX:Float32 = 0
-	var rightAccelY:Float32 = 0
-	var previousRightAccelY:Float32 = 0
-	var rightAccelZ:Float32 = 0
-	var previousRightAccelZ:Float32 = 0
+	var rightAccelX:Int32 = 0
+	var previousRightAccelX:Int32 = 0
+	var rightAccelY:Int32 = 0
+	var previousRightAccelY:Int32 = 0
+	var rightAccelZ:Int32 = 0
+	var previousRightAccelZ:Int32 = 0
 
 	// battery
 	var batteryRightCharging = false
@@ -373,6 +387,8 @@ final class JoyConController {
 
 	}
 
+	// MARK: - Input reports
+
 	/// Gets called by GamePadMonitor
 	func parseReport(_ report:Data, controllerType:Int64) {
 
@@ -401,8 +417,8 @@ final class JoyConController {
 				self.downButton  = self.directionalPad & 0b0000_0010 == 0b0000_0010
 				self.leftButton  = self.directionalPad & 0b0000_0001 == 0b0000_0001
 
-				self.leftSideTopButton    = leftMainButtons & 0b0001_0000 == 0b0001_0000
-				self.leftSideBottomButton = leftMainButtons & 0b0010_0000 == 0b0010_0000
+				self.backLeftTopButton    = leftMainButtons & 0b0001_0000 == 0b0001_0000
+				self.backLeftBottomButton = leftMainButtons & 0b0010_0000 == 0b0010_0000
 
 				self.leftSecondaryButtons = report[2 + bluetoothOffset]
 
@@ -425,24 +441,24 @@ final class JoyConController {
 								leftTriggerButton: self.leftTriggerButton,
 								leftShoulderButton: self.leftShoulderButton,
 								minusButton: self.minusButton,
-								leftSideTopButton: self.leftSideTopButton,
-								leftSideBottomButton: self.leftSideBottomButton,
+								backLeftTopButton: self.backLeftTopButton,
+								backLeftBottomButton: self.backLeftBottomButton,
 								upButton: self.upButton,
 								rightButton: self.rightButton,
 								downButton: self.downButton,
 								leftButton: self.leftButton,
 								socialButton: self.captureButton,
 								leftStickButton: self.leftStickButton,
-								trackPadButton: false,
 								centralButton: false,
+								trackPadButton: false,
 								rightStickButton: self.rightStickButton,
 								rightAuxiliaryButton: self.homeButton,
 								faceNorthButton: self.xButton,
 								faceEastButton: self.aButton,
 								faceSouthButton: self.bButton,
 								faceWestButton: self.yButton,
-								rightSideBottomButton: self.rightSideBottomButton,
-								rightSideTopButton: self.rightSideTopButton,
+								backRightBottomButton: self.backRightBottomButton,
+								backRightTopButton: self.backRightTopButton,
 								plusButton: self.plusButton,
 								rightShoulderButton: self.rightShoulderButton,
 								rightTriggerButton: self.rightTriggerButton
@@ -459,8 +475,8 @@ final class JoyConController {
 					self.previousDownButton = self.downButton
 					self.previousLeftButton = self.leftButton
 
-					self.previousLeftSideTopButton = self.leftSideTopButton
-					self.previousLeftSideBottomButton = self.leftSideBottomButton
+					self.previousBackLeftTopButton = self.backLeftTopButton
+					self.previousBackLeftBottomButton = self.backLeftBottomButton
 
 					self.previousLeftSecondaryButtons = self.leftSecondaryButtons
 
@@ -540,8 +556,8 @@ final class JoyConController {
 				self.downButton  = self.directionalPad & 0b0000_0001 == 0b0000_0001
 				self.leftButton  = self.directionalPad & 0b0000_1000 == 0b0000_1000
 
-				self.leftSideTopButton    = leftMainButtons & 0b0010_0000 == 0b0010_0000
-				self.leftSideBottomButton = leftMainButtons & 0b0001_0000 == 0b0001_0000
+				self.backLeftTopButton    = leftMainButtons & 0b0010_0000 == 0b0010_0000
+				self.backLeftBottomButton = leftMainButtons & 0b0001_0000 == 0b0001_0000
 
 				self.leftShoulderButton = leftMainButtons & 0b0100_0000 == 0b0100_0000
 				self.leftTriggerButton  = leftMainButtons & 0b1000_0000 == 0b1000_0000
@@ -561,24 +577,24 @@ final class JoyConController {
 								leftTriggerButton: self.leftTriggerButton,
 								leftShoulderButton: self.leftShoulderButton,
 								minusButton: self.minusButton,
-								leftSideTopButton: self.leftSideTopButton,
-								leftSideBottomButton: self.leftSideBottomButton,
+								backLeftTopButton: self.backLeftTopButton,
+								backLeftBottomButton: self.backLeftBottomButton,
 								upButton: self.upButton,
 								rightButton: self.rightButton,
 								downButton: self.downButton,
 								leftButton: self.leftButton,
 								socialButton: self.captureButton,
 								leftStickButton: self.leftStickButton,
-								trackPadButton: false,
 								centralButton: false,
+								trackPadButton: false,
 								rightStickButton: self.rightStickButton,
 								rightAuxiliaryButton: self.homeButton,
 								faceNorthButton: self.xButton,
 								faceEastButton: self.aButton,
 								faceSouthButton: self.bButton,
 								faceWestButton: self.yButton,
-								rightSideBottomButton: self.rightSideBottomButton,
-								rightSideTopButton: self.rightSideTopButton,
+								backRightBottomButton: self.backRightBottomButton,
+								backRightTopButton: self.backRightTopButton,
 								plusButton: self.plusButton,
 								rightShoulderButton: self.rightShoulderButton,
 								rightTriggerButton: self.rightTriggerButton
@@ -595,8 +611,8 @@ final class JoyConController {
 					self.previousDownButton = self.downButton
 					self.previousLeftButton = self.leftButton
 
-					self.previousLeftSideTopButton = self.leftSideTopButton
-					self.previousLeftSideBottomButton = self.leftSideBottomButton
+					self.previousBackLeftTopButton = self.backLeftTopButton
+					self.previousBackLeftBottomButton = self.backLeftBottomButton
 
 					self.previousLeftSecondaryButtons = self.leftSecondaryButtons
 
@@ -617,6 +633,25 @@ final class JoyConController {
 				// print("report[12]: \(report[12])") // always 192!?
 
 				// MARK: left analog buttons
+
+				// FIXME review this. Test conversion with UInt and Int with sign bytes
+
+				// integers in little endian format
+				// bigger numbers (most significant bytes - msb) stored on bigger memory addresses
+				// 384 is stored as 128 256 or 0b1000_0000 0b0000_0001
+				// conversion to 32 bits must either go through 16 bits
+				// Int32(  Int16(byteArray[1])  << 8 | Int16(byteArray[0])  )
+				// or discard the sign bit of all bytes except the most significant one (untested)
+				// (  Int32(byteArray[1])  << 8 | Int32(byteArray[0])  ) & 0b1111_1111_0111_1111
+
+				// big endian would be more intuitive IMHO, but are not used here
+				// for completeness
+				// bigger numbers (most significant bytes - msb) stored on smaller memory addresses
+				// 384 is stored as 256 128 or 0b0000_0001 0b1000_0000
+				// conversion to 32 bits must either go through 16 bits
+				// Int32(  Int16(byteArray[0])  << 8 | Int16(byteArray[1])  )
+				// or discard the sign bit of all bytes except the most significant one (untested)
+				// (  Int32(byteArray[0])  << 8 | Int32(byteArray[1])  ) & 0b1111_1111_0111_1111
 
 				// TODO calibrate
 				self.leftStickX = Int16(report[7] & 0b0000_1111) << 8 | Int16(report[6]) // 12 bits actually
@@ -661,15 +696,14 @@ final class JoyConController {
 				// here I'm just getting 1 sample, maybe I should average the values? Or send a notification for each?
 
 				// ?? accelerometer data is in m/s²
-				// FIXME finish implementation
-				var rawLeftAccelX = Int32(Int16(report[14 + bluetoothOffset]) << 8 | Int16(report[13 + bluetoothOffset])) // TODO calibrate
-				var rawLeftAccelY = Int32(Int16(report[16 + bluetoothOffset]) << 8 | Int16(report[15 + bluetoothOffset])) // TODO calibrate
-				var rawLeftAccelZ = Int32(Int16(report[18 + bluetoothOffset]) << 8 | Int16(report[17 + bluetoothOffset])) // TODO calibrate
+				var rawLeftAccelX = Int32(report[14 + bluetoothOffset]) << 8 | Int32(report[13 + bluetoothOffset]) // TODO calibrate
+				var rawLeftAccelY = Int32(report[16 + bluetoothOffset]) << 8 | Int32(report[15 + bluetoothOffset]) // TODO calibrate
+				var rawLeftAccelZ = Int32(report[18 + bluetoothOffset]) << 8 | Int32(report[17 + bluetoothOffset]) // TODO calibrate
 
 				// ?? gyroscope data is in rad/s
-				self.leftGyroPitch = Int32(Int16(report[20 + bluetoothOffset]) << 8 | Int16(report[19 + bluetoothOffset])) // TODO calibrate
-				self.leftGyroYaw   = Int32(Int16(report[22 + bluetoothOffset]) << 8 | Int16(report[21 + bluetoothOffset])) // TODO calibrate
-				self.leftGyroRoll  = Int32(Int16(report[24 + bluetoothOffset]) << 8 | Int16(report[23 + bluetoothOffset])) // TODO calibrate
+				self.leftGyroPitch = Int32(report[20 + bluetoothOffset]) << 8 | Int32(report[19 + bluetoothOffset]) // TODO calibrate
+				self.leftGyroYaw   = Int32(report[22 + bluetoothOffset]) << 8 | Int32(report[21 + bluetoothOffset]) // TODO calibrate
+				self.leftGyroRoll  = Int32(report[24 + bluetoothOffset]) << 8 | Int32(report[23 + bluetoothOffset]) // TODO calibrate
 
 				/*
 				jc->accel.x = (float)(uint16_to_int16(packet[13] | (packet[14] << 8) & 0xFF00)) * jc->acc_cal_coeff[0];
@@ -967,8 +1001,8 @@ final class JoyConController {
 				self.bButton = self.faceButtons & 0b0000_0100 == 0b0000_0100
 				self.yButton = self.faceButtons & 0b0000_1000 == 0b0000_1000
 
-				self.rightSideTopButton    = rightMainButtons & 0b0010_0000 == 0b0010_0000
-				self.rightSideBottomButton = rightMainButtons & 0b0001_0000 == 0b0001_0000
+				self.backRightTopButton    = rightMainButtons & 0b0010_0000 == 0b0010_0000
+				self.backRightBottomButton = rightMainButtons & 0b0001_0000 == 0b0001_0000
 
 				self.rightSecondaryButtons = report[2 + bluetoothOffset]
 
@@ -993,24 +1027,24 @@ final class JoyConController {
 								leftTriggerButton: self.leftTriggerButton,
 								leftShoulderButton: self.leftShoulderButton,
 								minusButton: self.minusButton,
-								leftSideTopButton: self.leftSideTopButton,
-								leftSideBottomButton: self.leftSideBottomButton,
+								backLeftTopButton: self.backLeftTopButton,
+								backLeftBottomButton: self.backLeftBottomButton,
 								upButton: self.upButton,
 								rightButton: self.rightButton,
 								downButton: self.downButton,
 								leftButton: self.leftButton,
 								socialButton: self.captureButton,
 								leftStickButton: self.leftStickButton,
-								trackPadButton: false,
 								centralButton: false,
+								trackPadButton: false,
 								rightStickButton: self.rightStickButton,
 								rightAuxiliaryButton: self.homeButton,
 								faceNorthButton: self.xButton,
 								faceEastButton: self.aButton,
 								faceSouthButton: self.bButton,
 								faceWestButton: self.yButton,
-								rightSideBottomButton: self.rightSideBottomButton,
-								rightSideTopButton: self.rightSideTopButton,
+								backRightBottomButton: self.backRightBottomButton,
+								backRightTopButton: self.backRightTopButton,
 								plusButton: self.plusButton,
 								rightShoulderButton: self.rightShoulderButton,
 								rightTriggerButton: self.rightTriggerButton
@@ -1027,8 +1061,8 @@ final class JoyConController {
 					self.previousBButton = self.bButton
 					self.previousYButton = self.yButton
 
-					self.previousRightSideTopButton = self.rightSideTopButton
-					self.previousRightSideBottomButton = self.rightSideBottomButton
+					self.previousBackRightTopButton = self.backRightTopButton
+					self.previousBackRightBottomButton = self.backRightBottomButton
 
 					self.previousRightSecondaryButtons = self.rightSecondaryButtons
 
@@ -1112,8 +1146,8 @@ final class JoyConController {
 				self.aButton = self.faceButtons & 0b0000_0001 == 0b0000_0001
 				self.bButton = self.faceButtons & 0b0000_1000 == 0b0000_1000
 
-				self.rightSideTopButton    = rightMainButtons & 0b0010_0000 == 0b0010_0000
-				self.rightSideBottomButton = rightMainButtons & 0b0001_0000 == 0b0001_0000
+				self.backRightTopButton    = rightMainButtons & 0b0010_0000 == 0b0010_0000
+				self.backRightBottomButton = rightMainButtons & 0b0001_0000 == 0b0001_0000
 
 				self.rightShoulderButton = rightMainButtons & 0b0100_0000 == 0b0100_0000
 				self.rightTriggerButton  = rightMainButtons & 0b1000_0000 == 0b1000_0000
@@ -1139,24 +1173,24 @@ final class JoyConController {
 								leftTriggerButton: self.leftTriggerButton,
 								leftShoulderButton: self.leftShoulderButton,
 								minusButton: self.minusButton,
-								leftSideTopButton: self.leftSideTopButton,
-								leftSideBottomButton: self.leftSideBottomButton,
+								backLeftTopButton: self.backLeftTopButton,
+								backLeftBottomButton: self.backLeftBottomButton,
 								upButton: self.upButton,
 								rightButton: self.rightButton,
 								downButton: self.downButton,
 								leftButton: self.leftButton,
 								socialButton: self.captureButton,
 								leftStickButton: self.leftStickButton,
-								trackPadButton: false,
 								centralButton: false,
+								trackPadButton: false,
 								rightStickButton: self.rightStickButton,
 								rightAuxiliaryButton: self.homeButton,
 								faceNorthButton: self.xButton,
 								faceEastButton: self.aButton,
 								faceSouthButton: self.bButton,
 								faceWestButton: self.yButton,
-								rightSideBottomButton: self.rightSideBottomButton,
-								rightSideTopButton: self.rightSideTopButton,
+								backRightBottomButton: self.backRightBottomButton,
+								backRightTopButton: self.backRightTopButton,
 								plusButton: self.plusButton,
 								rightShoulderButton: self.rightShoulderButton,
 								rightTriggerButton: self.rightTriggerButton
@@ -1173,8 +1207,8 @@ final class JoyConController {
 					self.previousBButton = self.bButton
 					self.previousYButton = self.yButton
 
-					self.previousRightSideTopButton = self.rightSideTopButton
-					self.previousRightSideBottomButton = self.rightSideBottomButton
+					self.previousBackRightTopButton = self.backRightTopButton
+					self.previousBackRightBottomButton = self.backRightBottomButton
 
 					self.previousRightSecondaryButtons = self.rightSecondaryButtons
 
@@ -1399,8 +1433,7 @@ final class JoyConController {
 
 	func toggleVibration(device:IOHIDDevice, enable:Bool) -> Bool {
 
-		let joyConToggleVibrationReportLength = 49
-		var buffer = [UInt8](repeating: 0, count: joyConToggleVibrationReportLength)
+		var buffer = [UInt8](repeating: 0, count: 49)
 
 		buffer[0] = JoyConController.OUTPUT_REPORT_ID_RUMBLE_SEND_SUB_TYPE
 		buffer[1] = JoyConController.outputReportIterator
@@ -1490,8 +1523,7 @@ final class JoyConController {
 		Tests showed charging stops at 1680 and the controller turns off at 1320.
 		*/
 
-		let joyConBatteryVoltageReportLength = 49
-		var buffer = [UInt8](repeating: 0, count: joyConBatteryVoltageReportLength)
+		var buffer = [UInt8](repeating: 0, count: 49)
 
 		buffer[0] = JoyConController.OUTPUT_REPORT_ID_RUMBLE_SEND_SUB_TYPE
 		buffer[1] = JoyConController.outputReportIterator
@@ -1533,8 +1565,7 @@ final class JoyConController {
 
 	func toggleIMU(device:IOHIDDevice, enable:Bool) -> Bool {
 
-		let joyConToggleIMUReportLength = 49
-		var buffer = [UInt8](repeating: 0, count: joyConToggleIMUReportLength)
+		var buffer = [UInt8](repeating: 0, count: 49)
 
 		buffer[0] = JoyConController.OUTPUT_REPORT_ID_RUMBLE_SEND_SUB_TYPE
 		buffer[1] = JoyConController.outputReportIterator
@@ -1557,12 +1588,10 @@ final class JoyConController {
 		// sub report type parameter 1
 		buffer[11] = enable ? 0x01 : 0x00
 
-		let reportId = Int(buffer[0])
-
 		let toggleSuccess = IOHIDDeviceSetReport(
 			device,
 			kIOHIDReportTypeOutput,
-			reportId,
+			Int(buffer[0]), // Report ID
 			buffer,
 			buffer.count
 		);
@@ -1591,8 +1620,7 @@ final class JoyConController {
 
 	func imuSettings(device:IOHIDDevice) -> Bool {
 
-		let joyConIMUSettingsReportLength = 49
-		var buffer = [UInt8](repeating: 0, count: joyConIMUSettingsReportLength)
+		var buffer = [UInt8](repeating: 0, count: 49)
 
 		buffer[0] = JoyConController.OUTPUT_REPORT_ID_RUMBLE_SEND_SUB_TYPE
 		buffer[1] = JoyConController.outputReportIterator
@@ -1636,12 +1664,10 @@ final class JoyConController {
 		// 01 100Hz (default)
 		buffer[14] = 0x01
 
-		let reportId = Int(buffer[0])
-
 		let success = IOHIDDeviceSetReport(
 			device,
 			kIOHIDReportTypeOutput,
-			reportId,
+			Int(buffer[0]), // Report ID
 			buffer,
 			buffer.count
 		);
@@ -1810,8 +1836,7 @@ final class JoyConController {
 		x35 	Unknown mode.
 		*/
 
-		let joyConSetInputReportReportLength = 49
-		var buffer = [UInt8](repeating: 0, count: joyConSetInputReportReportLength)
+		var buffer = [UInt8](repeating: 0, count: 49)
 
 		buffer[0] = JoyConController.OUTPUT_REPORT_ID_RUMBLE_SEND_SUB_TYPE
 		buffer[1] = JoyConController.outputReportIterator
@@ -1834,12 +1859,10 @@ final class JoyConController {
 		// sub report type parameter 1
 		buffer[11] = inputReportId
 
-		let reportId = Int(buffer[0])
-
 		let success = IOHIDDeviceSetReport(
 			device,
 			kIOHIDReportTypeOutput,
-			reportId,
+			Int(buffer[0]), // Report ID
 			buffer,
 			buffer.count
 		);
@@ -1861,8 +1884,7 @@ final class JoyConController {
 			return false
 		}
 
-		let joyConSpiFlashReadReportLength = 49
-		var buffer = [UInt8](repeating: 0, count: joyConSpiFlashReadReportLength)
+		var buffer = [UInt8](repeating: 0, count: Int(49))
 
 		buffer[0] = JoyConController.OUTPUT_REPORT_ID_RUMBLE_SEND_SUB_TYPE
 		buffer[1] = JoyConController.outputReportIterator
@@ -1892,12 +1914,10 @@ final class JoyConController {
 		// 1 byte for an UInt8 size
 		buffer[15] = size
 
-		let reportId = Int(buffer[0])
-
 		let success = IOHIDDeviceSetReport(
 			device,
 			kIOHIDReportTypeOutput,
-			reportId,
+			Int(buffer[0]), // Report ID
 			buffer,
 			buffer.count
 		);
@@ -2157,8 +2177,7 @@ final class JoyConController {
 		x24 High/Low 	Fading/LED Duration Multipliers for MC 15
 		*/
 
-		let joyConSetPlayerLightsReportLength = 49
-		var buffer = [UInt8](repeating: 0, count: joyConSetPlayerLightsReportLength)
+		var buffer = [UInt8](repeating: 0, count: 49)
 
 		buffer[0] = JoyConController.OUTPUT_REPORT_ID_RUMBLE_SEND_SUB_TYPE
 		buffer[1] = JoyConController.outputReportIterator
@@ -2220,12 +2239,10 @@ final class JoyConController {
 		// sub report type parameter 1
 		buffer[11] = leds
 
-		let reportId = Int(buffer[0])
-
 		let success = IOHIDDeviceSetReport(
 			device,
 			kIOHIDReportTypeOutput,
-			reportId,
+			Int(buffer[0]), // Report ID
 			buffer,
 			buffer.count
 		);

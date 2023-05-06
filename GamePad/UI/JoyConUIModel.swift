@@ -1,5 +1,5 @@
 //
-//  XboxSeriesXSUIModel.swift
+//  Xbox360UIModel.swift
 //  GamePad
 //
 //  Created by Marco Luglio on 15/06/20.
@@ -11,46 +11,71 @@ import Combine
 
 
 
-class XboxSeriesXSUIModel: ObservableObject {
+class JoyConUIModel: ObservableObject {
 
 	var leftTrigger:Float = 0
 	var leftTriggerButton = false
 	var leftShoulderButton = false
 
+	var minusButton = false
+
 	var leftStickButton = false
 	var leftStickX:Float = 0
 	var leftStickY:Float = 0
+
+	var leftSideTopButton = false
 
 	var upButton = false
 	var rightButton = false
 	var downButton = false
 	var leftButton = false
 
-	var backButton = false
+	var captureButton = false
 
-	var xboxButton = false
-	var uploadButton = false
+	var leftSideBottomButton = false
+	var rightSideBottomButton = false
 
-	var startButton = false
+	var leftGyroPitch:Int32 = 0
+	var leftGyroYaw:Int32 = 0
+	var leftGyroRoll:Int32 = 0
+
+	var leftAccelX:Float32 = 0
+	var leftAccelY:Float32 = 0
+	var leftAccelZ:Float32 = 0
+
+
+
+	var homeButton = false
 
 	var rightStickX:Float = 0
 	var rightStickY:Float = 0
 	var rightStickButton = false
 
-	var yButton = false
-	var bButton = false
-	var aButton = false
+	var rightSideTopButton = false
+
 	var xButton = false
+	var aButton = false
+	var bButton = false
+	var yButton = false
+
+	var plusButton = false
 
 	var rightShoulderButton = false
 	var rightTriggerButton = false
 	var rightTrigger:Float = 0
 
-	// TODO LED here
+	var rightGyroPitch:Int32 = 0
+	var rightGyroYaw:Int32 = 0
+	var rightGyroRoll:Int32 = 0
+
+	var rightAccelX:Float32 = 0
+	var rightAccelY:Float32 = 0
+	var rightAccelZ:Float32 = 0
 
 	var isConnected = false
 	var isCharging = false
-	var battery:Float = 0
+	var leftBattery:Float = 0
+	var rightBattery:Float = 0
 
 	let objectWillChange = ObservableObjectPublisher()
 
@@ -72,13 +97,21 @@ class XboxSeriesXSUIModel: ObservableObject {
 				object: nil
 			)
 
-		/*NotificationCenter.default
+		NotificationCenter.default
 			.addObserver(
 				self,
-				selector: #selector(self.updateLed),
-				name: Xbox360ChangeLedNotification.Name,
+				selector: #selector(self.updateIMU),
+				name: GamepadIMUChangedNotification.Name,
 				object: nil
-			)*/
+			)
+
+		/*NotificationCenter.default
+		.addObserver(
+			self,
+			selector: #selector(self.updateLed),
+			name: JoyConChangeLedNotification.Name,
+			object: nil
+		)*/
 
 		NotificationCenter.default
 			.addObserver(
@@ -96,19 +129,24 @@ class XboxSeriesXSUIModel: ObservableObject {
 
 		self.leftTriggerButton = o.leftTriggerButton
 		self.leftShoulderButton = o.leftShoulderButton
+		self.minusButton = o.minusButton
+		self.leftStickButton = o.leftStickButton
+		self.leftSideTopButton = o.backLeftTopButton
 		self.upButton = o.upButton
 		self.rightButton = o.rightButton
 		self.downButton = o.downButton
 		self.leftButton = o.leftButton
-		self.backButton = o.socialButton
-		self.leftStickButton = o.leftStickButton
-		self.xboxButton = o.centralButton
+		self.captureButton = o.socialButton
+		self.leftSideBottomButton = o.backLeftBottomButton
+		self.rightSideBottomButton = o.backRightBottomButton
+		self.homeButton = o.rightAuxiliaryButton
 		self.rightStickButton = o.rightStickButton
-		self.startButton = o.rightAuxiliaryButton
-		self.yButton = o.faceNorthButton
-		self.bButton = o.faceEastButton
-		self.aButton = o.faceSouthButton
-		self.xButton = o.faceWestButton
+		self.rightSideTopButton = o.backRightTopButton
+		self.xButton = o.faceNorthButton
+		self.aButton = o.faceEastButton
+		self.bButton = o.faceSouthButton
+		self.yButton = o.faceWestButton
+		self.plusButton = o.plusButton
 		self.rightShoulderButton = o.rightShoulderButton
 		self.rightTriggerButton = o.rightTriggerButton
 
@@ -120,41 +158,43 @@ class XboxSeriesXSUIModel: ObservableObject {
 
 		let o = notification.object as! GamepadAnalogChangedNotification
 
-		self.leftTrigger = Float32(o.leftTrigger) * 256 / Float32(o.triggerMax)
+		self.leftTrigger = Float(o.leftTrigger)
 
-		// scales values to fit the Coords2d size
+		self.leftStickX = Float(o.leftStickX)
+		self.leftStickY = Float(o.leftStickY)
 
-		let coords2dSize:Float64 = 40
-		let stickMiddleValue = (Int32(o.stickMax) / 2) + 1
+		self.rightStickX = Float(o.rightStickX)
+		self.rightStickY = Float(o.rightStickY)
 
-		self.leftStickX = Float32(Float64(Int32(o.leftStickX) - stickMiddleValue) * coords2dSize / Float64(stickMiddleValue))
-		self.leftStickY = Float32(Float64(Int32(o.leftStickY) - stickMiddleValue) * coords2dSize / Float64(stickMiddleValue))
-		self.rightStickX = Float32(Float64(Int32(o.rightStickX) - stickMiddleValue) * coords2dSize / Float64(stickMiddleValue))
-		self.rightStickY = Float32(Float64(Int32(o.rightStickY) - stickMiddleValue) * coords2dSize / Float64(stickMiddleValue))
-
-		self.rightTrigger = Float32(o.rightTrigger) * 256 / Float32(o.triggerMax)
+		self.rightTrigger = Float(o.rightTrigger)
 
 		objectWillChange.send()
 
 	}
 
-	/*
-	@objc func updateLed(_ notification:Notification) {
+	@objc func updateIMU(_ notification:Notification) {
 
-		let o = notification.object as! Xbox360ChangeLedNotification
+		let o = notification.object as! GamepadIMUChangedNotification
 
-		self.red = Double(o.red) // pattern here
+		// TODO right joy-con
+
+		self.leftGyroPitch = o.gyroPitch
+		self.leftGyroYaw = o.gyroYaw
+		self.leftGyroRoll = o.gyroRoll
+
+		self.leftAccelX = o.accelX
+		self.leftAccelY = o.accelY
+		self.leftAccelZ = o.accelZ
 
 		objectWillChange.send()
 
 	}
-	*/
 
 	@objc func updateBattery(_ notification:Notification) {
 
 		let o = notification.object as! GamepadBatteryChangedNotification
 
-		self.battery = Float(o.battery)
+		self.leftBattery = Float(o.battery) // TODO right joy-con
 		self.isConnected = o.isConnected
 		self.isCharging = o.isCharging
 

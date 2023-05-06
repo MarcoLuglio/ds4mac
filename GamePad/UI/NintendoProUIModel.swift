@@ -11,7 +11,7 @@ import Combine
 
 
 
-class JoyConUIModel: ObservableObject {
+class NintendoProUIModel: ObservableObject {
 
 	var leftTrigger:Float = 0
 	var leftTriggerButton = false
@@ -74,8 +74,7 @@ class JoyConUIModel: ObservableObject {
 
 	var isConnected = false
 	var isCharging = false
-	var leftBattery:Float = 0
-	var rightBattery:Float = 0
+	var battery:Float = 0
 
 	let objectWillChange = ObservableObjectPublisher()
 
@@ -131,17 +130,17 @@ class JoyConUIModel: ObservableObject {
 		self.leftShoulderButton = o.leftShoulderButton
 		self.minusButton = o.minusButton
 		self.leftStickButton = o.leftStickButton
-		self.leftSideTopButton = o.leftSideTopButton
+		self.leftSideTopButton = o.backLeftTopButton
 		self.upButton = o.upButton
 		self.rightButton = o.rightButton
 		self.downButton = o.downButton
 		self.leftButton = o.leftButton
 		self.captureButton = o.socialButton
-		self.leftSideBottomButton = o.leftSideBottomButton
-		self.rightSideBottomButton = o.rightSideBottomButton
+		self.leftSideBottomButton = o.backLeftBottomButton
+		self.rightSideBottomButton = o.backRightBottomButton
 		self.homeButton = o.rightAuxiliaryButton
 		self.rightStickButton = o.rightStickButton
-		self.rightSideTopButton = o.rightSideTopButton
+		self.rightSideTopButton = o.backRightTopButton
 		self.xButton = o.faceNorthButton
 		self.aButton = o.faceEastButton
 		self.bButton = o.faceSouthButton
@@ -194,7 +193,7 @@ class JoyConUIModel: ObservableObject {
 
 		let o = notification.object as! GamepadBatteryChangedNotification
 
-		self.leftBattery = Float(o.battery) // TODO right joy-con
+		self.battery = Float(o.battery)
 		self.isConnected = o.isConnected
 		self.isCharging = o.isCharging
 

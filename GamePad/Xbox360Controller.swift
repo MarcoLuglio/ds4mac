@@ -2,7 +2,7 @@
 //  Xbox360Controller.swift
 //  GamePad
 //
-//  Created by Marco Luglio on 30/05/20.
+//  Created by Marco Luglio on 30/may/20.
 //  Copyright © 2020 Marco Luglio. All rights reserved.
 //
 
@@ -15,10 +15,10 @@ final class Xbox360Controller {
 	static let VENDOR_ID_MICROSOFT:Int64 = 0x045E // 1118
 
 	static let CONTROLLER_ID_XBOX_360:Int64 = 0x028E // 654
-	static let CONTROLLER_ID_XBOX_360_WIRELESS:Int64 = 0x028F // ??
+	static let CONTROLLER_ID_XBOX_360_WIRELESS:Int64 = 0x028F // 655
 
-	static let CONTROLLER_ID_XBOX_WIRELESS_DONGLE:Int64 = 0x0291 // v1??
-	static let CONTROLLER_ID_XBOX_WIRELESS_DONGLE_V2:Int64 = 0x02E6 // ??
+	static let CONTROLLER_ID_XBOX_WIRELESS_DONGLE:Int64 = 0x0291 // 657
+	static let CONTROLLER_ID_XBOX_WIRELESS_DONGLE_V2:Int64 = 0x02E6 // 742
 
 	static var nextId:UInt8 = 0
 
@@ -35,19 +35,19 @@ final class Xbox360Controller {
 	var mainButtons:UInt8 = 0
 	var previousMainButtons:UInt8 = 0
 
-	// top button
+	// face north button
 	var yButton = false
 	var previousYButton = false
 
-	// right button
+	// face east button
 	var bButton = false
 	var previousBButton = false
 
-	// bottom button
+	// face south button
 	var aButton = false
 	var previousAButton = false
 
-	// left button
+	// face west button
 	var xButton = false
 	var previousXButton = false
 
@@ -69,8 +69,8 @@ final class Xbox360Controller {
 	var directionalPad:UInt8 = 0
 	var previousDirectionalPad:UInt8 = 0
 
-	var topButton = false
-	var previousTopButton = false
+	var upButton = false
+	var previousUpButton = false
 	var rightButton = false
 	var previousRightButton = false
 	var downButton = false
@@ -174,6 +174,8 @@ final class Xbox360Controller {
 
 	}
 
+	// MARK: - Input reports
+
 	/// Gets called by GamePadMonitor
 	func parseReport(_ report:Data) {
 
@@ -182,6 +184,8 @@ final class Xbox360Controller {
 
 		// report[0] // always 0x00
 		// report[1] // always 0x14
+
+		// MARK: digital buttons
 
 		self.mainButtons = report[3]
 
@@ -225,9 +229,9 @@ final class Xbox360Controller {
 					object: GamepadButtonChangedNotification(
 						leftTriggerButton: self.leftTriggerButton,
 						leftShoulderButton: self.leftShoulderButton,
-						minusButton:false,
-						leftSideTopButton:false,
-						leftSideBottomButton:false,
+						minusButton: false,
+						backLeftTopButton: false,
+						backLeftBottomButton: false,
 						// TODO maybe save the dpad states individually?
 						upButton:    self.directionalPad & 0b0000_0001 == 0b0000_0001,
 						rightButton: self.directionalPad & 0b0000_1000 == 0b0000_1000,
@@ -235,17 +239,17 @@ final class Xbox360Controller {
 						leftButton:  self.directionalPad & 0b0000_0100 == 0b0000_0100,
 						socialButton: self.backButton,
 						leftStickButton: self.leftStickButton,
-						trackPadButton: false,
 						centralButton: self.xboxButton,
+						trackPadButton: false,
 						rightStickButton: self.rightStickButton,
 						rightAuxiliaryButton: self.startButton,
 						faceNorthButton: self.yButton,
 						faceEastButton: self.bButton,
 						faceSouthButton: self.aButton,
 						faceWestButton: self.xButton,
-						rightSideBottomButton:false,
-						rightSideTopButton:false,
-						plusButton:false,
+						backRightBottomButton: false,
+						backRightTopButton: false,
+						plusButton: false,
 						rightShoulderButton: self.rightShoulderButton,
 						rightTriggerButton: self.rightTriggerButton
 					)
@@ -276,14 +280,34 @@ final class Xbox360Controller {
 
 		}
 
-		// analog buttons
+		// MARK: analog buttons
+
 		// origin middle
 		// but converting to origin left top for xbox one compatibility
 
-		self.leftStickX  = UInt16(  Int32(  (Int16(report[7])  << 8 | Int16(report[6]))   ) + 32768)
-		self.leftStickY  = UInt16(  Int32(  (Int16(report[9])  << 8 | Int16(report[8]))   ) + 32768)
-		self.rightStickX = UInt16(  Int32(  (Int16(report[11]) << 8 | Int16(report[10]))  ) + 32768)
-		self.rightStickY = UInt16(  Int32(  (Int16(report[13]) << 8 | Int16(report[12]))  ) + 32768)
+		// FIXME review this. Test conversion with UInt and Int with sign bytes
+
+		// integers in little endian format (signed or unsigned?)
+		// bigger numbers (most significant bytes - msb) stored on bigger memory addresses
+		// 384 is stored as 128 256 or 0b1000_0000 0b0000_0001
+		// conversion to 32 bits must either go through 16 bits
+		// Int32(  Int16(byteArray[1])  << 8 | Int16(byteArray[0])  )
+		// or discard the sign bit of all bytes except the most significant one (untested)
+		// (  Int32(byteArray[1])  << 8 | Int32(byteArray[0])  ) & 0b1111_1111_0111_1111
+
+		// big endian would be more intuitive IMHO, but are not used here
+		// for completeness
+		// bigger numbers (most significant bytes - msb) stored on smaller memory addresses
+		// 384 is stored as 256 128 or 0b0000_0001 0b1000_0000
+		// conversion to 32 bits must either go through 16 bits
+		// Int32(  Int16(byteArray[0])  << 8 | Int16(byteArray[1])  )
+		// or discard the sign bit of all bytes except the most significant one (untested)
+		// (  Int32(byteArray[0])  << 8 | Int32(byteArray[1])  ) & 0b1111_1111_0111_1111
+
+		self.leftStickX  = UInt16(  Int32(  (  Int16(report[7])  << 8 | Int16(report[6])   )  ) + 32768)
+		self.leftStickY  = UInt16(  Int32(  (  Int16(report[9])  << 8 | Int16(report[8])   )  ) + 32768)
+		self.rightStickX = UInt16(  Int32(  (  Int16(report[11]) << 8 | Int16(report[10])  )  ) + 32768)
+		self.rightStickY = UInt16(  Int32(  (  Int16(report[13]) << 8 | Int16(report[12])  )  ) + 32768)
 
 		if self.previousLeftStickX != self.leftStickX
 			|| self.previousLeftStickY != self.leftStickY

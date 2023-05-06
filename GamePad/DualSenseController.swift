@@ -10,12 +10,10 @@ import Foundation
 
 
 
-final class DualShock4Controller {
+final class DualSenseController {
 
 	static let VENDOR_ID_SONY:Int64 = 0x054C // 1356
-	static let CONTROLLER_ID_DUALSHOCK_4_USB:Int64 = 0x05C4 // 1476
-	static let CONTROLLER_ID_DUALSHOCK_4_USB_V2:Int64 = 0x09CC // 2508, this controller has an led strip above the trackpad
-	static let CONTROLLER_ID_DUALSHOCK_4_BLUETOOTH:Int64 = 0x081F // 2079
+	static let CONTROLLER_ID_DUALSENSE:Int64 = 0x0Df2 // 3570 usb and bluetooth have the same id
 
 	static var nextId:UInt8 = 0
 
@@ -71,6 +69,10 @@ final class DualShock4Controller {
 	var secondaryButtons:UInt8 = 0
 	var previousSecondaryButtons:UInt8 = 0
 
+	/// contains the function buttons, paddles, mute, ps and touchpad buttons
+	var edgeButtons:UInt8 = 0
+	var previousEdgeButtons:UInt8 = 0
+
 	// MARK: shoulder buttons
 
 	/// left shoulder button
@@ -113,6 +115,21 @@ final class DualShock4Controller {
 
 	var psButton = false
 	var previousPsButton = false
+
+	var muteButton = false
+	var previousMuteButton = false
+
+	var leftFnButton = false
+	var previousLeftFnButton = false
+
+	var rightFnButton = false
+	var previousRightFnButton = false
+
+	var leftPaddle = false
+	var previousLeftPaddle = false
+
+	var rightPaddle = false
+	var previousRightPaddle = false
 
 	// MARK: - analog buttons
 
@@ -213,8 +230,8 @@ final class DualShock4Controller {
 
 	init(_ device:IOHIDDevice, productID:Int64, transport:String, enableIMUReport:Bool) {
 
-		self.id = DualShock4Controller.nextId
-		DualShock4Controller.nextId = DualShock4Controller.nextId + 1
+		self.id = DualSenseController.nextId
+		DualSenseController.nextId = DualSenseController.nextId + 1
 
 		self.transport = transport
 		if self.transport == "Bluetooth" {
@@ -227,11 +244,12 @@ final class DualShock4Controller {
 
 		IOHIDDeviceOpen(self.device, IOOptionBits(kIOHIDOptionsTypeNone)) // or kIOHIDManagerOptionUsePersistentProperties
 
+		/*
 		NotificationCenter.default
 			.addObserver(
 				self,
 				selector: #selector(self.changeRumble),
-				name: DualShock4ChangeRumbleNotification.Name,
+				name: DualSenseChangeRumbleNotification.Name,
 				object: nil
 			)
 
@@ -239,9 +257,10 @@ final class DualShock4Controller {
 			.addObserver(
 				self,
 				selector: #selector(self.setLed),
-				name: DualShock4ChangeLedNotification.Name,
+				name: DualSenseChangeLedNotification.Name,
 				object: nil
 			)
+		 */
 
 		if self.enableIMUReport {
 			self.requestCalibrationDataReport()
@@ -302,11 +321,11 @@ final class DualShock4Controller {
 		self.time = Date()
 		self.timeInterval = self.time.timeIntervalSince(self.previousTime) * 1_000_000
 
-		let bluetoothOffset = self.isBluetooth ? 2 : 0
+		let bluetoothOffset = self.isBluetooth ? 2 : 0 // TODO check later
 
 		// MARK: digital buttons
 
-		self.mainButtons = report[5 + bluetoothOffset]
+		self.mainButtons = report[8 + bluetoothOffset]
 
 		self.triangleButton = self.mainButtons & 0b1000_0000 == 0b1000_0000
 		self.circleButton   = self.mainButtons & 0b0100_0000 == 0b0100_0000
@@ -315,7 +334,7 @@ final class DualShock4Controller {
 
 		self.directionalPad = self.mainButtons & 0b00001111
 
-		self.secondaryButtons = report[6 + bluetoothOffset]
+		self.secondaryButtons = report[9 + bluetoothOffset]
 
 		self.l1            = self.secondaryButtons & 0b0000_0001 == 0b0000_0001
 		self.r1            = self.secondaryButtons & 0b0000_0010 == 0b0000_0010
@@ -328,15 +347,23 @@ final class DualShock4Controller {
 		self.shareButton   = self.secondaryButtons & 0b0001_0000 == 0b0001_0000
 		self.optionsButton = self.secondaryButtons & 0b0010_0000 == 0b0010_0000
 
-		self.psButton =       report[7 + bluetoothOffset] & 0b0000_0001 == 0b0000_0001
-		self.touchpadButton = report[7 + bluetoothOffset] & 0b0000_0010 == 0b0000_0010
+		self.edgeButtons = report[10 + bluetoothOffset]
+
+		self.psButton =       self.edgeButtons & 0b0000_0001 == 0b0000_0001
+		self.touchpadButton = self.edgeButtons & 0b0000_0010 == 0b0000_0010
+		self.muteButton =     self.edgeButtons & 0b0000_0100 == 0b0000_0100
+
+		self.leftFnButton =   self.edgeButtons & 0b0001_0000 == 0b0001_0000
+		self.rightFnButton =  self.edgeButtons & 0b0010_0000 == 0b0010_0000
+
+		self.leftPaddle =     self.edgeButtons & 0b0100_0000 == 0b0100_0000
+		self.rightPaddle =    self.edgeButtons & 0b1000_0000 == 0b1000_0000
 
 		self.reportIterator = report[7 + bluetoothOffset] >> 2 // [7] 	Counter (counts up by 1 per report), I guess this is only relevant to bluetooth
 
 		if self.previousMainButtons != self.mainButtons
 			|| self.previousSecondaryButtons != self.secondaryButtons
-			|| self.previousPsButton != self.psButton
-			|| self.previousTouchpadButton != self.touchpadButton
+			|| self.previousEdgeButtons != self.edgeButtons
 		{
 
 			DispatchQueue.main.async {
@@ -346,8 +373,8 @@ final class DualShock4Controller {
 						leftTriggerButton: self.l2,
 						leftShoulderButton: self.l1,
 						minusButton: false,
-						backLeftTopButton: false,
-						backLeftBottomButton: false,
+						backLeftTopButton: self.leftFnButton,
+						backLeftBottomButton: self.leftPaddle,
 						// TODO maybe save the dpad states individually?
 						upButton: (self.directionalPad == DualShock4Direction.up.rawValue || self.directionalPad == DualShock4Direction.rightUp.rawValue || self.directionalPad == DualShock4Direction.leftUp.rawValue),
 						rightButton: (self.directionalPad == DualShock4Direction.right.rawValue || self.directionalPad == DualShock4Direction.rightUp.rawValue || self.directionalPad == DualShock4Direction.rightDown.rawValue),
@@ -357,14 +384,15 @@ final class DualShock4Controller {
 						leftStickButton: self.l3,
 						centralButton: self.psButton,
 						trackPadButton: self.touchpadButton,
+						// TODO mute button
 						rightStickButton: self.r3,
 						rightAuxiliaryButton: self.optionsButton,
 						faceNorthButton: self.triangleButton,
 						faceEastButton: self.circleButton,
 						faceSouthButton: self.crossButton,
 						faceWestButton: self.squareButton,
-						backRightBottomButton: false,
-						backRightTopButton: false,
+						backRightBottomButton: self.rightPaddle,
+						backRightTopButton: self.rightFnButton,
 						plusButton: false,
 						rightShoulderButton: self.r1,
 						rightTriggerButton: self.r2
@@ -393,15 +421,19 @@ final class DualShock4Controller {
 			self.previousShareButton = self.shareButton
 			self.previousOptionsButton = self.optionsButton
 
+			self.previousEdgeButtons = self.edgeButtons
+
 			self.previousPsButton = self.psButton
 			self.previousTouchpadButton = self.touchpadButton
 
-		}
+			self.previousMuteButton = self.muteButton
 
-		// If the report with inertial motion unit (imu) data has not been enabled yet
-		// TODO check this and the trigger data below. also, the trackpad button is read before that
-		if report.count < 11 {
-			return
+			self.previousLeftFnButton = self.leftFnButton
+			self.previousRightFnButton = self.rightFnButton
+
+			self.previousLeftPaddle = self.leftPaddle
+			self.previousRightPaddle = self.rightPaddle
+
 		}
 
 		// MARK: analog buttons
@@ -412,8 +444,8 @@ final class DualShock4Controller {
 		self.leftStickY   = report[2 + bluetoothOffset] // 0 up
 		self.rightStickX  = report[3 + bluetoothOffset]
 		self.rightStickY  = report[4 + bluetoothOffset]
-		self.leftTrigger  = report[8 + bluetoothOffset] // 0 - 255
-		self.rightTrigger = report[9 + bluetoothOffset] // 0 - 255
+		self.leftTrigger  = report[5 + bluetoothOffset] // 0 - 255
+		self.rightTrigger = report[6 + bluetoothOffset] // 0 - 255
 
 		if self.previousLeftStickX != self.leftStickX
 			|| self.previousLeftStickY != self.leftStickY
@@ -450,9 +482,15 @@ final class DualShock4Controller {
 
 		// MARK: timestamp
 
+		// If the report with inertial motion unit (imu) data has not been enabled yet
+		// TODO check this and the trigger data below. also, the trackpad button is read before that
+		if report.count < 11 {
+			return
+		}
+
 		self.previousReportTime = self.reportTime
 		// Am I converting this wrong? Check endianess comment below
-		self.reportTime = Int32(Int16(report[11 + bluetoothOffset]) << 8 | Int16(report[10 + bluetoothOffset])) // this is little endian
+		self.reportTime = Int32(Int16(report[12 + bluetoothOffset]) << 8 | Int16(report[13 + bluetoothOffset])) // this is little endian
 		self.reportTimeInterval = self.reportTime - self.previousReportTime
 		if self.reportTimeInterval < 0 {
 			self.reportTimeInterval += UINT16_MAX
@@ -613,6 +651,7 @@ final class DualShock4Controller {
 			//print(self.previousAccelY) // PAREI AQUI
 		}*/
 
+		/*
 		self.applyCalibration(
 			pitch: &self.gyroPitch,
 			yaw: &self.gyroYaw,
@@ -624,6 +663,7 @@ final class DualShock4Controller {
 			accelY: &self.accelY,
 			accelZ: &self.accelZ
 		)
+		*/
 
 		if self.previousGyroPitch != self.gyroPitch
 			|| self.previousGyroYaw != self.gyroYaw
@@ -659,6 +699,7 @@ final class DualShock4Controller {
 
 		// MARK: battery
 
+		print(String(report[30 + bluetoothOffset], radix: 2))
 		self.cableConnected = ((report[30 + bluetoothOffset] >> 4) & 0b0000_0001) == 1
 		self.batteryLevel = report[30 + bluetoothOffset] & 0b0000_1111
 
@@ -1138,6 +1179,7 @@ final class DualShock4Controller {
 		self.gyroSpeedPlus  = Int32(Int16(calibrationReport[20] << 8) | Int16(calibrationReport[19]))
 		self.gyroSpeedMinus = Int32(Int16(calibrationReport[22] << 8) | Int16(calibrationReport[21]))
 
+		/*
 		print("pitchPlus \(pitchPlus)")
 		print("pitchMinus \(pitchMinus)")
 		print("pitchBias \(self.calibration[Calibration.GyroPitchIndex].gyroBias)")
@@ -1152,6 +1194,7 @@ final class DualShock4Controller {
 
 		print("speedPlus \(self.gyroSpeedPlus)")
 		print("speedMinus \(self.gyroSpeedMinus)")
+		*/
 
 		// accelerometers
 
@@ -1165,12 +1208,14 @@ final class DualShock4Controller {
 		let accelZPlus  = Int32(Int16(calibrationReport[32] << 8) | Int16(calibrationReport[31]))
 		let accelZMinus = Int32(Int16(calibrationReport[34] << 8) | Int16(calibrationReport[33]))
 
+		/*
 		print("accelXPlus \(accelXPlus)")
 		print("accelXMinus \(accelXMinus)")
 		print("accelYPlus \(accelYPlus)")
 		print("accelYMinus \(accelYMinus)")
 		print("accelZPlus \(accelZPlus)")
 		print("accelZMinus \(accelZMinus)")
+		*/
 
 		self.calibration[Calibration.AccelXIndex].rawPositive1GValue = accelXPlus
 		self.calibration[Calibration.AccelXIndex].rawNegative1GValue = accelXMinus
@@ -1519,7 +1564,7 @@ final class DualShock4Controller {
 // MARK: - auxiliary
 
 // TODO can this be a struct?
-class Calibration {
+/*class Calibration {
 
 	static let GyroPitchIndex:Int = 0
 	static let GyroYawIndex:Int = 1
@@ -1540,4 +1585,4 @@ class Calibration {
 
 	var gyroBias:Int32?
 
-}
+}*/

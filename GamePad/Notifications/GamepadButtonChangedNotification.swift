@@ -23,12 +23,17 @@ final class GamepadButtonChangedNotification {
 	/// only nintendo
 	var minusButton = false
 
-	/// only nintendo switch, SL button on left joy-con
-	var leftSideTopButton = false
+	/// left back paddle on playstation edge
+	/// left top back paddle on xbox elite
+	/// SL button on nintendo left joy-con
+	var backLeftTopButton = false
 
-	/// only nintendo switch, SR on left joy-con
-	var leftSideBottomButton = false
+	/// left function button on playstation edge
+	/// left bottom back paddle on xbox elite
+	/// SR button on nintendo left joy-con
+	var backLeftBottomButton = false
 
+	// directional pad buttons
 	var upButton = false
 	var rightButton = false
 	var downButton = false
@@ -47,21 +52,25 @@ final class GamepadButtonChangedNotification {
 	var leftStickX:Float = 0
 	var leftStickY:Float = 0
 
-	var trackPadButton = false
-
 	/// ps button, xbox button, home button on nintendo
 	var centralButton = false
+
+	var trackPadButton = false
 
 	var rightStickButton = false
 	var rightStickX:Float = 0
 	var rightStickY:Float = 0
 
+	// FIXME where do I put the xbox one and series x view button?
+	// var leftAuxiliaryButton = false
+
 	/// options on playstation
 	/// start on xbox 360
 	/// hamburguer menu on xbox one and series x
+	/// home button on nintendo switch
 	var rightAuxiliaryButton = false
 
-	/// triangle, y on xbox, x on intendo
+	/// triangle, y on xbox, x on nintendo
 	var faceNorthButton = false
 
 	/// circle button, b on xbox, a on nintendo
@@ -73,11 +82,15 @@ final class GamepadButtonChangedNotification {
 	/// square, x on xbox, y on nintendo
 	var faceWestButton = false
 
-	/// only nintendo switch, SL on the right joy-con
-	var rightSideBottomButton = false
+	/// right function button on playstation edge
+	/// right bottom back paddle on xbox elite
+	/// SL button on nintendo left joy-con
+	var backRightBottomButton = false
 
-	/// only nintendo switch, SR on the right joycon
-	var rightSideTopButton = false
+	/// right back paddle on playstation edge
+	/// right top back paddle on xbox elite
+	/// SR button on nintendo right joycon
+	var backRightTopButton = false
 
 	/// only nintendo
 	var plusButton = false
@@ -92,24 +105,24 @@ final class GamepadButtonChangedNotification {
 		leftTriggerButton:Bool,
 		leftShoulderButton:Bool,
 		minusButton:Bool,
-		leftSideTopButton:Bool,
-		leftSideBottomButton:Bool,
+		backLeftTopButton:Bool,
+		backLeftBottomButton:Bool,
 		upButton:Bool,
 		rightButton:Bool,
 		downButton:Bool,
 		leftButton:Bool,
 		socialButton:Bool,
 		leftStickButton:Bool,
-		trackPadButton:Bool,
 		centralButton:Bool,
+		trackPadButton:Bool,
 		rightStickButton:Bool,
 		rightAuxiliaryButton:Bool,
 		faceNorthButton:Bool,
 		faceEastButton:Bool,
 		faceSouthButton:Bool,
 		faceWestButton:Bool,
-		rightSideBottomButton:Bool,
-		rightSideTopButton:Bool,
+		backRightBottomButton:Bool,
+		backRightTopButton:Bool,
 		plusButton:Bool,
 		rightShoulderButton:Bool,
 		rightTriggerButton:Bool
@@ -118,24 +131,24 @@ final class GamepadButtonChangedNotification {
 		self.leftTriggerButton = leftTriggerButton
 		self.leftShoulderButton = leftShoulderButton
 		self.minusButton = minusButton
-		self.leftSideTopButton = leftSideTopButton
-		self.leftSideBottomButton = leftSideBottomButton
+		self.backLeftTopButton = backLeftTopButton
+		self.backLeftBottomButton = backLeftBottomButton
 		self.upButton = upButton
 		self.rightButton = rightButton
 		self.downButton = downButton
 		self.leftButton = leftButton
 		self.socialButton = socialButton
 		self.leftStickButton = leftStickButton
-		self.trackPadButton = trackPadButton
 		self.centralButton = centralButton
+		self.trackPadButton = trackPadButton
 		self.rightStickButton = rightStickButton
 		self.rightAuxiliaryButton = rightAuxiliaryButton
 		self.faceNorthButton = faceNorthButton
 		self.faceEastButton = faceEastButton
 		self.faceSouthButton = faceSouthButton
 		self.faceWestButton = faceWestButton
-		self.rightSideBottomButton = rightSideBottomButton
-		self.rightSideTopButton = rightSideTopButton
+		self.backRightBottomButton = backRightBottomButton
+		self.backRightTopButton = backRightTopButton
 		self.plusButton = plusButton
 		self.rightShoulderButton = rightShoulderButton
 		self.rightTriggerButton = rightTriggerButton

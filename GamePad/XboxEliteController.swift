@@ -10,21 +10,14 @@ import Foundation
 
 
 
-final class XboxOneController {
+final class XboxEliteController {
 
 	static let VENDOR_ID_MICROSOFT:Int64 = 0x045E // 1118
 
-	static let CONTROLLER_ID_XBOX_ONE:Int64 = 0x02D1 // 721
-	static let CONTROLLER_ID_XBOX_ONE_2015:Int64 = 0x02DD // 733
-	static let CONTROLLER_ID_XBOX_ONE_BLUETOOTH:Int64 = 0x02E0 // 736
-
-	static let CONTROLLER_ID_XBOX_ONE_ELITE:Int64 = 0x02E3 // 739
-	// static let CONTROLLER_ID_XBOX_ONE_ELITE_2:Int64 = 0x0000 // ?
-
-	static let CONTROLLER_ID_XBOX_ONE_S:Int64 = 0x02EA // 746
-	static let CONTROLLER_ID_XBOX_ONE_S_BLUETOOTH:Int64 = 0x02FD // 765
-
-	static let CONTROLLER_ID_XBOX_WIRELESS_DONGLE:Int64 = 0x02E6 // 742 - is this version 2 (the smaller one)?
+	static let CONTROLLER_ID_XBOX_ELITE:Int64 = 0x02E3 // 739
+	static let CONTROLLER_ID_XBOX_ELITE_BLUETOOTH:Int64 = 0x02E3 // 739
+	static let CONTROLLER_ID_XBOX_ELITE_2:Int64 = 0x0000 // ?
+	static let CONTROLLER_ID_XBOX_ELITE_2_BLUETOOTH:Int64 = 0x0000 // ?
 
 	static var nextId:UInt8 = 0
 

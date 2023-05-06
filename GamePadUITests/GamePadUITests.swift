@@ -2,8 +2,7 @@
 //  GamePadUITests.swift
 //  GamePadUITests
 //
-//  Created by Marco Luglio on 29/05/20.
-//  Copyright © 2020 Marco Luglio. All rights reserved.
+//  Created by Marco Luglio on 11/06/21.
 //
 
 import XCTest
@@ -33,9 +32,9 @@ class GamePadUITests: XCTestCase {
     }
 
     func testLaunchPerformance() throws {
-        if #available(macOS 10.15, iOS 13.0, tvOS 13.0, *) {
+        if #available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 7.0, *) {
             // This measures how long it takes to launch your application.
-            measure(metrics: [XCTOSSignpostMetric.applicationLaunch]) {
+            measure(metrics: [XCTApplicationLaunchMetric()]) {
                 XCUIApplication().launch()
             }
         }

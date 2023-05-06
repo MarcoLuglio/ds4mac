@@ -19,13 +19,14 @@ import IOKit.hid
 //import ForceFeedback
 
 
-
 final class GamepadHIDMonitor {
 
+	// var nintendoProController:NintendoProController!
 	var joyConController:JoyConController!
-	//var dualSenseController:DualSenseController!
+	var dualSenseController:DualSenseController!
 	var dualShock4Controller:DualShock4Controller!
-	//var xboxSeriesXController:XboxSeriesXSController!
+	//var xboxSeriesXController:XboxSeriesXController!
+	var xboxEliteController:XboxEliteController!
 	var xboxOneController:XboxOneController!
 	var xbox360Controller:Xbox360Controller!
 
@@ -39,12 +40,12 @@ final class GamepadHIDMonitor {
 
 		let hidManager = IOHIDManagerCreate(kCFAllocatorDefault, IOOptionBits(kIOHIDOptionsTypeNone)) // or kIOHIDManagerOptionUsePersistentProperties
 
-		// reference to self (GamePadMonitor) that can be passed to c functions, essentially a pointer to void, meaning it can point to any type
+		// reference to self (GamePadMonitor) that can be passed to c functions, essentially a pointer to void
 		let hidContext = unsafeBitCast(self, to: UnsafeMutableRawPointer.self)
 
 		// CFArray and NSArray are compatible
 		// Creating an CFArray requires pointers, so I'm using an NSArray
-		// C function that uses this array requires CFArray
+		// C function that uses this requires CFArray
 		let deviceCriteria:NSArray = [
 			/*[
 				kIOHIDDeviceUsagePageKey: kHIDPage_GenericDesktop,
@@ -132,7 +133,7 @@ final class GamepadHIDMonitor {
 
 	func hidDeviceAddedCallback(_ result:IOReturn, sender:UnsafeMutableRawPointer, device:IOHIDDevice) {
 
-		// reference to self (GamePadMonitor) that can be passed to c functions, essentially a pointer to void, meaning it can point to any type
+		// reference to self (GamePadMonitor) that can be passed to c functions, essentially a pointer to void
 		// let hidContext = unsafeBitCast(self, to: UnsafeMutableRawPointer.self) // not using this here
 
 		let locationID = IOHIDDeviceGetProperty(device, kIOHIDLocationIDKey as CFString)
@@ -168,13 +169,21 @@ final class GamepadHIDMonitor {
 			&& (productID == XboxOneController.CONTROLLER_ID_XBOX_ONE
 			|| productID == XboxOneController.CONTROLLER_ID_XBOX_ONE_2015
 			|| productID == XboxOneController.CONTROLLER_ID_XBOX_ONE_BLUETOOTH
-			|| productID == XboxOneController.CONTROLLER_ID_XBOX_ONE_ELITE
 			|| productID == XboxOneController.CONTROLLER_ID_XBOX_ONE_S
 			|| productID == XboxOneController.CONTROLLER_ID_XBOX_ONE_S_BLUETOOTH
 			|| productID == XboxOneController.CONTROLLER_ID_XBOX_WIRELESS_DONGLE
 			) {
 
 			self.xboxOneController = XboxOneController(device, productID: productID, transport: transport as! String)
+
+		} else if vendorID == XboxEliteController.VENDOR_ID_MICROSOFT
+			&& (productID == XboxEliteController.CONTROLLER_ID_XBOX_ELITE
+			|| productID == XboxEliteController.CONTROLLER_ID_XBOX_ELITE_BLUETOOTH
+			|| productID == XboxEliteController.CONTROLLER_ID_XBOX_ELITE_2
+			|| productID == XboxEliteController.CONTROLLER_ID_XBOX_ELITE_2_BLUETOOTH
+			) {
+
+			self.xboxEliteController = XboxEliteController(device, productID: productID, transport: transport as! String)
 
 		} else if vendorID == Xbox360Controller.VENDOR_ID_MICROSOFT && productID == Xbox360Controller.CONTROLLER_ID_XBOX_360 {
 
@@ -188,13 +197,19 @@ final class GamepadHIDMonitor {
 
 			self.dualShock4Controller = DualShock4Controller(device, productID: productID, transport: transport as! String, enableIMUReport: true)
 
+		} else if vendorID == DualSenseController.VENDOR_ID_SONY
+			&& productID == DualSenseController.CONTROLLER_ID_DUALSENSE
+			{
+
+			self.dualSenseController = DualSenseController(device, productID: productID, transport: transport as! String, enableIMUReport: true)
+
 		}
 
 	}
 
 	func hidDeviceRemovedCallback(_ result:IOReturn, sender:UnsafeMutableRawPointer, device:IOHIDDevice) {
 
-		// reference to self (GamePadMonitor) that can be passed to c functions, essentially a pointer to void, meaning it can point to any type
+		// reference to self (GamePadMonitor) that can be passed to c functions, essentially a pointer to void
 		// let hidContext = unsafeBitCast(self, to: UnsafeMutableRawPointer.self)
 
 		// TODO not sure what to do here
@@ -204,7 +219,7 @@ final class GamepadHIDMonitor {
 	/// gamepad input report callback
 	func inputReportCallback(result:IOReturn, sender:UnsafeMutableRawPointer, reportType:IOHIDReportType, reportID:UInt32, report:Data) {
 
-		// reportType will always be 0 (input), because this callback was only registered for this type of reports
+		// report type will always be 0 (input), because this callback was only registered for this type of reports
 
 		let device = unsafeBitCast(sender, to: IOHIDDevice.self)
 
@@ -213,8 +228,12 @@ final class GamepadHIDMonitor {
 			self.joyConController.parseReport(report, controllerType:JoyConController.CONTROLLER_ID_JOY_CON_LEFT)
 		} else if device == self.joyConController?.rightDevice {
 			self.joyConController.parseReport(report, controllerType:JoyConController.CONTROLLER_ID_JOY_CON_RIGHT)
+		} else if device == self.dualSenseController?.device {
+			self.dualSenseController.parseReport(report)
 		} else if device == self.dualShock4Controller?.device {
 			self.dualShock4Controller.parseReport(report)
+		} else if device == self.xboxEliteController?.device {
+			self.xboxEliteController.parseReport(report)
 		} else if device == self.xboxOneController?.device {
 			self.xboxOneController.parseReport(report)
 		} else if device == self.xbox360Controller?.device {

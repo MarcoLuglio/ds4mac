@@ -2,7 +2,7 @@
 //  DualShock4ChangeRumbleNotification.swift
 //  GamePad
 //
-//  Created by Marco Luglio on 12/06/20.
+//  Created by Marco Luglio on 12/jun/20.
 //  Copyright © 2020 Marco Luglio. All rights reserved.
 //
 
